@@ -10,6 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Motion Tone Tester</title>
+<!-- v12, 28 Sep 2026: adds Continuity check (RTU to RTU) -->
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   :root {
@@ -214,6 +215,66 @@
   .fin .block .line:last-child{border:none;}
   .fin .line .fn{font-weight:700;} .fin .line.offln .fn{color:var(--off);}
   @media (min-width:620px){ .fib-no{font-size:3.2rem;} .grid{grid-template-columns:repeat(4,1fr);} }
+
+  /* ── v12 CONTINUITY (RTU to RTU) ── */
+  .ct-entry{display:flex; align-items:center; gap:12px; margin-top:18px; padding:13px 12px; border-radius:10px;
+            border:1px solid var(--brand-lt); background:#0b2226; cursor:pointer;}
+  .ct-entry b{display:block; font-size:.88rem;} .ct-entry span{font-size:.72rem; color:var(--muted);}
+  .ct-entry .ct-ico{flex:0 0 auto; width:34px; height:34px; border-radius:8px; background:var(--brand); display:flex;
+            align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:.8rem;}
+  .ct-body{flex:1 1 auto; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:12px;}
+  .ct-wrap{max-width:980px; width:100%; margin:0 auto; display:flex; flex-direction:column; gap:12px;}
+  .ct-panel{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px;}
+  .ct-panel h3{font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; font-weight:700;}
+  .ct-ends{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:stretch;}
+  .ct-end{border:1px solid var(--border); background:var(--bg); border-radius:10px; padding:10px; min-width:0;}
+  .ct-end .k{font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);}
+  .ct-end .v{font-size:.86rem; font-weight:700; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .ct-end.tone .v{color:var(--tone);} .ct-end.test .v{color:var(--text);}
+  .ct-swap{border:1px solid var(--border); background:var(--surface2); color:var(--text); border-radius:10px; padding:0 12px; font-size:1.1rem; cursor:pointer;}
+  .ct-bundles{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px;}
+  .ct-bundle .bl{font-size:.6rem; color:var(--muted); margin-bottom:4px; letter-spacing:.06em;}
+  .ct-chips{display:grid; grid-template-columns:repeat(6,1fr); gap:4px;}
+  .ct-chip{border:1px solid var(--border); background:var(--bg); color:var(--muted); border-radius:6px; padding:6px 0;
+           font-size:.7rem; font-weight:700; cursor:pointer; text-align:center;}
+  .ct-chip.sel{background:#0d2b30; border-color:var(--tone); color:var(--tone);}
+  .ct-quick{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .ct-quick button{border:1px solid var(--border); background:var(--surface2); color:var(--text); border-radius:8px; padding:7px 10px; font-size:.72rem; cursor:pointer;}
+  .ct-note{font-size:.74rem; color:var(--muted); line-height:1.5; margin-top:8px;}
+  .ct-row{display:flex; gap:8px; flex-wrap:wrap;} .ct-row>div{flex:1 1 120px; min-width:0;}
+  .ct-row select, .ct-row input{width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:10px; font-size:.88rem;}
+  .ct-pill{display:inline-flex; align-items:center; gap:6px; font-size:.64rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border-radius:6px; background:var(--surface2); color:var(--muted);}
+  .ct-pill.running{background:#0d2b30; color:var(--tone);} .ct-pill.running::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--tone); animation:pulse 1.4s infinite;}
+  .ct-pill.done{background:var(--done-dim); color:var(--done);} .ct-pill.error,.ct-pill.stopped{background:var(--off-dim); color:var(--off);}
+  .ct-pill.paused{background:#3a2d12; color:#e0a93f;} .ct-pill.sim{background:var(--off-dim); color:var(--off);}
+  .ct-stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(92px,1fr)); gap:8px; margin-top:10px;}
+  .ct-stat{background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:8px 10px;}
+  .ct-stat b{display:block; font-size:1.25rem; font-weight:800;} .ct-stat span{font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em;}
+  .ct-stat.ok b{color:var(--done);} .ct-stat.cx b{color:var(--cross);} .ct-stat.nf b{color:var(--off);}
+  .ct-now{margin-top:10px; font-size:.8rem; color:var(--muted);} .ct-now b{color:var(--tone);}
+  .ct-gridwrap{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table.ct-g{border-collapse:separate; border-spacing:2px; margin:0 auto;}
+  table.ct-g th{font-size:.6rem; color:var(--muted); font-weight:600; padding:0 2px;}
+  table.ct-g td{width:26px; height:26px; min-width:24px; text-align:center; font-size:.66rem; border-radius:5px; background:var(--surface2);
+                color:var(--muted); border:1px solid transparent; cursor:pointer;}
+  table.ct-g td.st{background:var(--done-dim); color:var(--done); border-color:var(--done);}
+  table.ct-g td.cx{background:var(--cross-dim); color:var(--cross); border-color:var(--cross); font-weight:800;}
+  table.ct-g td.nf{background:var(--off-dim); color:var(--off); border-color:var(--off);}
+  table.ct-g td.now{outline:2px solid var(--tone); color:var(--tone);}
+  table.ct-g td.cand{outline:2px dashed var(--tone);}
+  .ct-key{display:flex; flex-wrap:wrap; gap:12px; font-size:.66rem; color:var(--muted); margin-top:8px;}
+  .ct-key i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px;}
+  .ct-find li{font-size:.8rem; margin:0 0 5px 16px;}
+  .ct-log{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.68rem; color:var(--muted); background:var(--bg); border-radius:8px;
+          padding:8px; max-height:190px; overflow:auto; white-space:pre-wrap; -webkit-user-select:text; user-select:text;}
+  .ct-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .ct-actions button{flex:1 1 120px;}
+  .ct-job{display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px; border:1px solid var(--border);
+          border-radius:9px; margin-bottom:6px; cursor:pointer; background:var(--bg);}
+  .ct-job .jt{font-size:.8rem; font-weight:700;} .ct-job .jm{font-size:.68rem; color:var(--muted); margin-top:2px;}
+  .ct-cell-info{font-size:.76rem; color:var(--text); margin-top:8px; min-height:1.2em;}
+  @media (max-width:400px){ .ct-body{padding:10px 8px;} .ct-panel{padding:10px 8px;} table.ct-g td{width:22px; min-width:21px; height:24px; font-size:.6rem;} }
+  @media (min-width:760px){ table.ct-g td{width:40px; height:30px; font-size:.72rem;} }
 </style>
 </head>
 <body>
@@ -337,6 +398,129 @@
       <button class="finish" id="finishNow">FINISH<span>&amp; report</span></button>
     </div>
   </div>
+</section>
+
+<!-- ════════ CONTINUITY (v12) ════════ -->
+<section class="screen" id="screen-cont">
+  <header>
+    <div class="top-row" style="padding-bottom:8px;">
+      <button class="icon-btn" id="ctBack" aria-label="Back to cables">‹</button>
+      <img class="hdrlogo" src="mark.png" alt="Motion">
+      <div class="route-ref"><span id="ctTitle">Continuity check</span><small>Tone one end, OTDR the other. Runs on the relay.</small></div>
+      <span class="ct-pill" id="ctState">Setup</span>
+    </div>
+  </header>
+  <div class="ct-body"><div class="ct-wrap">
+
+    <!-- setup -->
+    <div id="ctSetup" class="ct-wrap">
+      <div class="ct-panel">
+        <h3>Cable</h3>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="ctSearch" placeholder="RGAC-SNBC" autocapitalize="characters" autocomplete="off" style="flex:1">
+          <button class="primary" id="ctFind" style="width:auto; padding:12px 18px;">Find</button>
+        </div>
+        <div class="ct-note" id="ctFindMsg">Search by cable or node. The cable needs an RTU at both ends.</div>
+        <div id="ctCables" style="margin-top:8px;"></div>
+        <div id="ctEndsWrap" style="display:none; margin-top:6px;">
+          <div class="ct-ends">
+            <div class="ct-end tone"><div class="k">Tone from</div><div class="v mono" id="ctToneEnd">-</div></div>
+            <button class="ct-swap" id="ctSwap" aria-label="Swap ends">⇄</button>
+            <div class="ct-end test"><div class="k">OTDR from</div><div class="v mono" id="ctTestEnd">-</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ct-panel">
+        <h3>Ribbons to check</h3>
+        <div class="ct-bundles" id="ctRibbons"></div>
+        <div class="ct-quick">
+          <button data-q="r1">R1 only</button><button data-q="b1">Bundle 1</button>
+          <button data-q="all">All 36</button><button data-q="none">Clear</button>
+        </div>
+        <div class="ct-note mono" id="ctEstimate"></div>
+      </div>
+
+      <div class="ct-panel">
+        <h3>Settings</h3>
+        <div class="ct-row">
+          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="12" max="120" value="20"></div>
+          <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="1" max="30" value="5"></div>
+          <div><label class="fld" for="ctSim" style="margin-top:0">Mode</label>
+            <select id="ctSim">
+              <option value="">Live (real tone and OTDR)</option>
+              <option value="none">Simulation, all straight</option>
+              <option value="reverse">Simulation, reversed ribbon</option>
+              <option value="swapRibbon">Simulation, ribbons crossed</option>
+              <option value="swapBundle">Simulation, bundles crossed</option>
+              <option value="mixed">Simulation, mixed faults</option>
+            </select></div>
+        </div>
+        <div class="ct-note">A toned fibre is refused by the far RTU as live in about 10 s. That refusal is the pass. A dark fibre runs the full OTDR in about 35 s. Tone is CW (0 Hz) at 1550 nm.</div>
+      </div>
+
+      <button class="primary" id="ctStart">Start continuity run</button>
+      <div class="err" id="ctErr"></div>
+
+      <div class="ct-panel" id="ctJobsPanel" style="display:none;">
+        <h3>Runs on the relay</h3>
+        <div id="ctJobs"></div>
+      </div>
+    </div>
+
+    <!-- run -->
+    <div id="ctRun" class="ct-wrap" style="display:none;">
+      <div class="ct-panel">
+        <div style="display:flex; justify-content:space-between; gap:8px; align-items:center; flex-wrap:wrap;">
+          <div><div style="font-weight:800; font-size:.92rem;" class="mono" id="ctRunCable">-</div>
+               <div class="ct-note" style="margin-top:2px;" id="ctRunEnds">-</div></div>
+          <span class="ct-pill sim" id="ctSimTag" style="display:none;">Simulation, no light</span>
+        </div>
+        <div class="progress-row"><div class="bar"><i id="ctBar"></i></div><div class="counts mono" id="ctProg">0 / 0</div></div>
+        <div class="ct-stats">
+          <div class="ct-stat ok"><b class="mono" id="ctNStraight">0</b><span>Straight</span></div>
+          <div class="ct-stat cx"><b class="mono" id="ctNCross">0</b><span>Crossed</span></div>
+          <div class="ct-stat nf"><b class="mono" id="ctNUnres">0</b><span>Not found</span></div>
+          <div class="ct-stat"><b class="mono" id="ctNTests">0</b><span>Tests</span></div>
+          <div class="ct-stat"><b class="mono" id="ctElapsed">0m</b><span>Elapsed</span></div>
+        </div>
+        <div class="ct-now" id="ctNow"></div>
+        <div class="ct-actions" style="margin-top:10px;">
+          <button class="btn-wide" id="ctPause">Pause</button>
+          <button class="btn-wide danger" id="ctStop">Stop</button>
+          <button class="btn-wide" id="ctNew">New run</button>
+        </div>
+      </div>
+
+      <div class="ct-panel">
+        <h3>Map, far end position each fibre landed on</h3>
+        <div class="ct-gridwrap" id="ctGrid"></div>
+        <div class="ct-key">
+          <span><i style="background:var(--done)"></i>straight</span>
+          <span><i style="background:var(--cross)"></i>crossed, number = where it landed</span>
+          <span><i style="background:var(--off)"></i>not found</span>
+          <span><i style="border:2px solid var(--tone)"></i>toning now</span>
+        </div>
+        <div class="ct-cell-info" id="ctCellInfo"></div>
+      </div>
+
+      <div class="ct-panel">
+        <h3>Findings</h3>
+        <ul class="ct-find" id="ctFindings"><li>Nothing yet.</li></ul>
+        <div class="ct-actions" style="margin-top:10px;">
+          <button class="btn-wide" id="ctPdf">Share PDF</button>
+          <button class="btn-wide" id="ctCsv">Save CSV</button>
+          <button class="btn-wide" id="ctCopy">Copy text</button>
+        </div>
+      </div>
+
+      <div class="ct-panel">
+        <h3>Activity</h3>
+        <div class="ct-log mono" id="ctLog">-</div>
+      </div>
+    </div>
+
+  </div></div>
 </section>
 
 <!-- Settings sheet -->
@@ -1064,6 +1248,327 @@ let crosses={};                              // index -> "crossed with ..."
   if("serviceWorker" in navigator && location.protocol.startsWith("http")){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
   }
+})();
+</script>
+<script>
+/* ════════ v12 CONTINUITY — RTU to RTU, runs as a job on the relay ════════ */
+(() => {
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const PER=12, RIBBONS=36, BUNDLE=6;
+  const DEFAULT_RELAY="https://relay-njqb.onrender.com", DEFAULT_KEY="123456";
+  const JOBKEY="toneTester.contJob", LASTKEY="toneTester.contLast";
+  const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
+  const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
+  const fname=f=>"F"+String(f).padStart(3,"0");
+  const rp=f=>({r:Math.ceil(f/PER), p:((f-1)%PER)+1});
+  const rpl=f=>{const a=rp(f); return "R"+a.r+" f"+a.p;};
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  let ends=null;          // {stem, a:{rtuName,rtuId,site,online}, b:{...}}
+  let ribbons=new Set(jget(LASTKEY,{}).ribbons||[1]);
+  let jobId=jget(JOBKEY,""), snap=null, pollT=null;
+
+  function relayCfg(){ const c=jget("toneTester.cfg",{})||{}; return {relay:c.relay||DEFAULT_RELAY, key:c.key||DEFAULT_KEY}; }
+  async function relay(path, body){
+    const c=relayCfg(), s=jget("toneTester.session",{})||{};
+    const headers={"Content-Type":"application/json"};
+    if(c.key) headers["X-App-Key"]=c.key;
+    if(s.id) headers["X-Session"]=s.id;
+    const r=await fetch(c.relay.replace(/\/$/,"")+path,{method:"POST",headers,body:JSON.stringify(body||{})});
+    let d={}; try{d=await r.json();}catch(e){}
+    if(!r.ok){ const e=new Error(d.detail||("HTTP "+r.status)); e.status=r.status; throw e; }
+    return d;
+  }
+  function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); $(id).classList.add("on"); }
+
+  // ── entry from the cable screen ──
+  const entry=document.createElement("div");
+  entry.className="ct-entry"; entry.id="ctEntry";
+  entry.innerHTML='<div class="ct-ico">E2E</div><div><b>Continuity check, RTU to RTU</b><span>Proves every fibre end to end with no one on site. Tone one end, OTDR the other.</span></div>';
+  $("cableList").parentNode.insertBefore(entry, $("recentWrap"));
+  entry.onclick=openCont;
+  $("ctBack").onclick=()=>{ stopPoll(); show("screen-route"); };
+
+  function openCont(){
+    show("screen-cont");
+    const last=jget(LASTKEY,{});
+    if(last.search && !$("ctSearch").value) $("ctSearch").value=last.search;
+    if(last.toneS) $("ctToneS").value=last.toneS;
+    if(last.otdrS) $("ctOtdrS").value=last.otdrS;
+    buildRibbons();
+    if(jobId){ attach(jobId); } else { setupView(); }
+  }
+
+  // ── setup view ──
+  function setupView(){
+    stopPoll(); snap=null;
+    $("ctSetup").style.display=""; $("ctRun").style.display="none";
+    setPill("", "Setup"); loadJobs();
+    if(!ends && $("ctSearch").value.trim()) find();
+  }
+  function setPill(cls, txt){ const p=$("ctState"); p.className="ct-pill "+cls; p.textContent=txt; }
+
+  async function find(){
+    const q=$("ctSearch").value.trim();
+    if(!q){ $("ctSearch").focus(); return; }
+    $("ctFindMsg").textContent="Searching FMS…"; $("ctCables").innerHTML=""; $("ctEndsWrap").style.display="none"; ends=null;
+    try{
+      const d=await relay("/api/routes",{search:q});
+      const by={};
+      (d.cables||[]).forEach(c=>{ (by[c.stem]=by[c.stem]||[]).push(c); });
+      const stems=Object.keys(by).filter(s=>by[s].length>=2);
+      if(!stems.length){ $("ctFindMsg").textContent="No cable with an RTU at both ends matched “"+q+"”."; return; }
+      $("ctFindMsg").textContent=stems.length===1?"Cable found.":"Tap the cable:";
+      $("ctCables").innerHTML=stems.map((s,i)=>{
+        const rs=by[s];
+        return '<div class="cable-row" data-i="'+i+'"><div class="cinfo"><div class="cs mono">'+esc(s)+'</div>'+
+          '<div class="crtu">'+rs.map(c=>'<span class="rtu-dot '+(c.online?'on':'off')+'"></span><b>'+esc(c.rtuName||c.rtuId)+'</b>').join(' &nbsp; ')+'</div></div>'+
+          '<span class="cf mono">'+rs[0].fibres+'</span></div>';}).join("");
+      $("ctCables").querySelectorAll("[data-i]").forEach(el=>el.onclick=()=>pick(stems[+el.dataset.i], by[stems[+el.dataset.i]]));
+      if(stems.length===1) pick(stems[0], by[stems[0]]);
+      jset(LASTKEY,{...jget(LASTKEY,{}), search:q});
+    }catch(e){ $("ctFindMsg").textContent="Search failed: "+e.message+(e.status===401?" (sign in again from the cable screen)":""); }
+  }
+  function pick(stem, rs){
+    // tone from the RTU at the first node named in the cable, e.g. RGAC2 for F-RGAC-SNBC
+    const first=(stem.split("-")[1]||"").toUpperCase();
+    rs=rs.slice().sort((x,y)=>((y.rtuName||"").toUpperCase().includes(first)?1:0)-((x.rtuName||"").toUpperCase().includes(first)?1:0));
+    ends={stem, a:rs[0], b:rs[1]};
+    const last=jget(LASTKEY,{});
+    if(last.stem===stem && last.tone===ends.b.rtuName){ ends={stem, a:rs[1], b:rs[0]}; }
+    $("ctCables").querySelectorAll(".cable-row").forEach(el=>el.style.borderColor=el.textContent.includes(stem)?"var(--tone)":"");
+    paintEnds();
+  }
+  function paintEnds(){
+    $("ctEndsWrap").style.display="";
+    const short=r=>{ const n=r.rtuName||r.rtuId||"?", m=n.split("-"); return m.length>2? m[1]+" \u00b7 "+m.slice(2).join("-") : n; };
+    $("ctToneEnd").textContent=short(ends.a); $("ctToneEnd").title=ends.a.rtuName||"";
+    $("ctTestEnd").textContent=short(ends.b); $("ctTestEnd").title=ends.b.rtuName||"";
+    estimate();
+  }
+  $("ctSwap").onclick=()=>{ if(!ends) return; ends={stem:ends.stem, a:ends.b, b:ends.a}; paintEnds(); };
+  $("ctFind").onclick=find;
+  $("ctSearch").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); find(); } });
+
+  function buildRibbons(){
+    let h="";
+    for(let b=1;b<=RIBBONS/BUNDLE;b++){
+      h+='<div class="ct-bundle"><div class="bl">BUNDLE '+b+'</div><div class="ct-chips">';
+      for(let r=(b-1)*BUNDLE+1;r<=b*BUNDLE;r++) h+='<button class="ct-chip'+(ribbons.has(r)?' sel':'')+'" data-r="'+r+'">'+r+'</button>';
+      h+='</div></div>';
+    }
+    $("ctRibbons").innerHTML=h;
+    $("ctRibbons").querySelectorAll(".ct-chip").forEach(c=>c.onclick=()=>{ const r=+c.dataset.r; ribbons.has(r)?ribbons.delete(r):ribbons.add(r); c.classList.toggle("sel"); estimate(); });
+    estimate();
+  }
+  document.querySelectorAll(".ct-quick [data-q]").forEach(b=>b.onclick=()=>{
+    const q=b.dataset.q; ribbons.clear();
+    if(q==="r1") ribbons.add(1);
+    if(q==="b1") for(let r=1;r<=6;r++) ribbons.add(r);
+    if(q==="all") for(let r=1;r<=36;r++) ribbons.add(r);
+    buildRibbons();
+  });
+  function estimate(){
+    const n=ribbons.size*PER, tone=Math.max(12,+$("ctToneS").value||20);
+    const best=n*Math.max(13,tone+1);          // one clash per fibre, next tone waits for the last to end
+    $("ctEstimate").textContent=ribbons.size
+      ? ribbons.size+" ribbon"+(ribbons.size>1?"s":"")+", "+n+" fibres. If all straight about "+mins(best)+"; each crossed fibre adds a few 35 s tests."
+      : "No ribbons selected.";
+  }
+  $("ctToneS").addEventListener("change",estimate);
+  function mins(s){ s=Math.round(s); if(s<90) return s+" s"; const m=Math.round(s/60); return m<90? m+" min" : (m/60).toFixed(1)+" h"; }
+
+  $("ctStart").onclick=async()=>{
+    $("ctErr").textContent="";
+    if(!ends){ $("ctErr").textContent="Find and pick the cable first."; return; }
+    if(!ribbons.size){ $("ctErr").textContent="Pick at least one ribbon."; return; }
+    const sim=$("ctSim").value;
+    const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
+                toneS:Math.max(12,+$("ctToneS").value||20), otdrS:Math.max(1,+$("ctOtdrS").value||5), wavelengthNm:1550, freqHz:0,
+                simulate: sim||null};
+    jset(LASTKEY,{search:$("ctSearch").value.trim(), stem:ends.stem, tone:ends.a.rtuName, ribbons:body.ribbons, toneS:body.toneS, otdrS:body.otdrS});
+    $("ctStart").disabled=true; $("ctStart").textContent="Starting…";
+    try{ const d=await relay("/api/continuity/start",body); jobId=d.jobId; jset(JOBKEY,jobId); attach(jobId); }
+    catch(e){ $("ctErr").textContent=e.message; }
+    finally{ $("ctStart").disabled=false; $("ctStart").textContent="Start continuity run"; }
+  };
+
+  async function loadJobs(){
+    try{
+      const d=await relay("/api/continuity/jobs",{});
+      const js=d.jobs||[];
+      $("ctJobsPanel").style.display=js.length?"":"none";
+      $("ctJobs").innerHTML=js.map(j=>'<div class="ct-job" data-id="'+j.id+'"><div><div class="jt mono">'+esc(j.stem)+'</div>'+
+        '<div class="jm">'+esc(j.toneRtu)+' → '+esc(j.testRtu)+' · '+j.done+'/'+j.targets+' fibres · '+new Date(j.started*1000).toLocaleString("en-GB")+(j.simulate?' · SIMULATION':'')+'</div></div>'+
+        '<span class="ct-pill '+j.state+'">'+j.state+'</span></div>').join("");
+      $("ctJobs").querySelectorAll("[data-id]").forEach(el=>el.onclick=()=>{ jobId=el.dataset.id; jset(JOBKEY,jobId); attach(jobId); });
+    }catch(e){ $("ctJobsPanel").style.display="none"; }
+  }
+
+  // ── run view ──
+  function attach(id){
+    $("ctSetup").style.display="none"; $("ctRun").style.display="";
+    poll();
+  }
+  function stopPoll(){ clearTimeout(pollT); pollT=null; }
+  async function poll(){
+    stopPoll();
+    try{
+      snap=await relay("/api/continuity/status",{jobId});
+      render();
+      if(snap.state==="running"||snap.state==="paused"){
+        pollT=setTimeout(poll, document.hidden?15000:3000);
+      }
+    }catch(e){
+      if(e.status===404){ jset(JOBKEY,""); jobId=""; $("ctErr").textContent="That run is no longer on the relay (it restarts when redeployed)."; setupView(); return; }
+      $("ctNow").textContent="Relay not answering ("+e.message+"). Retrying…";
+      pollT=setTimeout(poll, 10000);
+    }
+  }
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden && jobId && $("screen-cont").classList.contains("on") && snap && (snap.state==="running"||snap.state==="paused")) poll(); });
+
+  function render(){
+    const s=snap;
+    const stateTxt={running:"Running",paused:"Paused",done:"Complete",stopped:"Stopped",error:"Failed"}[s.state]||s.state;
+    setPill(s.state, stateTxt);
+    $("ctRunCable").textContent=s.stem;
+    $("ctRunEnds").textContent="Tone from "+s.toneRtu+"  →  OTDR from "+s.testRtu+"  ·  ribbons "+rangeText(s.ribbons);
+    $("ctSimTag").style.display=s.simulate?"":"none";
+    if(s.simulate) $("ctSimTag").textContent="Simulation, no light"+(s.truthNotes&&s.truthNotes.length?" · planted: "+s.truthNotes.join("; "):"");
+    $("ctBar").style.width=(s.targets?100*s.done/s.targets:0)+"%";
+    $("ctProg").textContent=s.done+" / "+s.targets;
+    $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNUnres").textContent=s.counts.unres;
+    $("ctNTests").textContent=s.tests;
+    $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
+    $("ctNow").innerHTML = s.state==="running"&&s.current
+      ? "Toning <b>"+fname(s.current)+"</b> ("+rpl(s.current)+") at "+esc(s.toneRtu)+", testing <b>"+fname(s.candidate||s.current)+"</b> at "+esc(s.testRtu)
+      : s.state==="error" ? "Stopped with an error: "+esc(s.error) : "";
+    $("ctPause").textContent=s.state==="paused"?"Resume":"Pause";
+    const live=s.state==="running"||s.state==="paused";
+    $("ctPause").style.display=live?"":"none"; $("ctStop").style.display=live?"":"none"; $("ctNew").style.display=live?"none":"";
+    grid(); findings();
+    const lg=$("ctLog"); const atEnd=lg.scrollTop+lg.clientHeight>=lg.scrollHeight-8;
+    lg.textContent=(s.log||[]).join("\n")||"-"; if(atEnd) lg.scrollTop=lg.scrollHeight;
+  }
+  function rangeText(rs){
+    rs=(rs||[]).slice().sort((a,b)=>a-b); const out=[]; let i=0;
+    while(i<rs.length){ let j=i; while(j+1<rs.length&&rs[j+1]===rs[j]+1) j++; out.push(i===j?"R"+rs[i]:"R"+rs[i]+"-"+rs[j]); i=j+1; }
+    return out.join(", ");
+  }
+  function grid(){
+    const s=snap, res=s.results||{};
+    let h='<table class="ct-g"><tr><th></th>'; for(let p=1;p<=PER;p++) h+="<th>"+p+"</th>"; h+="</tr>";
+    s.ribbons.forEach(r=>{
+      h+='<tr><th style="text-align:right">R'+r+'</th>';
+      for(let p=1;p<=PER;p++){
+        const f=(r-1)*PER+p, v=res[f];
+        let cls="", txt=p;
+        if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":"nf"; if(v.state==="cross") txt=String(v.found).padStart(3,"0"); }
+        if(s.state==="running"&&s.current===f) cls+=" now";
+        if(s.state==="running"&&s.candidate===f&&s.current!==f) cls+=" cand";
+        h+='<td class="'+cls+'" data-f="'+f+'">'+txt+'</td>';
+      }
+      h+="</tr>";
+    });
+    $("ctGrid").innerHTML=h+"</table>";
+    $("ctGrid").querySelectorAll("td[data-f]").forEach(td=>td.onclick=()=>{
+      const f=+td.dataset.f, v=res[f];
+      $("ctCellInfo").textContent = !v ? fname(f)+" "+rpl(f)+", not tested yet."
+        : v.state==="straight" ? fname(f)+" "+rpl(f)+" is straight through ("+v.tests+" test"+(v.tests>1?"s":"")+")."
+        : v.state==="cross" ? fname(f)+" "+rpl(f)+" lands on "+fname(v.found)+" "+rpl(v.found)+" at the far end ("+v.why+", "+v.tests+" tests)."
+        : fname(f)+" "+rpl(f)+" was not found in "+v.tests+" tests. Check it with the toner.";
+    });
+  }
+  function lists(){
+    const res=snap.results||{}, cr=[], nf=[];
+    Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(f=>{ const v=res[f];
+      if(v.state==="cross") cr.push(fname(f)+" ("+rpl(f)+") lands on "+fname(v.found)+" ("+rpl(v.found)+")");
+      if(v.state==="unres") nf.push(fname(f)+" ("+rpl(f)+")"); });
+    const pats=(snap.patterns||[]).filter(p=>p.hits>=2).map(p=>p.label.charAt(0).toUpperCase()+p.label.slice(1)+", seen on "+p.hits+" fibres");
+    return {cr,nf,pats};
+  }
+  function findings(){
+    const {cr,nf,pats}=lists(), out=[];
+    pats.forEach(p=>out.push(p+"."));
+    if(cr.length) out.push(cr.length+" crossed fibre"+(cr.length>1?"s":"")+": "+cr.slice(0,6).join("; ")+(cr.length>6?"; …":"")+".");
+    if(nf.length) out.push(nf.length+" not found, check with the toner: "+nf.slice(0,10).join(", ")+(nf.length>10?", …":"")+".");
+    if(!out.length) out.push(snap.done? "Every fibre checked so far is straight through." : "Nothing yet.");
+    $("ctFindings").innerHTML=out.map(t=>"<li>"+esc(t)+"</li>").join("");
+  }
+
+  $("ctPause").onclick=async()=>{ try{ await relay("/api/continuity/control",{jobId, action: snap&&snap.state==="paused"?"resume":"pause"}); poll(); }catch(e){ $("ctNow").textContent=e.message; } };
+  $("ctStop").onclick=async()=>{
+    if($("ctStop").dataset.arm!=="1"){ $("ctStop").dataset.arm="1"; $("ctStop").textContent="Tap again to stop"; setTimeout(()=>{ $("ctStop").dataset.arm=""; $("ctStop").textContent="Stop"; },3000); return; }
+    $("ctStop").dataset.arm=""; $("ctStop").textContent="Stop";
+    try{ await relay("/api/continuity/control",{jobId, action:"stop"}); poll(); }catch(e){ $("ctNow").textContent=e.message; }
+  };
+  $("ctNew").onclick=()=>{ jobId=""; jset(JOBKEY,""); setupView(); };
+
+  // ── reports ──
+  function reportText(){
+    const s=snap, {cr,nf,pats}=lists();
+    return ["Fibre continuity report"+(s.simulate?" (SIMULATION, no light)":""),
+      "Cable: "+s.stem, "Tone from: "+s.toneRtu, "OTDR from: "+s.testRtu, "Ribbons: "+rangeText(s.ribbons),
+      "Started: "+new Date(s.started*1000).toLocaleString("en-GB")+(s.ended?"  Ended: "+new Date(s.ended*1000).toLocaleString("en-GB"):""),
+      "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", not found "+s.counts.unres+". Tests "+s.tests+".",
+      "", "Crossed:", ...(cr.length?cr:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
+      ...(pats.length?["","Patterns:",...pats]:[]),
+      "", "Method: CW tone at the tone end; AdHoc OTDR on the same fibre at the far end. The far RTU refusing the OTDR as live fibre (112_LiveFiberDetected) proves the fibre end to end."].join("\n");
+  }
+  function csv(){
+    const rows=[["Cable","Fibre","Ribbon","Position","Result","Far end fibre","Far end ribbon","Far end position","How found","Tests"]];
+    const res=snap.results||{};
+    Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(f=>{ const v=res[f], a=rp(f), b=v.found?rp(v.found):null;
+      rows.push([snap.stem,fname(f),a.r,a.p,v.state==="straight"?"Straight":v.state==="cross"?"Crossed":"Not found",
+                 v.found?fname(v.found):"",b?b.r:"",b?b.p:"",'"'+String(v.why).replace(/"/g,"'")+'"',v.tests]); });
+    return rows.map(r=>r.join(",")).join("\r\n");
+  }
+  function fileBase(){ return "Continuity_"+(snap.stem||"cable").replace(/[^A-Z0-9-]/gi,"_")+"_"+new Date(snap.started*1000).toISOString().slice(0,10); }
+  function download(blob,name){ const u=URL.createObjectURL(blob), a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(u);a.remove();},1500); }
+  $("ctCsv").onclick=()=>{ if(snap) download(new Blob([csv()],{type:"text/csv"}), fileBase()+".csv"); };
+  $("ctCopy").onclick=async()=>{ if(!snap) return; const b=$("ctCopy");
+    try{ await navigator.clipboard.writeText(reportText()); b.textContent="Copied"; }catch(e){ b.textContent="Copy blocked"; }
+    setTimeout(()=>b.textContent="Copy text",1600); };
+
+  function loadScript(src){ return new Promise((res,rej)=>{ if(window.jspdf) return res(); const el=document.createElement("script"); el.src=src; el.onload=res; el.onerror=()=>rej(new Error("Could not load PDF library (no signal?)")); document.head.appendChild(el); }); }
+  async function pdfBlob(){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    const {jsPDF}=window.jspdf, doc=new jsPDF({unit:"mm",format:"a4"}), s=snap, {cr,nf,pats}=lists();
+    const L=16,R=194,teal=[1,105,118]; let y=18;
+    const S=t=>String(t).replace(/→/g,"->").replace(/[—–]/g,"-").replace(/·/g,"-").replace(/[^\x20-\xFF]/g,"");
+    const page=()=>{ if(y>272){ doc.addPage(); y=18; } };
+    const h2=t=>{ page(); y+=3; doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(...teal); doc.text(S(t).toUpperCase(),L,y); y+=1.5; doc.setDrawColor(210); doc.line(L,y,R,y); y+=5; };
+    const kv=(k,v)=>{ page(); doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(70); doc.text(S(k),L,y); doc.setFont("helvetica","normal"); doc.setTextColor(20); const ls=doc.splitTextToSize(S(v||"-"),R-L-44); doc.text(ls,L+44,y); y+=Math.max(5.4,ls.length*4.6); };
+    const para=t=>{ page(); doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(20); const ls=doc.splitTextToSize(S(t),R-L); doc.text(ls,L,y); y+=ls.length*4.6+1; };
+    doc.setFont("helvetica","bold"); doc.setFontSize(15); doc.setTextColor(...teal); doc.text("Fibre Continuity Report",L,y); y+=7;
+    if(s.simulate){ doc.setTextColor(200,40,40); doc.setFontSize(10); doc.text("SIMULATION - no light was sent. Not a test record.",L,y); y+=6; }
+    doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(120); doc.text(new Date().toLocaleString("en-GB"),L,y); y+=6;
+    h2("Test details");
+    kv("Cable",s.stem); kv("Tone from RTU",s.toneRtu); kv("OTDR from RTU",s.testRtu); kv("Ribbons",rangeText(s.ribbons)+" ("+s.targets+" fibres)");
+    kv("Started",new Date(s.started*1000).toLocaleString("en-GB")); kv("Ended",s.ended?new Date(s.ended*1000).toLocaleString("en-GB"):"still running");
+    kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","CW tone 1550 nm, "+((s.settings||{}).toneS||"")+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s");
+    h2("Result");
+    kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); kv("Crossed",String(s.counts.cross)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
+    h2("Crossed fibres"); if(cr.length) cr.forEach(c=>para("-  "+c)); else para("None");
+    h2("Not found"); para(nf.length?nf.join(", "):"None");
+    if(pats.length){ h2("Patterns"); pats.forEach(p=>para("-  "+p)); }
+    h2("Map, far end fibre per position");
+    const res=s.results||{};
+    s.ribbons.forEach(r=>{ const cells=[]; for(let p=1;p<=PER;p++){ const f=(r-1)*PER+p, v=res[f];
+      cells.push(!v?"  .":v.state==="straight"?String(p).padStart(3," "):v.state==="cross"?"["+String(v.found).padStart(3,"0")+"]":"  ?"); }
+      page(); doc.setFont("courier","normal"); doc.setFontSize(8); doc.setTextColor(20); doc.text("R"+String(r).padStart(2,"0")+"  "+cells.join(" "),L,y); y+=4.4; });
+    y+=2; para("Key: number = straight at that position; [nnn] = crossed, lands on far end fibre nnn; ? = not found; . = not tested.");
+    h2("Method");
+    para("A CW tone at 1550 nm is emitted on the fibre at the tone end. An AdHoc OTDR is ordered on the same fibre number at the far end. The far RTU refuses the OTDR because it detects light (112_LiveFiberDetected), which proves the fibre end to end. A completed OTDR means the tone is on another fibre, and the search moves on to the likely crossings.");
+    const n=doc.internal.getNumberOfPages(); for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150); doc.text(S("Motion Tone Tester v12  |  continuity  |  "+s.stem+"  |  page "+p+" of "+n),L,288); }
+    return doc.output("blob");
+  }
+  $("ctPdf").onclick=async()=>{ if(!snap) return; const b=$("ctPdf"), t=b.textContent; b.disabled=true; b.textContent="Building…";
+    try{ const blob=await pdfBlob(), file=new File([blob],fileBase()+".pdf",{type:"application/pdf"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:"Continuity "+snap.stem}); return; }catch(e){ if(e.name==="AbortError") return; } }
+      download(blob,file.name);
+    }catch(e){ $("ctNow").textContent=e.message; } finally{ b.disabled=false; b.textContent=t; } };
 })();
 </script>
 </body>
