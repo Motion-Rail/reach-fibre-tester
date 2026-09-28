@@ -530,6 +530,7 @@
         <div class="ct-actions" style="margin-top:10px;">
           <button class="btn-wide" id="ctPause">Pause</button>
           <button class="btn-wide danger" id="ctStop">Stop</button>
+          <button class="btn-wide primary" id="ctResumeRun" style="display:none">Resume from here</button>
           <button class="btn-wide" id="ctNew">New run</button>
         </div>
       </div>
@@ -679,8 +680,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v16";
+const APP_VERSION="v17";
 const APP_VERSIONS=[
+  ["v17","28 Sep 2026","Long runs no longer stop when the FMS sign in token runs out mid test. A test that errors is retried instead of ending the run. Resume from here button carries finished fibres into a new run, even after a relay restart."],
   ["v16","28 Sep 2026","Activity log times shown in local time (the relay logs in UTC, which read an hour behind during BST)."],
   ["v15","28 Sep 2026","Default settings set from timed runs on the live cable: tone 10 s, OTDR 3 s, about 13 s a fibre (12 fibres in about 2 min 35 sec). OTDR minimum 3 s."],
   ["v14","28 Sep 2026","E2E settings moved under Advanced with field-proven defaults (tone 6 s, OTDR 5 s) and auto pacing. Ribbon quick picks are All and Clear. Elapsed time in min and sec. Debug report (email to Alkis or save). This version history."],
@@ -1361,7 +1363,7 @@ let crosses={};                              // index -> "crossed with ..."
   const $=id=>document.getElementById(id);
   const PER=12, RIBBONS=36, BUNDLE=6;
   const DEFAULT_RELAY="https://relay-njqb.onrender.com", DEFAULT_KEY="123456";
-  const JOBKEY="toneTester.contJob", LASTKEY="toneTester.contLast";
+  const JOBKEY="toneTester.contJob", LASTKEY="toneTester.contLast", SNAPKEY="toneTester.contSnap";
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
   const fname=f=>"F"+String(f).padStart(3,"0");
@@ -1554,7 +1556,13 @@ let crosses={};                              // index -> "crossed with ..."
         pollT=setTimeout(poll, document.hidden?15000:3000);
       }
     }catch(e){
-      if(e.status===404){ jset(JOBKEY,""); jobId=""; $("ctErr").textContent="That run is no longer on the relay (it restarts when redeployed)."; setupView(); return; }
+      if(e.status===404){
+        const last=jget(SNAPKEY,null);
+        if(last && last.id===jobId && last.done<last.targets){   // v17: relay restarted mid run, offer a resume
+          snap={...last, state:"lost", error:"The relay restarted, so this run stopped. Resume carries the finished fibres over."};
+          render(); return;
+        }
+        jset(JOBKEY,""); jobId=""; $("ctErr").textContent="That run is no longer on the relay (it restarts when redeployed)."; setupView(); return; }
       $("ctNow").textContent="Relay not answering ("+e.message+"). Retrying…";
       pollT=setTimeout(poll, 10000);
     }
@@ -1563,7 +1571,10 @@ let crosses={};                              // index -> "crossed with ..."
 
   function render(){
     const s=snap;
-    const stateTxt={running:"Running",paused:"Paused",done:"Complete",stopped:"Stopped",error:"Failed"}[s.state]||s.state;
+    const stateTxt={running:"Running",paused:"Paused",done:"Complete",stopped:"Stopped",error:"Failed",lost:"Interrupted"}[s.state]||s.state;
+    if(s.results && s.state!=="lost") jset(SNAPKEY,{id:s.id,stem:s.stem,toneRtu:s.toneRtu,testRtu:s.testRtu,ribbons:s.ribbons,targets:s.targets,
+      done:s.done,counts:s.counts,tests:s.tests,started:s.started,ended:s.ended||s.now,now:s.now,results:s.results,settings:s.settings,
+      pace:s.pace,appVersion:s.appVersion,relayVersion:s.relayVersion,log:(s.log||[]).slice(-40),patterns:s.patterns||[]});
     setPill(s.state, stateTxt);
     $("ctRunCable").textContent=cableId(s.stem);
     $("ctRunEnds").textContent="Tone from "+s.toneRtu+"  →  OTDR from "+s.testRtu+"  ·  ribbons "+rangeText(s.ribbons);
@@ -1576,11 +1587,12 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
     $("ctNow").innerHTML = s.state==="running"&&s.current
       ? "Toning <b>"+fname(s.current)+"</b> ("+rpl(s.current)+") at "+esc(s.toneRtu)+", testing <b>"+fname(s.candidate||s.current)+"</b> at "+esc(s.testRtu)
-      : s.state==="error" ? "Stopped with an error: "+esc(s.error) : "";
+      : (s.state==="error"||s.state==="lost") ? "Stopped with an error: "+esc(s.error) : "";
     $("ctPause").textContent=s.state==="paused"?"Resume":"Pause";
     $("ctPace").textContent = s.pace ? "Tone "+s.pace.toneS+" s, lead "+s.pace.leadS+" s"+(s.pace.auto?", auto pacing on":"")+"  ·  app "+(s.appVersion||"?")+", relay "+(s.relayVersion||"?") : "";
     const live=s.state==="running"||s.state==="paused";
     $("ctPause").style.display=live?"":"none"; $("ctStop").style.display=live?"":"none"; $("ctNew").style.display=live?"none":"";
+    $("ctResumeRun").style.display=(!live && s.state!=="done" && s.done<s.targets && s.settings)?"":"none";
     grid(); findings();
     const lg=$("ctLog"); const atEnd=lg.scrollTop+lg.clientHeight>=lg.scrollHeight-8;
     lg.textContent=(s.log||[]).map(localLog).join("\n")||"-"; if(atEnd) lg.scrollTop=lg.scrollHeight;
@@ -1643,6 +1655,18 @@ let crosses={};                              // index -> "crossed with ..."
     if($("ctStop").dataset.arm!=="1"){ $("ctStop").dataset.arm="1"; $("ctStop").textContent="Tap again to stop"; setTimeout(()=>{ $("ctStop").dataset.arm=""; $("ctStop").textContent="Stop"; },3000); return; }
     $("ctStop").dataset.arm=""; $("ctStop").textContent="Stop";
     try{ await relay("/api/continuity/control",{jobId, action:"stop"}); poll(); }catch(e){ $("ctNow").textContent=e.message; }
+  };
+  // v17: start a fresh relay job on the same cable and ribbons, carrying finished fibres over.
+  $("ctResumeRun").onclick=async()=>{
+    const s=snap; if(!s||!s.settings) return;
+    const st=s.settings;
+    const body={toneRtu:st.toneRtu, testRtu:st.testRtu, stem:st.stem, ribbons:st.ribbons, toneS:st.toneS, otdrS:st.otdrS,
+                autoPace:st.autoPace, appVersion:APP_VERSION, wavelengthNm:st.wavelengthNm||1550, freqHz:st.freqHz||0,
+                simulate:null, prior:s.results||{}, resumeOf:s.resumeOf||s.id};
+    $("ctResumeRun").disabled=true; $("ctResumeRun").textContent="Resuming…";
+    try{ const d=await relay("/api/continuity/start",body); jobId=d.jobId; jset(JOBKEY,jobId); attach(jobId); }
+    catch(e){ $("ctNow").textContent="Could not resume: "+e.message; }
+    finally{ $("ctResumeRun").disabled=false; $("ctResumeRun").textContent="Resume from here"; }
   };
   $("ctNew").onclick=()=>{ jobId=""; jset(JOBKEY,""); setupView(); };
 

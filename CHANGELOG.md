@@ -443,6 +443,31 @@ in one direction.
 
 ---
 
+## v17 — 28 September 2026 — long runs survive token expiry, resume (app and relay)
+
+Why: the first full cable run (F-RGAC-SNBC-A, all 36 ribbons) stopped at F126 with
+`401 Unauthorized` on a workflow status poll. The relay renewed the FMS token only between
+tests, and one OTDR poll outlived it. F061 also sat in a 300 s wait before timing out.
+
+Relay v17
+- The token is renewed inside long polls: FMS calls ask the relay for a current token
+  (at most 20 s old) and a 401 triggers one forced renewal and a retry.
+- Sessions renew 150 s before expiry instead of 30 s.
+- Any fault inside one test (401, 5xx, network) is logged as an error and the engine
+  retries. It no longer ends the run. Status shows `testErrors`.
+- OTDR wait limit 90 s (was 300 s). A stuck workflow now costs one test, not five minutes.
+- Resume: `/api/continuity/start` takes `prior` (finished fibres) and `resumeOf`.
+  Carried fibres keep their result and far end.
+
+App v17
+- "Resume from here" button on a stopped, failed or interrupted run. Starts a new run on
+  the same cable, ribbons and settings, carrying finished fibres over.
+- The last run snapshot is kept on the device, so Resume still works after a relay restart.
+
+Checked on the mock FMS with a 20 s token, a 30 s OTDR and a 502 during a poll:
+two 401s recovered silently, the 502 retried, run completed 24/24 with the planted cross
+F005/F007 found; stop at 14 then resume finished the other 10 in 11 tests.
+
 ## v16 — 28 September 2026 — log times in local time (app only)
 
 - The relay stamps activity log lines with its own clock, which is UTC. During BST the log read an
