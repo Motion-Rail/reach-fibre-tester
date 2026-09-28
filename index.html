@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Reach Fibre Tester</title>
-<!-- v14, 28 Sep 2026: Reach Fibre Tester. Simpler E2E setup, auto pacing, debug report, version history. -->
+<!-- v15, 28 Sep 2026: Reach Fibre Tester. Measured default pacing (tone 10 s, OTDR 3 s). -->
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   :root {
@@ -490,11 +490,11 @@
       <details class="ct-panel ct-adv" id="ctAdv">
         <summary>Advanced</summary>
         <div class="ct-row" style="margin-top:10px;">
-          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="6"></div>
-          <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="1" max="30" value="5"></div>
+          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="10"></div>
+          <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="3" max="30" value="3"></div>
         </div>
         <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Auto pacing: lengthen the tone if a fibre only passes on its retry</label>
-        <div class="ct-note">Defaults are set from field runs: tone 6 s, OTDR 5 s. A toned fibre is refused by the far RTU as live in about 10 s, which is the pass. A dark fibre runs the full OTDR in about 35 s. Tone is CW (0 Hz) at 1550 nm.</div>
+        <div class="ct-note">Defaults were measured on the live cable: tone 10 s, OTDR 3 s, about 13 s a fibre. A longer tone does not slow the run until it passes about 11 s, and it covers slow responses from FMS. OTDR 3 s makes a wrong guess cost about 18 s; 1 s was erratic (14 to 35 s). Tone is CW (0 Hz) at 1550 nm.</div>
         <button class="linkbtn" id="ctResetAdv" style="padding-left:0;">Reset to defaults</button>
       </details>
 
@@ -679,8 +679,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v14";
+const APP_VERSION="v15";
 const APP_VERSIONS=[
+  ["v15","28 Sep 2026","Default settings set from timed runs on the live cable: tone 10 s, OTDR 3 s, about 13 s a fibre (12 fibres in about 2 min 35 sec). OTDR minimum 3 s."],
   ["v14","28 Sep 2026","E2E settings moved under Advanced with field-proven defaults (tone 6 s, OTDR 5 s) and auto pacing. Ribbon quick picks are All and Clear. Elapsed time in min and sec. Debug report (email to Alkis or save). This version history."],
   ["v13","28 Sep 2026","Renamed Reach Fibre Tester, at motionrail.onrender.com. After sign in choose E2E or Uni-dir Continuity Checker. E2E lists cable IDs for a node."],
   ["v12","28 Sep 2026","E2E continuity check, RTU to RTU: tone one end, OTDR the other; the far RTU refusing as live fibre is the pass. Runs on the relay."],
@@ -1497,15 +1498,15 @@ let crosses={};                              // index -> "crossed with ..."
   });
   function estimate(){
     const n=ribbons.size*PER, tone=Math.max(4,+$("ctToneS").value||DEF.toneS);
-    const best=n*Math.max(14,tone+2);          // field runs: ~15 s a fibre at a 5-6 s tone
+    const best=n*Math.max(13,tone+2.5);        // measured: 12.8 s a fibre at tone 10 s
     $("ctEstimate").textContent=ribbons.size
-      ? ribbons.size+" ribbon"+(ribbons.size>1?"s":"")+", "+n+" fibres. If all straight about "+mins(best)+"; each crossed fibre adds a few 35 s tests."
+      ? ribbons.size+" ribbon"+(ribbons.size>1?"s":"")+", "+n+" fibres. If all straight about "+mins(best)+"; each crossed fibre adds a few 18 s tests."
       : "No ribbons selected.";
   }
   $("ctToneS").addEventListener("change",estimate);
   function mins(s){ s=Math.max(0,Math.round(s)); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
     return (h? h+" h ":"")+(h||m? m+" min ":"")+sec+" sec"; }
-  const DEF={toneS:6, otdrS:5};
+  const DEF={toneS:10, otdrS:3};   // v15: measured optimum, see CHANGELOG
   $("ctResetAdv").onclick=()=>{ $("ctToneS").value=DEF.toneS; $("ctOtdrS").value=DEF.otdrS; $("ctAuto").checked=true;
     jset(LASTKEY,{...jget(LASTKEY,{}), adv:false}); estimate(); };
 
@@ -1513,7 +1514,7 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctErr").textContent="";
     if(!ends){ $("ctErr").textContent="Find and pick the cable first."; return; }
     if(!ribbons.size){ $("ctErr").textContent="Pick at least one ribbon."; return; }
-    const toneS=Math.min(20,Math.max(4,+$("ctToneS").value||DEF.toneS)), otdrS=Math.min(30,Math.max(1,+$("ctOtdrS").value||DEF.otdrS));
+    const toneS=Math.min(20,Math.max(4,+$("ctToneS").value||DEF.toneS)), otdrS=Math.min(30,Math.max(3,+$("ctOtdrS").value||DEF.otdrS));
     const adv = toneS!==DEF.toneS || otdrS!==DEF.otdrS || !$("ctAuto").checked;
     const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
                 toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:0,

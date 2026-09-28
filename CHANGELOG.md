@@ -402,3 +402,41 @@ tone 10 s took about 4 min / 13 tests; tone 5 s took about 3 min / 12 tests, no 
 At tone 6 s the expected cycle is about 14 to 15 s per straight fibre: tone call, 2 s lead, OTDR
 start and the RTU's live-fibre refusal (~10 s), status poll. A full 432f cable in one direction is
 about 1 h 45 min if straight. The floor is the RTU refusal time, not the tone length.
+
+---
+
+## v15 — 28 September 2026 — measured default settings (app + relay)
+
+Timed on the live cable F-RGAC-SNBC-A through the app (RGAC2 tones, SNBC tests), all fibres straight:
+
+| Run | Tone | OTDR | Lead | Fibres | Time | Tests | Straight cycle |
+|---|---|---|---|---|---|---|---|
+| Alkis, v14 | 6 s | 3 s | 2 s | R1 | 4 min 9 sec | 13 | 12.9 s (one miss after a 66 s FMS delay) |
+| A | 10 s | 1 s | 2 s | R1 | **2 min 34 sec** | 12 | **12.8 s**, no misses |
+| B | 10 s | 3 s | 1 s | R1 | 3 min 4 sec | 13 | 12.0 s, first fibre missed |
+| C | 10 s | 3 s | 2 s | R2 | 3 min 50 sec | 13 | first fibre missed, auto pace then raised tone to 12 s: 14.0 s |
+
+Dark (wrong fibre) OTDR, measured with a tone on a different fibre:
+OTDR 1 s: 33.5, 14.0, 34.6 s (erratic) · OTDR 3 s: 17.4, 17.5 s · OTDR 5 s: 17.5, 18.5 s.
+
+What this shows
+- The far RTU's live-fibre refusal takes about 9.3 s whatever the settings. A straight fibre costs
+  tone call + lead + that refusal, about 12.8 s.
+- **Tone length does not slow the run until it passes about 11 s**, because the next tone can only
+  start when the last one ends. 6 s and 10 s gave the same 12.8 s cycle; 12 s gave 14 s.
+- **OTDR seconds only matters for wrong guesses** (crossed fibres, misses): 3 s is as quick as it gets
+  and consistent; 1 s is erratic and slower on average.
+- Every miss so far came after a slow FMS start (cycle 36 to 66 s), usually on the first fibre of a
+  run. The tone had run out before the OTDR began. A longer tone for every fibre would not help and
+  would slow everything.
+
+Changes
+- **Defaults: tone 10 s, OTDR 3 s** (app and relay). OTDR minimum is now 3 s.
+- Relay: the **first test of a run** and **the retry of a missed fibre** use a 20 s tone.
+- Relay: **auto pacing ignores a miss that followed a slow FMS start** (cycle over 25 s); it only
+  lengthens the tone for a miss on a normal-speed test. In run C this would have kept 12.8 s a fibre.
+- Relay: the tone for a continuity test now goes straight to the known route id (no name lookup).
+- Lead stays 2 s: 1 s saved 0.9 s a fibre but its run missed a fibre.
+
+Expected: about 13 s a fibre, 2 min 40 sec a ribbon, about 1 h 35 min for a straight 432f cable
+in one direction.
