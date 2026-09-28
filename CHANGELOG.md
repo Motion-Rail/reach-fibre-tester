@@ -328,3 +328,36 @@ Straight cable ≈ 1.2 tests per fibre.
 Against a mock FMS through the real relay code: planted F005↔F007 cross on R1 found and
 reported; phone and desktop UI driven end to end; PDF and CSV checked. Not yet run live
 through the relay.
+
+### v12 fix before release — 28 Sep 2026: continuity cable search found nothing
+- FMS route search matches the **RTU name**, not the cable name, and each end of a cable
+  has a different RTU. Searching `RGAC-SNBC` matched no RTU; searching `SNBC` found only
+  the SNBC end, so the "needs an RTU at both ends" filter hid it.
+- Now: the search splits what you type into node codes (RGAC, SNBC), searches each, then
+  looks up the far end of every cable found and pairs the two ends by cable name.
+  `SNBC`, `RGAC-SNBC` and the full `F-RGAC-SNBC-A-R432` all return the cable.
+- Clearer messages when nothing matches, or when only one end has an RTU.
+- The ordinary tone search is unchanged.
+
+---
+
+## v13 — 28 September 2026 — Reach Fibre Tester
+
+- **Renamed** to **Reach Fibre Tester**: browser tab, sign-in screen, home-screen icon name
+  ("Reach Tester"), reports and PDF footers.
+- **New screen after sign in:** choose **E2E Continuity Checker** or **Uni-dir Continuity Checker**.
+  Sign out is on this screen; each checker has a way back to it.
+- **E2E Continuity Checker:** search a node (e.g. SNBC); every cable with an RTU at both ends is
+  listed by **cable ID** (e.g. `F-RGAC-SNBC-A`, `F-SGIC-SNBC-A`). Far ends are looked up in
+  parallel, so the list comes back faster; a newer search cancels an older one.
+- **Uni-dir Continuity Checker:** the existing tone workflow. Search the node you are testing out
+  from; cables listed by cable ID.
+- Cable IDs are shown without the fibre count suffix (`-R432`); FMS names are unchanged underneath.
+- The continuity banner on the cable screen is gone (the choice is now made up front).
+- Hosted at **https://motionrail.onrender.com** (new Render static site, same GitHub repo).
+  tone-tester.onrender.com keeps serving the same repo until it is retired.
+- Relay unchanged (still relay v12).
+- `sw.js` cache `reachtester-v13`.
+
+Note on names: FMS holds the Swindon–Stoke Gifford cable as `F-SGIC-SNBC-A` and Stoke Gifford–Cardiff
+as `F-0001-SGIC-A`; the app shows the IDs exactly as FMS has them.

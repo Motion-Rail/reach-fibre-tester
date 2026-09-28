@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#016976">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Tone Tester">
+<meta name="apple-mobile-web-app-title" content="Reach Tester">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<title>Motion Tone Tester</title>
-<!-- v12, 28 Sep 2026: adds Continuity check (RTU to RTU) -->
+<title>Reach Fibre Tester</title>
+<!-- v13, 28 Sep 2026: Reach Fibre Tester. Sign in, then E2E Continuity Checker or Uni-dir Continuity Checker. -->
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   :root {
@@ -275,6 +275,17 @@
   .ct-cell-info{font-size:.76rem; color:var(--text); margin-top:8px; min-height:1.2em;}
   @media (max-width:400px){ .ct-body{padding:10px 8px;} .ct-panel{padding:10px 8px;} table.ct-g td{width:22px; min-width:21px; height:24px; font-size:.6rem;} }
   @media (min-width:760px){ table.ct-g td{width:40px; height:30px; font-size:.72rem;} }
+
+  /* ── v13 mode picker ── */
+  .mode-opt{display:flex; align-items:center; gap:14px; width:100%; text-align:left; margin-top:12px; padding:16px 14px;
+            border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font:inherit;}
+  .mode-opt:active{background:var(--surface2); border-color:var(--tone);}
+  .mode-opt:focus-visible{outline:2px solid var(--tone); outline-offset:2px;}
+  .mode-opt b{display:block; font-size:1rem;}
+  .mode-opt small{display:block; font-size:.76rem; color:var(--muted); margin-top:4px; line-height:1.45;}
+  .mode-ico{flex:0 0 auto; width:48px; height:48px; border-radius:10px; background:var(--brand); color:#fff; display:flex;
+            align-items:center; justify-content:center; font-weight:800; font-size:.78rem; letter-spacing:.04em;}
+  #modeUni .mode-ico{background:var(--surface2); border:1px solid var(--brand-lt); color:var(--tone);}
 </style>
 </head>
 <body>
@@ -284,7 +295,7 @@
   <div class="centre"><div class="card">
     <div class="logo">
       <img class="brandlogo" src="logo.png" alt="Motion">
-      <h1>Tone Tester</h1>
+      <h1>Reach Fibre Tester</h1>
     </div>
     <p class="sub">Sign in with your EXFO FMS credentials. Your token is held by the relay, never on this device.</p>
 
@@ -304,11 +315,30 @@
   </div></div>
 </section>
 
+<!-- ════════ MODE (v13) ════════ -->
+<section class="screen" id="screen-mode">
+  <div class="centre"><div class="card">
+    <div class="logo"><img class="brandlogo" src="logo.png" alt="Motion"><h1>Reach Fibre Tester</h1></div>
+    <p class="sub" id="modeUser">Choose the check.</p>
+    <button class="mode-opt" id="modeE2E">
+      <span class="mode-ico">E2E</span>
+      <span><b>E2E Continuity Checker</b><small>RTU to RTU. Tone one end, OTDR the other. Proves every fibre end to end with no one on site.</small></span>
+    </button>
+    <button class="mode-opt" id="modeUni">
+      <span class="mode-ico">UNI</span>
+      <span><b>Uni-dir Continuity Checker</b><small>Tone out from your node, fibre by fibre, and confirm at the far end with the clamp.</small></span>
+    </button>
+    <div style="text-align:center; margin-top:14px;">
+      <button class="linkbtn" id="modeSignOut">Sign out</button>
+    </div>
+  </div></div>
+</section>
+
 <!-- ════════ ROUTE ════════ -->
 <section class="screen" id="screen-route">
   <div class="centre"><div class="card">
-    <div class="logo"><img class="brandlogo" src="logo.png" alt="Motion"><h1>Select cable</h1></div>
-    <p class="sub">Search FMS by node, then tap the cable. Pick the RTU at <b>your</b> end — that is the one that will emit the tone.</p>
+    <div class="logo"><img class="brandlogo" src="logo.png" alt="Motion"><h1>Uni-dir Continuity Checker</h1></div>
+    <p class="sub">Search the node you are testing out from, then tap the cable. The RTU at that node emits the tone.</p>
 
     <label class="fld" for="inSearch">Search Node (e.g. SNBC, RGAC)</label>
     <div style="display:flex; gap:8px;">
@@ -328,6 +358,7 @@
     </div>
 
     <div style="text-align:center; margin-top:14px;">
+      <button class="linkbtn" id="routeToMode">‹ Change check</button> &nbsp;
       <button class="linkbtn" id="backToLogin">Sign out</button>
     </div>
   </div></div>
@@ -404,9 +435,9 @@
 <section class="screen" id="screen-cont">
   <header>
     <div class="top-row" style="padding-bottom:8px;">
-      <button class="icon-btn" id="ctBack" aria-label="Back to cables">‹</button>
+      <button class="icon-btn" id="ctBack" aria-label="Back">‹</button>
       <img class="hdrlogo" src="mark.png" alt="Motion">
-      <div class="route-ref"><span id="ctTitle">Continuity check</span><small>Tone one end, OTDR the other. Runs on the relay.</small></div>
+      <div class="route-ref"><span id="ctTitle">E2E Continuity Checker</span><small>RTU to RTU. Tone one end, OTDR the other. Runs on the relay.</small></div>
       <span class="ct-pill" id="ctState">Setup</span>
     </div>
   </header>
@@ -415,12 +446,12 @@
     <!-- setup -->
     <div id="ctSetup" class="ct-wrap">
       <div class="ct-panel">
-        <h3>Cable</h3>
+        <h3>Search node</h3>
         <div style="display:flex; gap:8px;">
-          <input type="text" id="ctSearch" placeholder="RGAC-SNBC" autocapitalize="characters" autocomplete="off" style="flex:1">
+          <input type="text" id="ctSearch" placeholder="SNBC" autocapitalize="characters" autocomplete="off" style="flex:1">
           <button class="primary" id="ctFind" style="width:auto; padding:12px 18px;">Find</button>
         </div>
-        <div class="ct-note" id="ctFindMsg">Search by cable or node. The cable needs an RTU at both ends.</div>
+        <div class="ct-note" id="ctFindMsg">Type a node code, e.g. SNBC or RGAC. Every cable with an RTU at both ends is listed by cable ID.</div>
         <div id="ctCables" style="margin-top:8px;"></div>
         <div id="ctEndsWrap" style="display:none; margin-top:6px;">
           <div class="ct-ends">
@@ -919,7 +950,7 @@ let crosses={};                              // index -> "crossed with ..."
       "ISSUES",
       ...(iss.length?iss:["none"]),
       "",
-      "Generated by Motion Tone Tester"].join("\n");
+      "Generated by Reach Fibre Tester"].join("\n");
   }
 
   function reportFilename(){
@@ -994,7 +1025,7 @@ let crosses={};                              // index -> "crossed with ..."
     // footer on every page
     const n=doc.internal.getNumberOfPages();
     for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150);
-      doc.text(S("Motion Tone Tester  |  "+route+"  |  page "+p+" of "+n), L, 288); }
+      doc.text(S("Reach Fibre Tester  |  Uni-dir  |  "+route+"  |  page "+p+" of "+n), L, 288); }
 
     return doc.output("blob");
   }
@@ -1139,7 +1170,7 @@ let crosses={};                              // index -> "crossed with ..."
     const u=$("inUser").value.trim(), p=$("inPass").value;
     if(!u||!p){ $("loginErr").textContent="Enter username and password."; return; }
     $("loginBtn").textContent="Signing in…"; $("loginBtn").disabled=true;
-    try{ await doLogin(u,p); gotoRoute(); }
+    try{ await doLogin(u,p); gotoMode(); }
     catch(e){ $("loginErr").textContent=e.message; }
     finally{ $("loginBtn").textContent="Sign in"; $("loginBtn").disabled=false; }
   };
@@ -1167,7 +1198,7 @@ let crosses={};                              // index -> "crossed with ..."
         const on=!!c.online, tag=on?"Online":(c.attachStatus||"Offline");
         return '<div class="cable-row'+(on?'':' offline')+'" data-i="'+i+'">'+
           '<div class="cinfo">'+
-            '<div class="cs mono">'+c.stem+'</div>'+
+            '<div class="cs mono">'+String(c.stem).replace(/-R\d+$/i,"")+'</div>'+
             '<div class="crtu"><span class="rtu-dot '+(on?'on':'off')+'"></span>'+
               '<b>'+(c.rtuName||c.rtuId||"?")+'</b>'+(c.site?' \u00b7 '+c.site:'')+
               ' <span class="rtu-tag '+(on?'on':'off')+'">'+tag+'</span></div>'+
@@ -1210,6 +1241,15 @@ let crosses={};                              // index -> "crossed with ..."
     $("recentWrap").style.display="none";
   };
 
+  function gotoMode(){
+    show("screen-mode");
+    $("modeUser").textContent = session.user ? "Signed in as "+session.user+". Choose the check." : "Choose the check.";
+  }
+  window.gotoMode = gotoMode;
+  $("modeUni").onclick=()=>gotoRoute();
+  $("modeE2E").onclick=()=>{ if(window.openCont) window.openCont(); };
+  $("modeSignOut").onclick=()=>{ session={id:"",user:""}; saveSes(); show("screen-login"); };
+  $("routeToMode").onclick=()=>gotoMode();
   function gotoRoute(){
     show("screen-route");
     const rec=jget("toneTester.recent",[]).slice(0,1);
@@ -1242,7 +1282,7 @@ let crosses={};                              // index -> "crossed with ..."
   $("cfgWl").value=cfg.wl; $("cfgDur").value=cfg.dur; $("cfgFreq").value=cfg.freq;
   { const L=jget('toneTester.loc',null); if(L){ locJointV=L.j||''; locNoteV=L.n||''; location_=[locJointV,locNoteV].filter(Boolean).join(' \u2014 '); } }
   syncMode(); syncParams(); renderLocBar();
-  if(session.id){ gotoRoute(); } else { show("screen-login"); }
+  if(session.id){ gotoMode(); } else { show("screen-login"); }
 
   // service worker (only when hosted over http/https)
   if("serviceWorker" in navigator && location.protocol.startsWith("http")){
@@ -1283,12 +1323,8 @@ let crosses={};                              // index -> "crossed with ..."
   function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); $(id).classList.add("on"); }
 
   // ── entry from the cable screen ──
-  const entry=document.createElement("div");
-  entry.className="ct-entry"; entry.id="ctEntry";
-  entry.innerHTML='<div class="ct-ico">E2E</div><div><b>Continuity check, RTU to RTU</b><span>Proves every fibre end to end with no one on site. Tone one end, OTDR the other.</span></div>';
-  $("cableList").parentNode.insertBefore(entry, $("recentWrap"));
-  entry.onclick=openCont;
-  $("ctBack").onclick=()=>{ stopPoll(); show("screen-route"); };
+  window.openCont = openCont;
+  $("ctBack").onclick=()=>{ stopPoll(); if(window.gotoMode) window.gotoMode(); else show("screen-mode"); };
 
   function openCont(){
     show("screen-cont");
@@ -1309,27 +1345,54 @@ let crosses={};                              // index -> "crossed with ..."
   }
   function setPill(cls, txt){ const p=$("ctState"); p.className="ct-pill "+cls; p.textContent=txt; }
 
+  let findSeq=0;
   async function find(){
-    const q=$("ctSearch").value.trim();
+    const q=$("ctSearch").value.trim(); const my=++findSeq;
     if(!q){ $("ctSearch").focus(); return; }
     $("ctFindMsg").textContent="Searching FMS…"; $("ctCables").innerHTML=""; $("ctEndsWrap").style.display="none"; ends=null;
     try{
-      const d=await relay("/api/routes",{search:q});
-      const by={};
-      (d.cables||[]).forEach(c=>{ (by[c.stem]=by[c.stem]||[]).push(c); });
-      const stems=Object.keys(by).filter(s=>by[s].length>=2);
+      // FMS search matches the RTU NAME, not the cable, and one cable has a different
+      // RTU at each end. So search each node code, then fetch the far end of every
+      // cable found, and pair the two ends up by cable name.
+      const codesOf=t=>String(t).toUpperCase().split(/[^A-Z0-9]+/)
+        .filter(x=>x.length>=3 && !/^R\d+$/.test(x) && !/^F\d*$/.test(x));
+      let codes=codesOf(q); if(!codes.length) codes=[q.toUpperCase()];
+      const searched=new Set(), seen=new Set(), by={};
+      const add=cs=>cs.forEach(c=>{ const k=c.stem+"|"+c.rtuId; if(seen.has(k)) return; seen.add(k); (by[c.stem]=by[c.stem]||[]).push(c); });
+      const search=async code=>{ if(searched.has(code)) return; searched.add(code);
+        const d=await relay("/api/routes",{search:code}); if(my===findSeq) add(d.cables||[]); };
+      $("ctFindMsg").textContent="Searching FMS for "+codes.join(", ")+"…";
+      await Promise.all(codes.map(search));
+      if(my!==findSeq) return;
+      const far=new Set();
+      for(const stem of Object.keys(by)) if(by[stem].length<2) codesOf(stem.split("-").slice(1,3).join("-")).forEach(c=>{ if(!searched.has(c)) far.add(c); });
+      if(far.size){ $("ctFindMsg").textContent="Finding the far ends ("+[...far].join(", ")+")…"; await Promise.all([...far].map(search)); }
+      if(my!==findSeq) return;
+      const qU=q.toUpperCase().replace(/\s+/g,"");
+      let stems=Object.keys(by).filter(s=>by[s].length>=2);
+      if(qU.includes("-")){ const m=stems.filter(s=>s.includes(qU)); if(m.length) stems=m; }
+      if(!stems.length){
+        const one=Object.keys(by);
+        $("ctFindMsg").textContent = one.length
+          ? "Found "+one.join(", ")+" but only one end has an RTU in FMS, so it cannot be continuity checked."
+          : "Nothing in FMS for \u201c"+q+"\u201d. Search by node code, e.g. RGAC or SNBC.";
+        return; }
       if(!stems.length){ $("ctFindMsg").textContent="No cable with an RTU at both ends matched “"+q+"”."; return; }
-      $("ctFindMsg").textContent=stems.length===1?"Cable found.":"Tap the cable:";
+      stems.sort();
+      $("ctFindMsg").textContent=stems.length+" cable"+(stems.length>1?"s":"")+" at "+q.toUpperCase()+", tap the cable ID:";
       $("ctCables").innerHTML=stems.map((s,i)=>{
         const rs=by[s];
-        return '<div class="cable-row" data-i="'+i+'"><div class="cinfo"><div class="cs mono">'+esc(s)+'</div>'+
+        return '<div class="cable-row" data-i="'+i+'"><div class="cinfo"><div class="cs mono">'+esc(cableId(s))+'</div>'+
           '<div class="crtu">'+rs.map(c=>'<span class="rtu-dot '+(c.online?'on':'off')+'"></span><b>'+esc(c.rtuName||c.rtuId)+'</b>').join(' &nbsp; ')+'</div></div>'+
           '<span class="cf mono">'+rs[0].fibres+'</span></div>';}).join("");
       $("ctCables").querySelectorAll("[data-i]").forEach(el=>el.onclick=()=>pick(stems[+el.dataset.i], by[stems[+el.dataset.i]]));
       if(stems.length===1) pick(stems[0], by[stems[0]]);
+      else { ends=null; $("ctEndsWrap").style.display="none"; }
       jset(LASTKEY,{...jget(LASTKEY,{}), search:q});
     }catch(e){ $("ctFindMsg").textContent="Search failed: "+e.message+(e.status===401?" (sign in again from the cable screen)":""); }
   }
+  // F-RGAC-SNBC-A-R432 -> F-RGAC-SNBC-A (the cable ID; R432 is the fibre count)
+  function cableId(stem){ return String(stem).replace(/-R\d+$/i,""); }
   function pick(stem, rs){
     // tone from the RTU at the first node named in the cable, e.g. RGAC2 for F-RGAC-SNBC
     const first=(stem.split("-")[1]||"").toUpperCase();
@@ -1337,7 +1400,7 @@ let crosses={};                              // index -> "crossed with ..."
     ends={stem, a:rs[0], b:rs[1]};
     const last=jget(LASTKEY,{});
     if(last.stem===stem && last.tone===ends.b.rtuName){ ends={stem, a:rs[1], b:rs[0]}; }
-    $("ctCables").querySelectorAll(".cable-row").forEach(el=>el.style.borderColor=el.textContent.includes(stem)?"var(--tone)":"");
+    $("ctCables").querySelectorAll(".cable-row").forEach(el=>el.style.borderColor=el.textContent.includes(cableId(stem))?"var(--tone)":"");
     paintEnds();
   }
   function paintEnds(){
@@ -1399,7 +1462,7 @@ let crosses={};                              // index -> "crossed with ..."
       const d=await relay("/api/continuity/jobs",{});
       const js=d.jobs||[];
       $("ctJobsPanel").style.display=js.length?"":"none";
-      $("ctJobs").innerHTML=js.map(j=>'<div class="ct-job" data-id="'+j.id+'"><div><div class="jt mono">'+esc(j.stem)+'</div>'+
+      $("ctJobs").innerHTML=js.map(j=>'<div class="ct-job" data-id="'+j.id+'"><div><div class="jt mono">'+esc(cableId(j.stem))+'</div>'+
         '<div class="jm">'+esc(j.toneRtu)+' → '+esc(j.testRtu)+' · '+j.done+'/'+j.targets+' fibres · '+new Date(j.started*1000).toLocaleString("en-GB")+(j.simulate?' · SIMULATION':'')+'</div></div>'+
         '<span class="ct-pill '+j.state+'">'+j.state+'</span></div>').join("");
       $("ctJobs").querySelectorAll("[data-id]").forEach(el=>el.onclick=()=>{ jobId=el.dataset.id; jset(JOBKEY,jobId); attach(jobId); });
@@ -1432,7 +1495,7 @@ let crosses={};                              // index -> "crossed with ..."
     const s=snap;
     const stateTxt={running:"Running",paused:"Paused",done:"Complete",stopped:"Stopped",error:"Failed"}[s.state]||s.state;
     setPill(s.state, stateTxt);
-    $("ctRunCable").textContent=s.stem;
+    $("ctRunCable").textContent=cableId(s.stem);
     $("ctRunEnds").textContent="Tone from "+s.toneRtu+"  →  OTDR from "+s.testRtu+"  ·  ribbons "+rangeText(s.ribbons);
     $("ctSimTag").style.display=s.simulate?"":"none";
     if(s.simulate) $("ctSimTag").textContent="Simulation, no light"+(s.truthNotes&&s.truthNotes.length?" · planted: "+s.truthNotes.join("; "):"");
@@ -1508,8 +1571,8 @@ let crosses={};                              // index -> "crossed with ..."
   // ── reports ──
   function reportText(){
     const s=snap, {cr,nf,pats}=lists();
-    return ["Fibre continuity report"+(s.simulate?" (SIMULATION, no light)":""),
-      "Cable: "+s.stem, "Tone from: "+s.toneRtu, "OTDR from: "+s.testRtu, "Ribbons: "+rangeText(s.ribbons),
+    return ["Reach Fibre Tester - E2E continuity report"+(s.simulate?" (SIMULATION, no light)":""),
+      "Cable: "+cableId(s.stem), "Tone from: "+s.toneRtu, "OTDR from: "+s.testRtu, "Ribbons: "+rangeText(s.ribbons),
       "Started: "+new Date(s.started*1000).toLocaleString("en-GB")+(s.ended?"  Ended: "+new Date(s.ended*1000).toLocaleString("en-GB"):""),
       "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", not found "+s.counts.unres+". Tests "+s.tests+".",
       "", "Crossed:", ...(cr.length?cr:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
@@ -1541,11 +1604,11 @@ let crosses={};                              // index -> "crossed with ..."
     const h2=t=>{ page(); y+=3; doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(...teal); doc.text(S(t).toUpperCase(),L,y); y+=1.5; doc.setDrawColor(210); doc.line(L,y,R,y); y+=5; };
     const kv=(k,v)=>{ page(); doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(70); doc.text(S(k),L,y); doc.setFont("helvetica","normal"); doc.setTextColor(20); const ls=doc.splitTextToSize(S(v||"-"),R-L-44); doc.text(ls,L+44,y); y+=Math.max(5.4,ls.length*4.6); };
     const para=t=>{ page(); doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(20); const ls=doc.splitTextToSize(S(t),R-L); doc.text(ls,L,y); y+=ls.length*4.6+1; };
-    doc.setFont("helvetica","bold"); doc.setFontSize(15); doc.setTextColor(...teal); doc.text("Fibre Continuity Report",L,y); y+=7;
+    doc.setFont("helvetica","bold"); doc.setFontSize(15); doc.setTextColor(...teal); doc.text("E2E Fibre Continuity Report",L,y); y+=7;
     if(s.simulate){ doc.setTextColor(200,40,40); doc.setFontSize(10); doc.text("SIMULATION - no light was sent. Not a test record.",L,y); y+=6; }
     doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(120); doc.text(new Date().toLocaleString("en-GB"),L,y); y+=6;
     h2("Test details");
-    kv("Cable",s.stem); kv("Tone from RTU",s.toneRtu); kv("OTDR from RTU",s.testRtu); kv("Ribbons",rangeText(s.ribbons)+" ("+s.targets+" fibres)");
+    kv("Cable",cableId(s.stem)); kv("Tone from RTU",s.toneRtu); kv("OTDR from RTU",s.testRtu); kv("Ribbons",rangeText(s.ribbons)+" ("+s.targets+" fibres)");
     kv("Started",new Date(s.started*1000).toLocaleString("en-GB")); kv("Ended",s.ended?new Date(s.ended*1000).toLocaleString("en-GB"):"still running");
     kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","CW tone 1550 nm, "+((s.settings||{}).toneS||"")+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s");
     h2("Result");
@@ -1561,7 +1624,7 @@ let crosses={};                              // index -> "crossed with ..."
     y+=2; para("Key: number = straight at that position; [nnn] = crossed, lands on far end fibre nnn; ? = not found; . = not tested.");
     h2("Method");
     para("A CW tone at 1550 nm is emitted on the fibre at the tone end. An AdHoc OTDR is ordered on the same fibre number at the far end. The far RTU refuses the OTDR because it detects light (112_LiveFiberDetected), which proves the fibre end to end. A completed OTDR means the tone is on another fibre, and the search moves on to the likely crossings.");
-    const n=doc.internal.getNumberOfPages(); for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150); doc.text(S("Motion Tone Tester v12  |  continuity  |  "+s.stem+"  |  page "+p+" of "+n),L,288); }
+    const n=doc.internal.getNumberOfPages(); for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150); doc.text(S("Reach Fibre Tester v13  |  E2E continuity  |  "+cableId(s.stem)+"  |  page "+p+" of "+n),L,288); }
     return doc.output("blob");
   }
   $("ctPdf").onclick=async()=>{ if(!snap) return; const b=$("ctPdf"), t=b.textContent; b.disabled=true; b.textContent="Building…";

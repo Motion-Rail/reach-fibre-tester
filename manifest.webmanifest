@@ -1,6 +1,6 @@
 {
-  "name": "Motion Tone Tester",
-  "short_name": "Tone Tester",
+  "name": "Reach Fibre Tester",
+  "short_name": "Reach Tester",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
