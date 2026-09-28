@@ -361,3 +361,44 @@ through the relay.
 
 Note on names: FMS holds the Swindon–Stoke Gifford cable as `F-SGIC-SNBC-A` and Stoke Gifford–Cardiff
 as `F-0001-SGIC-A`; the app shows the IDs exactly as FMS has them.
+
+### Relay v13 — 28 Sep 2026
+- CORS: the relay now also accepts calls from **https://motionrail.onrender.com**
+  (`APP_ORIGINS_EXTRA`, default that URL). `APP_ORIGIN` may now hold several origins
+  separated by commas. tone-tester.onrender.com keeps working.
+- `/health` reports `"version": "v13"` and the allowed origins.
+- No other relay change.
+
+---
+
+## v14 — 28 September 2026 — simpler E2E, faster pacing, debug report, version history (app + relay)
+
+Field feedback from the first live E2E runs on F-RGAC-SNBC-A, R1 (12 fibres, all straight):
+tone 10 s took about 4 min / 13 tests; tone 5 s took about 3 min / 12 tests, no misses.
+
+### App
+- **Settings under Advanced** (closed by default). Defaults come from the field runs: tone 6 s,
+  OTDR 5 s, auto pacing on. "Reset to defaults" in Advanced.
+- **Simulation removed** from the screen (it existed only to try the app without sending light).
+- Ribbon quick picks: **All 36** and **Clear** only.
+- **Elapsed** shows `X min Y sec` (and hours when needed). Reports show time taken.
+- **Smart search note** under Start explains what the run does when a fibre is not straight.
+- **Debug report** (under Findings): *Email to Alkis* opens an email to alkis@motionrail.co.uk with a
+  summary and saves the full debug file; *Save debug file* shares or saves it. The file holds every
+  test with timings, pace changes, settings, app and relay versions, device and activity log.
+- **Version history** link on the sign-in, check-choice and E2E screens; shows the app version,
+  the relay version live from the relay, and every version with its date and changes.
+- Run view shows the tone, lead and versions in use. PDF and text reports carry app and relay versions.
+
+### Relay v14
+- Default pacing tone 6 s, lead 2 s (was 20 s / 3 s). OTDR status is polled every 1 s (was 2 s).
+- **Auto pacing:** if a fibre's own test reads clean and then passes on the retry, the tone is
+  lengthened by 2 s and the lead by 1 s for the rest of the run (tone max 20 s). Logged in the run.
+- Every test is recorded (time, fibre, candidate, verdict, OTDR seconds, cycle seconds, tone, lead,
+  workflow id, error detail). New route `/api/continuity/debug` returns it with timing averages.
+- `/health` version v14.
+
+### Timing
+At tone 6 s the expected cycle is about 14 to 15 s per straight fibre: tone call, 2 s lead, OTDR
+start and the RTU's live-fibre refusal (~10 s), status poll. A full 432f cable in one direction is
+about 1 h 45 min if straight. The floor is the RTU refusal time, not the tone length.

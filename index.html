@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Reach Fibre Tester</title>
-<!-- v13, 28 Sep 2026: Reach Fibre Tester. Sign in, then E2E Continuity Checker or Uni-dir Continuity Checker. -->
+<!-- v14, 28 Sep 2026: Reach Fibre Tester. Simpler E2E setup, auto pacing, debug report, version history. -->
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   :root {
@@ -286,6 +286,18 @@
   .mode-ico{flex:0 0 auto; width:48px; height:48px; border-radius:10px; background:var(--brand); color:#fff; display:flex;
             align-items:center; justify-content:center; font-weight:800; font-size:.78rem; letter-spacing:.04em;}
   #modeUni .mode-ico{background:var(--surface2); border:1px solid var(--brand-lt); color:var(--tone);}
+
+  /* ── v14 ── */
+  .ct-adv summary{cursor:pointer; font-size:.74rem; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; list-style:none;}
+  .ct-adv summary::-webkit-details-marker{display:none;}
+  .ct-adv summary::before{content:"\25B8  ";} .ct-adv[open] summary::before{content:"\25BE  ";}
+  .ct-check{display:flex; gap:8px; align-items:flex-start; font-size:.78rem; color:var(--text); margin-top:10px; line-height:1.4;}
+  .ct-check input{margin-top:2px; accent-color:var(--tone);}
+  .appver{text-align:center; margin-top:8px;} .appver .linkbtn{color:var(--muted); font-size:.72rem;}
+  .ver-item{border-top:1px solid var(--border); padding:9px 0;} .ver-item:first-child{border-top:none;}
+  .ver-item b{font-size:.84rem;} .ver-item .vd{font-size:.7rem; color:var(--muted); margin-left:6px;}
+  .ver-item p{font-size:.76rem; color:var(--muted); margin-top:3px; line-height:1.45;}
+  .ver-item.cur b{color:var(--tone);}
 </style>
 </head>
 <body>
@@ -312,6 +324,8 @@
     <div style="text-align:center; margin-top:14px;">
       <button class="linkbtn" id="cfgLink">Relay settings</button>
     </div>
+    <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
+
   </div></div>
 </section>
 
@@ -331,6 +345,8 @@
     <div style="text-align:center; margin-top:14px;">
       <button class="linkbtn" id="modeSignOut">Sign out</button>
     </div>
+    <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
+
   </div></div>
 </section>
 
@@ -466,33 +482,27 @@
         <h3>Ribbons to check</h3>
         <div class="ct-bundles" id="ctRibbons"></div>
         <div class="ct-quick">
-          <button data-q="r1">R1 only</button><button data-q="b1">Bundle 1</button>
           <button data-q="all">All 36</button><button data-q="none">Clear</button>
         </div>
         <div class="ct-note mono" id="ctEstimate"></div>
       </div>
 
-      <div class="ct-panel">
-        <h3>Settings</h3>
-        <div class="ct-row">
-          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="12" max="120" value="20"></div>
+      <details class="ct-panel ct-adv" id="ctAdv">
+        <summary>Advanced</summary>
+        <div class="ct-row" style="margin-top:10px;">
+          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="6"></div>
           <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="1" max="30" value="5"></div>
-          <div><label class="fld" for="ctSim" style="margin-top:0">Mode</label>
-            <select id="ctSim">
-              <option value="">Live (real tone and OTDR)</option>
-              <option value="none">Simulation, all straight</option>
-              <option value="reverse">Simulation, reversed ribbon</option>
-              <option value="swapRibbon">Simulation, ribbons crossed</option>
-              <option value="swapBundle">Simulation, bundles crossed</option>
-              <option value="mixed">Simulation, mixed faults</option>
-            </select></div>
         </div>
-        <div class="ct-note">A toned fibre is refused by the far RTU as live in about 10 s. That refusal is the pass. A dark fibre runs the full OTDR in about 35 s. Tone is CW (0 Hz) at 1550 nm.</div>
-      </div>
+        <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Auto pacing: lengthen the tone if a fibre only passes on its retry</label>
+        <div class="ct-note">Defaults are set from field runs: tone 6 s, OTDR 5 s. A toned fibre is refused by the far RTU as live in about 10 s, which is the pass. A dark fibre runs the full OTDR in about 35 s. Tone is CW (0 Hz) at 1550 nm.</div>
+        <button class="linkbtn" id="ctResetAdv" style="padding-left:0;">Reset to defaults</button>
+      </details>
 
       <button class="primary" id="ctStart">Start continuity run</button>
       <div class="err" id="ctErr"></div>
+      <div class="ct-note" style="margin-top:-4px;"><b style="color:var(--text)">Smart search is on.</b> If a fibre is not where it should be, the run checks the fibres either side, the ribbon reversed, the ribbons and bundles next to it, then sweeps the ribbon. Once it proves a pattern (for example two ribbons crossed) it tries that first for the next fibres, and every cross is retested before it is reported.</div>
 
+<div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
       <div class="ct-panel" id="ctJobsPanel" style="display:none;">
         <h3>Runs on the relay</h3>
         <div id="ctJobs"></div>
@@ -516,6 +526,7 @@
           <div class="ct-stat"><b class="mono" id="ctElapsed">0m</b><span>Elapsed</span></div>
         </div>
         <div class="ct-now" id="ctNow"></div>
+        <div class="ct-note mono" id="ctPace" style="margin-top:4px;"></div>
         <div class="ct-actions" style="margin-top:10px;">
           <button class="btn-wide" id="ctPause">Pause</button>
           <button class="btn-wide danger" id="ctStop">Stop</button>
@@ -543,6 +554,15 @@
           <button class="btn-wide" id="ctCsv">Save CSV</button>
           <button class="btn-wide" id="ctCopy">Copy text</button>
         </div>
+        <details class="ct-adv" style="margin-top:10px;">
+          <summary>Debug report</summary>
+          <div class="ct-note">For fault finding. Holds every test with its timing, the settings, app and relay versions and the activity log.</div>
+          <div class="ct-actions" style="margin-top:8px;">
+            <button class="btn-wide" id="ctDbgMail">Email to Alkis</button>
+            <button class="btn-wide" id="ctDbgSave">Save debug file</button>
+          </div>
+          <div class="ct-note" id="ctDbgMsg"></div>
+        </details>
       </div>
 
       <div class="ct-panel">
@@ -553,6 +573,15 @@
 
   </div></div>
 </section>
+
+<!-- Version history (v14) -->
+<div class="sheet-bg" id="verBg"></div>
+<div class="sheet" id="verSheet">
+  <h2>Version history</h2>
+  <p class="hint" id="verNow">App v14</p>
+  <div id="verList"></div>
+  <div class="row2"><button class="btn-wide" id="verClose">Close</button></div>
+</div>
 
 <!-- Settings sheet -->
 <div class="sheet-bg" id="sheetBg"></div>
@@ -648,6 +677,39 @@
   <button class="primary ghost" id="finClose" style="margin-top:10px;">Back to testing</button>
 </div>
 
+<script>
+/* ════════ v14 version history ════════ */
+const APP_VERSION="v14";
+const APP_VERSIONS=[
+  ["v14","28 Sep 2026","E2E settings moved under Advanced with field-proven defaults (tone 6 s, OTDR 5 s) and auto pacing. Ribbon quick picks are All and Clear. Elapsed time in min and sec. Debug report (email to Alkis or save). This version history."],
+  ["v13","28 Sep 2026","Renamed Reach Fibre Tester, at motionrail.onrender.com. After sign in choose E2E or Uni-dir Continuity Checker. E2E lists cable IDs for a node."],
+  ["v12","28 Sep 2026","E2E continuity check, RTU to RTU: tone one end, OTDR the other; the far RTU refusing as live fibre is the pass. Runs on the relay."],
+  ["v11","13 Jul 2026","Odd / Even scope button text fixed."],
+  ["v10","13 Jul 2026","Test scope build packaged."],
+  ["v9","9 Jul 2026","Test scope: all, odd, even or a range of fibres."],
+  ["v8","9 Jul 2026","NEXT locked while the RTU is toning; no confirm without a real tone."],
+  ["v7","9 Jul 2026","RTU busy handling, PDF reports, simpler settings."],
+  ["v6","9 Jul 2026","DIS and CROSS states, location, Finish."],
+  ["v5","9 Jul 2026","Motion branding, RTU status, report export."],
+  ["v4","9 Jul 2026","Right RTU for each end of a cable."],
+  ["v3","9 Jul 2026","Cable picker, back navigation, simulated-tone warning."],
+  ["v2","8 Jul 2026","Live tone through the relay, route lookup, FMS sign in."],
+  ["v1","Jul 2026","First build: NEXT workflow, ribbon rail, colours, report."]];
+(()=>{ const $=id=>document.getElementById(id);
+  document.querySelectorAll(".appv").forEach(e=>e.textContent=APP_VERSION);
+  function open(){
+    $("verList").innerHTML=APP_VERSIONS.map(v=>'<div class="ver-item'+(v[0]===APP_VERSION?' cur':'')+'"><b>'+v[0]+(v[0]===APP_VERSION?' (this app)':'')+'</b><span class="vd">'+v[1]+'</span><p>'+v[2]+'</p></div>').join("");
+    $("verNow").textContent="App "+APP_VERSION+" · relay checking…";
+    let relay="https://relay-njqb.onrender.com"; try{ const c=JSON.parse(localStorage.getItem("toneTester.cfg")||"{}"); if(c.relay) relay=c.relay; }catch(e){}
+    fetch(relay.replace(/\/$/,"")+"/health").then(r=>r.json()).then(h=>{ $("verNow").textContent="App "+APP_VERSION+" · relay "+(h.version||"?")+" · tone "+(h.tone||"?"); })
+      .catch(()=>{ $("verNow").textContent="App "+APP_VERSION+" · relay not answering"; });
+    $("verBg").classList.add("open"); $("verSheet").classList.add("open");
+  }
+  function close(){ $("verBg").classList.remove("open"); $("verSheet").classList.remove("open"); }
+  document.querySelectorAll(".verlink").forEach(b=>b.onclick=open);
+  $("verClose").onclick=close; $("verBg").onclick=close;
+})();
+</script>
 <script>
 (() => {
   "use strict";
@@ -1330,8 +1392,9 @@ let crosses={};                              // index -> "crossed with ..."
     show("screen-cont");
     const last=jget(LASTKEY,{});
     if(last.search && !$("ctSearch").value) $("ctSearch").value=last.search;
-    if(last.toneS) $("ctToneS").value=last.toneS;
-    if(last.otdrS) $("ctOtdrS").value=last.otdrS;
+    // v14: settings live under Advanced and always open on the proven defaults unless changed there
+    $("ctToneS").value=last.adv&&last.toneS?last.toneS:DEF.toneS; $("ctOtdrS").value=last.adv&&last.otdrS?last.otdrS:DEF.otdrS;
+    $("ctAuto").checked=last.adv? last.auto!==false : true;
     buildRibbons();
     if(jobId){ attach(jobId); } else { setupView(); }
   }
@@ -1433,24 +1496,29 @@ let crosses={};                              // index -> "crossed with ..."
     buildRibbons();
   });
   function estimate(){
-    const n=ribbons.size*PER, tone=Math.max(12,+$("ctToneS").value||20);
-    const best=n*Math.max(13,tone+1);          // one clash per fibre, next tone waits for the last to end
+    const n=ribbons.size*PER, tone=Math.max(4,+$("ctToneS").value||DEF.toneS);
+    const best=n*Math.max(14,tone+2);          // field runs: ~15 s a fibre at a 5-6 s tone
     $("ctEstimate").textContent=ribbons.size
       ? ribbons.size+" ribbon"+(ribbons.size>1?"s":"")+", "+n+" fibres. If all straight about "+mins(best)+"; each crossed fibre adds a few 35 s tests."
       : "No ribbons selected.";
   }
   $("ctToneS").addEventListener("change",estimate);
-  function mins(s){ s=Math.round(s); if(s<90) return s+" s"; const m=Math.round(s/60); return m<90? m+" min" : (m/60).toFixed(1)+" h"; }
+  function mins(s){ s=Math.max(0,Math.round(s)); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+    return (h? h+" h ":"")+(h||m? m+" min ":"")+sec+" sec"; }
+  const DEF={toneS:6, otdrS:5};
+  $("ctResetAdv").onclick=()=>{ $("ctToneS").value=DEF.toneS; $("ctOtdrS").value=DEF.otdrS; $("ctAuto").checked=true;
+    jset(LASTKEY,{...jget(LASTKEY,{}), adv:false}); estimate(); };
 
   $("ctStart").onclick=async()=>{
     $("ctErr").textContent="";
     if(!ends){ $("ctErr").textContent="Find and pick the cable first."; return; }
     if(!ribbons.size){ $("ctErr").textContent="Pick at least one ribbon."; return; }
-    const sim=$("ctSim").value;
+    const toneS=Math.min(20,Math.max(4,+$("ctToneS").value||DEF.toneS)), otdrS=Math.min(30,Math.max(1,+$("ctOtdrS").value||DEF.otdrS));
+    const adv = toneS!==DEF.toneS || otdrS!==DEF.otdrS || !$("ctAuto").checked;
     const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
-                toneS:Math.max(12,+$("ctToneS").value||20), otdrS:Math.max(1,+$("ctOtdrS").value||5), wavelengthNm:1550, freqHz:0,
-                simulate: sim||null};
-    jset(LASTKEY,{search:$("ctSearch").value.trim(), stem:ends.stem, tone:ends.a.rtuName, ribbons:body.ribbons, toneS:body.toneS, otdrS:body.otdrS});
+                toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:0,
+                simulate:null};
+    jset(LASTKEY,{search:$("ctSearch").value.trim(), stem:ends.stem, tone:ends.a.rtuName, ribbons:body.ribbons, toneS, otdrS, auto:body.autoPace, adv});
     $("ctStart").disabled=true; $("ctStart").textContent="Starting…";
     try{ const d=await relay("/api/continuity/start",body); jobId=d.jobId; jset(JOBKEY,jobId); attach(jobId); }
     catch(e){ $("ctErr").textContent=e.message; }
@@ -1508,6 +1576,7 @@ let crosses={};                              // index -> "crossed with ..."
       ? "Toning <b>"+fname(s.current)+"</b> ("+rpl(s.current)+") at "+esc(s.toneRtu)+", testing <b>"+fname(s.candidate||s.current)+"</b> at "+esc(s.testRtu)
       : s.state==="error" ? "Stopped with an error: "+esc(s.error) : "";
     $("ctPause").textContent=s.state==="paused"?"Resume":"Pause";
+    $("ctPace").textContent = s.pace ? "Tone "+s.pace.toneS+" s, lead "+s.pace.leadS+" s"+(s.pace.auto?", auto pacing on":"")+"  ·  app "+(s.appVersion||"?")+", relay "+(s.relayVersion||"?") : "";
     const live=s.state==="running"||s.state==="paused";
     $("ctPause").style.display=live?"":"none"; $("ctStop").style.display=live?"":"none"; $("ctNew").style.display=live?"none":"";
     grid(); findings();
@@ -1574,7 +1643,8 @@ let crosses={};                              // index -> "crossed with ..."
     return ["Reach Fibre Tester - E2E continuity report"+(s.simulate?" (SIMULATION, no light)":""),
       "Cable: "+cableId(s.stem), "Tone from: "+s.toneRtu, "OTDR from: "+s.testRtu, "Ribbons: "+rangeText(s.ribbons),
       "Started: "+new Date(s.started*1000).toLocaleString("en-GB")+(s.ended?"  Ended: "+new Date(s.ended*1000).toLocaleString("en-GB"):""),
-      "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", not found "+s.counts.unres+". Tests "+s.tests+".",
+      "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", not found "+s.counts.unres+". Tests "+s.tests+". Time "+mins((s.ended||s.now)-s.started)+".",
+      "Versions: app "+(s.appVersion||APP_VERSION)+", relay "+(s.relayVersion||"?"),
       "", "Crossed:", ...(cr.length?cr:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
       ...(pats.length?["","Patterns:",...pats]:[]),
       "", "Method: CW tone at the tone end; AdHoc OTDR on the same fibre at the far end. The far RTU refusing the OTDR as live fibre (112_LiveFiberDetected) proves the fibre end to end."].join("\n");
@@ -1610,7 +1680,8 @@ let crosses={};                              // index -> "crossed with ..."
     h2("Test details");
     kv("Cable",cableId(s.stem)); kv("Tone from RTU",s.toneRtu); kv("OTDR from RTU",s.testRtu); kv("Ribbons",rangeText(s.ribbons)+" ("+s.targets+" fibres)");
     kv("Started",new Date(s.started*1000).toLocaleString("en-GB")); kv("Ended",s.ended?new Date(s.ended*1000).toLocaleString("en-GB"):"still running");
-    kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","CW tone 1550 nm, "+((s.settings||{}).toneS||"")+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s");
+    kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","CW tone 1550 nm, "+(s.pace?s.pace.toneS:(s.settings||{}).toneS)+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s"+(s.pace&&s.pace.auto?"  |  auto pacing":""));
+    kv("Time taken",mins((s.ended||s.now)-s.started)); kv("Versions","App "+(s.appVersion||APP_VERSION)+"  |  Relay "+(s.relayVersion||"?"));
     h2("Result");
     kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); kv("Crossed",String(s.counts.cross)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
     h2("Crossed fibres"); if(cr.length) cr.forEach(c=>para("-  "+c)); else para("None");
@@ -1624,9 +1695,46 @@ let crosses={};                              // index -> "crossed with ..."
     y+=2; para("Key: number = straight at that position; [nnn] = crossed, lands on far end fibre nnn; ? = not found; . = not tested.");
     h2("Method");
     para("A CW tone at 1550 nm is emitted on the fibre at the tone end. An AdHoc OTDR is ordered on the same fibre number at the far end. The far RTU refuses the OTDR because it detects light (112_LiveFiberDetected), which proves the fibre end to end. A completed OTDR means the tone is on another fibre, and the search moves on to the likely crossings.");
-    const n=doc.internal.getNumberOfPages(); for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150); doc.text(S("Reach Fibre Tester v13  |  E2E continuity  |  "+cableId(s.stem)+"  |  page "+p+" of "+n),L,288); }
+    const n=doc.internal.getNumberOfPages(); for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150); doc.text(S("Reach Fibre Tester "+(s.appVersion||APP_VERSION)+"  |  E2E continuity  |  "+cableId(s.stem)+"  |  page "+p+" of "+n),L,288); }
     return doc.output("blob");
   }
+
+  // ── v14 debug report ──
+  const DEBUG_TO="alkis@motionrail.co.uk";
+  async function debugData(){
+    const d=await relay("/api/continuity/debug",{jobId});
+    let health={}; try{ health=await fetch(relayCfg().relay.replace(/\/$/,"")+"/health").then(r=>r.json()); }catch(e){}
+    return {generated:new Date().toISOString(), app:APP_VERSION, relay:health.version||d.relayVersion||"?",
+            user:(jget("toneTester.session",{})||{}).user||"", device:navigator.userAgent, screen:innerWidth+"x"+innerHeight,
+            relayHealth:{tone:health.tone, origins:health.origins}, run:d};
+  }
+  function debugSummary(x){
+    const r=x.run, t=r.timing||{}, fails=(r.testLog||[]).filter(e=>!["clash","clean"].includes(e.verdict));
+    const lines=["Reach Fibre Tester debug summary",
+      "App "+x.app+" | Relay "+x.relay+" | "+x.generated, "User "+x.user,
+      "Cable "+cableId(r.stem)+" | tone "+r.toneRtu+" -> OTDR "+r.testRtu+" | ribbons "+rangeText(r.ribbons),
+      "State "+r.state+(r.error?" ("+r.error+")":"")+" | "+r.done+"/"+r.targets+" fibres | straight "+r.counts.straight+", crossed "+r.counts.cross+", not found "+r.counts.unres,
+      "Tests "+(t.tests||r.tests)+" | elapsed "+mins(t.elapsedS||0)+" | avg cycle "+t.avgCycleS+" s | clash avg "+t.clashAvgS+" s | clean avg "+t.cleanAvgS+" s",
+      "Pace tone "+(r.pace||{}).toneS+" s lead "+(r.pace||{}).leadS+" s auto "+(r.pace||{}).auto+" | changes "+JSON.stringify(r.paceChanges||[]),
+      "Errors "+fails.length+": "+fails.slice(0,5).map(e=>fname(e.cand)+" "+e.verdict+" "+String(e.detail||"").slice(0,80)).join(" / "),
+      "", "Last activity:", ...(r.log||[]).slice(-15),
+      "", "Device "+x.device, "", "The full debug file (every test with timings) is saved on the device as "+fileBase()+"_debug.json. Attach it if asked."];
+    return lines.join("\n");
+  }
+  async function withDbg(fn){ const m=$("ctDbgMsg"); m.textContent="Collecting…"; try{ await fn(await debugData()); }catch(e){ m.textContent="Could not build the debug report: "+e.message; } }
+  function saveDbg(x){ const blob=new Blob([JSON.stringify(x,null,1)],{type:"application/json"}); download(blob,fileBase()+"_debug.json"); return blob; }
+  $("ctDbgSave").onclick=()=>withDbg(async x=>{
+    const blob=new Blob([JSON.stringify(x,null,1)],{type:"application/json"}), file=new File([blob],fileBase()+"_debug.json",{type:"application/json"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:"Debug "+cableId(snap.stem)}); $("ctDbgMsg").textContent="Shared."; return; }catch(e){ if(e.name==="AbortError"){ $("ctDbgMsg").textContent=""; return; } } }
+    download(blob,file.name); $("ctDbgMsg").textContent="Saved "+file.name+".";
+  });
+  $("ctDbgMail").onclick=()=>withDbg(async x=>{
+    saveDbg(x);
+    const subj="Reach Fibre Tester debug - "+cableId(snap.stem)+" - "+x.app+"/"+x.relay;
+    let body=debugSummary(x); if(body.length>1800) body=body.slice(0,1800)+"\n…";
+    location.href="mailto:"+DEBUG_TO+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
+    $("ctDbgMsg").textContent="Email opened to "+DEBUG_TO+" with the summary. The full file was saved too; attach it if asked.";
+  });
   $("ctPdf").onclick=async()=>{ if(!snap) return; const b=$("ctPdf"), t=b.textContent; b.disabled=true; b.textContent="Building…";
     try{ const blob=await pdfBlob(), file=new File([blob],fileBase()+".pdf",{type:"application/pdf"});
       if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:"Continuity "+snap.stem}); return; }catch(e){ if(e.name==="AbortError") return; } }
