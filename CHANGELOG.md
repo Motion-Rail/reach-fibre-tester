@@ -440,3 +440,13 @@ Changes
 
 Expected: about 13 s a fibre, 2 min 40 sec a ribbon, about 1 h 35 min for a straight 432f cable
 in one direction.
+
+---
+
+## v16 — 28 September 2026 — log times in local time (app only)
+
+- The relay stamps activity log lines with its own clock, which is UTC. During BST the log read an
+  hour behind (a run started at 21:59:52 showed 20:59:52). The app now converts each log time to
+  the phone or PC's local time, in the Activity panel and in the debug email summary.
+- Relay unchanged (v15). Deployed during a full-cable run; a static app update does not affect
+  runs on the relay.

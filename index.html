@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Reach Fibre Tester</title>
-<!-- v15, 28 Sep 2026: Reach Fibre Tester. Measured default pacing (tone 10 s, OTDR 3 s). -->
+<!-- v16, 28 Sep 2026: Reach Fibre Tester. Activity log in local time. -->
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   :root {
@@ -679,8 +679,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v15";
+const APP_VERSION="v16";
 const APP_VERSIONS=[
+  ["v16","28 Sep 2026","Activity log times shown in local time (the relay logs in UTC, which read an hour behind during BST)."],
   ["v15","28 Sep 2026","Default settings set from timed runs on the live cable: tone 10 s, OTDR 3 s, about 13 s a fibre (12 fibres in about 2 min 35 sec). OTDR minimum 3 s."],
   ["v14","28 Sep 2026","E2E settings moved under Advanced with field-proven defaults (tone 6 s, OTDR 5 s) and auto pacing. Ribbon quick picks are All and Clear. Elapsed time in min and sec. Debug report (email to Alkis or save). This version history."],
   ["v13","28 Sep 2026","Renamed Reach Fibre Tester, at motionrail.onrender.com. After sign in choose E2E or Uni-dir Continuity Checker. E2E lists cable IDs for a node."],
@@ -1582,7 +1583,14 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctPause").style.display=live?"":"none"; $("ctStop").style.display=live?"":"none"; $("ctNew").style.display=live?"none":"";
     grid(); findings();
     const lg=$("ctLog"); const atEnd=lg.scrollTop+lg.clientHeight>=lg.scrollHeight-8;
-    lg.textContent=(s.log||[]).join("\n")||"-"; if(atEnd) lg.scrollTop=lg.scrollHeight;
+    lg.textContent=(s.log||[]).map(localLog).join("\n")||"-"; if(atEnd) lg.scrollTop=lg.scrollHeight;
+  }
+  // The relay stamps log lines with its own clock (UTC). Show them in the viewer's local time.
+  function localLog(line){
+    return String(line).replace(/^(\d\d):(\d\d):(\d\d)/,(m,h,mi,se)=>{
+      const d=new Date(); d.setUTCHours(+h,+mi,+se,0);
+      return d.toLocaleTimeString("en-GB",{hour12:false});
+    });
   }
   function rangeText(rs){
     rs=(rs||[]).slice().sort((a,b)=>a-b); const out=[]; let i=0;
@@ -1718,7 +1726,7 @@ let crosses={};                              // index -> "crossed with ..."
       "Tests "+(t.tests||r.tests)+" | elapsed "+mins(t.elapsedS||0)+" | avg cycle "+t.avgCycleS+" s | clash avg "+t.clashAvgS+" s | clean avg "+t.cleanAvgS+" s",
       "Pace tone "+(r.pace||{}).toneS+" s lead "+(r.pace||{}).leadS+" s auto "+(r.pace||{}).auto+" | changes "+JSON.stringify(r.paceChanges||[]),
       "Errors "+fails.length+": "+fails.slice(0,5).map(e=>fname(e.cand)+" "+e.verdict+" "+String(e.detail||"").slice(0,80)).join(" / "),
-      "", "Last activity:", ...(r.log||[]).slice(-15),
+      "", "Last activity (local time):", ...(r.log||[]).slice(-15).map(localLog),
       "", "Device "+x.device, "", "The full debug file (every test with timings) is saved on the device as "+fileBase()+"_debug.json. Attach it if asked."];
     return lines.join("\n");
   }
