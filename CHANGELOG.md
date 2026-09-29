@@ -443,6 +443,39 @@ in one direction.
 
 ---
 
+## v18 — 29 September 2026 — search follows physical fault logic (app and relay)
+
+Why: first blind cross trial, R4 of F-RGAC-SNBC-A (F041/F042 swapped, F048 disconnected).
+v17 found F041 on F042 but then spent 14 tests hunting F042 (its check of F041 read live once,
+then a retest read dark), and 8 tests plus a second pass hunting F048 across other ribbons.
+Alkis's rules: if A lands on B, check B on A at once; a fibre missing from an otherwise good
+ribbon cannot be in another ribbon, so it is DIS after a few checks; only search other ribbons
+when the ribbon itself is out of place.
+
+Engine (relay)
+- Ribbon by ribbon. Straight pass first: every fibre on its own position (one retry with a 20 s tone).
+- Gap search: a fibre dark on its own position is tried only on the far ends in its ribbon that nothing
+  has claimed, with a 20 s tone.
+- Swap check: when A lands on B, B is tested on A straight away (20 s tone, up to 2 tries).
+- DIS: not on any free far end and at least one fibre in the ribbon straight: 2 rechecks of its own
+  position with a 20 s tone, then DIS ("no light at the far end").
+- Ribbon out of place (no fibre straight): the v12 ladder (pattern, reversed, neighbour ribbons,
+  bundles), without retesting the expected fibre. Second pass only for these.
+- Leftovers: DIS or unplaced fibres are tried against free far ends in the other tested ribbons
+  (learned pattern first), so a single fibre patched into another ribbon is still caught.
+- Late FMS start: a dark result that arrives later than tone start + tone + 15 s is not trusted; it is
+  retested once with a fresh 20 s tone. Counted as lateRechecks.
+- New result state "dis", counted in status.counts.dis; resume carries DIS over.
+
+App
+- DIS tile and DIS cells on the map; findings, CSV, PDF and debug show DIS.
+
+Simulator, 6 seeds each (tests per run, v18 against v17), all answers correct in v18:
+R4 as trialled 19 against 124; single DIS 15 against 116; two DIS 20 against 220; pair swap 16 against 22;
+fibre swapped into another ribbon 32 against 93; reversed ribbon 55 against 61; ribbons swapped 75
+against 111; bundles swapped 377 against 593; mixed faults 595 against 684 (v17 got 1.2 wrong).
+Mock FMS run: F005/F007 swap found in 3 tests each, F010 DIS in 4 tests, 21 tests for the ribbon.
+
 ## v17 — 28 September 2026 — long runs survive token expiry, resume (app and relay)
 
 Why: the first full cable run (F-RGAC-SNBC-A, all 36 ribbons) stopped at F126 with

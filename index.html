@@ -521,6 +521,7 @@
         <div class="ct-stats">
           <div class="ct-stat ok"><b class="mono" id="ctNStraight">0</b><span>Straight</span></div>
           <div class="ct-stat cx"><b class="mono" id="ctNCross">0</b><span>Crossed</span></div>
+          <div class="ct-stat nf"><b class="mono" id="ctNDis">0</b><span>DIS</span></div>
           <div class="ct-stat nf"><b class="mono" id="ctNUnres">0</b><span>Not found</span></div>
           <div class="ct-stat"><b class="mono" id="ctNTests">0</b><span>Tests</span></div>
           <div class="ct-stat"><b class="mono" id="ctElapsed">0m</b><span>Elapsed</span></div>
@@ -541,7 +542,7 @@
         <div class="ct-key">
           <span><i style="background:var(--done)"></i>straight</span>
           <span><i style="background:var(--cross)"></i>crossed, number = where it landed</span>
-          <span><i style="background:var(--off)"></i>not found</span>
+          <span><i style="background:var(--off)"></i>DIS, no light at the far end (or ? not found)</span>
           <span><i style="border:2px solid var(--tone)"></i>toning now</span>
         </div>
         <div class="ct-cell-info" id="ctCellInfo"></div>
@@ -680,8 +681,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v17";
+const APP_VERSION="v18";
 const APP_VERSIONS=[
+  ["v18","29 Sep 2026","Smarter E2E search from the first cross trial: each ribbon is checked straight first; a found cross is checked for its swap partner at once; a missing fibre is only tried on free positions in its ribbon, then marked DIS if the rest of the ribbon is straight; a dark result after a late FMS start is rechecked. New DIS count."],
   ["v17","28 Sep 2026","Long runs no longer stop when the FMS sign in token runs out mid test. A test that errors is retried instead of ending the run. Resume from here button carries finished fibres into a new run, even after a relay restart."],
   ["v16","28 Sep 2026","Activity log times shown in local time (the relay logs in UTC, which read an hour behind during BST)."],
   ["v15","28 Sep 2026","Default settings set from timed runs on the live cable: tone 10 s, OTDR 3 s, about 13 s a fibre (12 fibres in about 2 min 35 sec). OTDR minimum 3 s."],
@@ -1582,7 +1584,7 @@ let crosses={};                              // index -> "crossed with ..."
     if(s.simulate) $("ctSimTag").textContent="Simulation, no light"+(s.truthNotes&&s.truthNotes.length?" · planted: "+s.truthNotes.join("; "):"");
     $("ctBar").style.width=(s.targets?100*s.done/s.targets:0)+"%";
     $("ctProg").textContent=s.done+" / "+s.targets;
-    $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNUnres").textContent=s.counts.unres;
+    $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNUnres").textContent=s.counts.unres; $("ctNDis").textContent=s.counts.dis||0;
     $("ctNTests").textContent=s.tests;
     $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
     $("ctNow").innerHTML = s.state==="running"&&s.current
@@ -1617,7 +1619,7 @@ let crosses={};                              // index -> "crossed with ..."
       for(let p=1;p<=PER;p++){
         const f=(r-1)*PER+p, v=res[f];
         let cls="", txt=p;
-        if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":"nf"; if(v.state==="cross") txt=String(v.found).padStart(3,"0"); }
+        if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":"nf"; if(v.state==="cross") txt=String(v.found).padStart(3,"0"); if(v.state==="dis") txt="DIS"; if(v.state==="unres") txt="?"; }
         if(s.state==="running"&&s.current===f) cls+=" now";
         if(s.state==="running"&&s.candidate===f&&s.current!==f) cls+=" cand";
         h+='<td class="'+cls+'" data-f="'+f+'">'+txt+'</td>';
@@ -1630,21 +1632,24 @@ let crosses={};                              // index -> "crossed with ..."
       $("ctCellInfo").textContent = !v ? fname(f)+" "+rpl(f)+", not tested yet."
         : v.state==="straight" ? fname(f)+" "+rpl(f)+" is straight through ("+v.tests+" test"+(v.tests>1?"s":"")+")."
         : v.state==="cross" ? fname(f)+" "+rpl(f)+" lands on "+fname(v.found)+" "+rpl(v.found)+" at the far end ("+v.why+", "+v.tests+" tests)."
+        : v.state==="dis" ? fname(f)+" "+rpl(f)+" is DIS: "+v.why+" ("+v.tests+" tests). Check the splice or patch with the toner."
         : fname(f)+" "+rpl(f)+" was not found in "+v.tests+" tests. Check it with the toner.";
     });
   }
   function lists(){
-    const res=snap.results||{}, cr=[], nf=[];
+    const res=snap.results||{}, cr=[], nf=[], ds=[];
     Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(f=>{ const v=res[f];
       if(v.state==="cross") cr.push(fname(f)+" ("+rpl(f)+") lands on "+fname(v.found)+" ("+rpl(v.found)+")");
-      if(v.state==="unres") nf.push(fname(f)+" ("+rpl(f)+")"); });
+      if(v.state==="unres") nf.push(fname(f)+" ("+rpl(f)+")");
+      if(v.state==="dis") ds.push(fname(f)+" ("+rpl(f)+")"); });
     const pats=(snap.patterns||[]).filter(p=>p.hits>=2).map(p=>p.label.charAt(0).toUpperCase()+p.label.slice(1)+", seen on "+p.hits+" fibres");
-    return {cr,nf,pats};
+    return {cr,nf,ds,pats};
   }
   function findings(){
-    const {cr,nf,pats}=lists(), out=[];
+    const {cr,nf,ds,pats}=lists(), out=[];
     pats.forEach(p=>out.push(p+"."));
     if(cr.length) out.push(cr.length+" crossed fibre"+(cr.length>1?"s":"")+": "+cr.slice(0,6).join("; ")+(cr.length>6?"; …":"")+".");
+    if(ds.length) out.push(ds.length+" DIS, no light at the far end (rest of the ribbon in place): "+ds.slice(0,10).join(", ")+(ds.length>10?", …":"")+".");
     if(nf.length) out.push(nf.length+" not found, check with the toner: "+nf.slice(0,10).join(", ")+(nf.length>10?", …":"")+".");
     if(!out.length) out.push(snap.done? "Every fibre checked so far is straight through." : "Nothing yet.");
     $("ctFindings").innerHTML=out.map(t=>"<li>"+esc(t)+"</li>").join("");
@@ -1676,7 +1681,7 @@ let crosses={};                              // index -> "crossed with ..."
     return ["Reach Fibre Tester - E2E continuity report"+(s.simulate?" (SIMULATION, no light)":""),
       "Cable: "+cableId(s.stem), "Tone from: "+s.toneRtu, "OTDR from: "+s.testRtu, "Ribbons: "+rangeText(s.ribbons),
       "Started: "+new Date(s.started*1000).toLocaleString("en-GB")+(s.ended?"  Ended: "+new Date(s.ended*1000).toLocaleString("en-GB"):""),
-      "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", not found "+s.counts.unres+". Tests "+s.tests+". Time "+mins((s.ended||s.now)-s.started)+".",
+      "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", DIS "+(s.counts.dis||0)+", not found "+s.counts.unres+". Tests "+s.tests+". Time "+mins((s.ended||s.now)-s.started)+".",
       "Versions: app "+(s.appVersion||APP_VERSION)+", relay "+(s.relayVersion||"?"),
       "", "Crossed:", ...(cr.length?cr:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
       ...(pats.length?["","Patterns:",...pats]:[]),
@@ -1686,7 +1691,7 @@ let crosses={};                              // index -> "crossed with ..."
     const rows=[["Cable","Fibre","Ribbon","Position","Result","Far end fibre","Far end ribbon","Far end position","How found","Tests"]];
     const res=snap.results||{};
     Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(f=>{ const v=res[f], a=rp(f), b=v.found?rp(v.found):null;
-      rows.push([snap.stem,fname(f),a.r,a.p,v.state==="straight"?"Straight":v.state==="cross"?"Crossed":"Not found",
+      rows.push([snap.stem,fname(f),a.r,a.p,v.state==="straight"?"Straight":v.state==="cross"?"Crossed":v.state==="dis"?"DIS":"Not found",
                  v.found?fname(v.found):"",b?b.r:"",b?b.p:"",'"'+String(v.why).replace(/"/g,"'")+'"',v.tests]); });
     return rows.map(r=>r.join(",")).join("\r\n");
   }
@@ -1716,16 +1721,16 @@ let crosses={};                              // index -> "crossed with ..."
     kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","CW tone 1550 nm, "+(s.pace?s.pace.toneS:(s.settings||{}).toneS)+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s"+(s.pace&&s.pace.auto?"  |  auto pacing":""));
     kv("Time taken",mins((s.ended||s.now)-s.started)); kv("Versions","App "+(s.appVersion||APP_VERSION)+"  |  Relay "+(s.relayVersion||"?"));
     h2("Result");
-    kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); kv("Crossed",String(s.counts.cross)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
+    kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); kv("Crossed",String(s.counts.cross)); kv("DIS",String(s.counts.dis||0)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
     h2("Crossed fibres"); if(cr.length) cr.forEach(c=>para("-  "+c)); else para("None");
     h2("Not found"); para(nf.length?nf.join(", "):"None");
     if(pats.length){ h2("Patterns"); pats.forEach(p=>para("-  "+p)); }
     h2("Map, far end fibre per position");
     const res=s.results||{};
     s.ribbons.forEach(r=>{ const cells=[]; for(let p=1;p<=PER;p++){ const f=(r-1)*PER+p, v=res[f];
-      cells.push(!v?"  .":v.state==="straight"?String(p).padStart(3," "):v.state==="cross"?"["+String(v.found).padStart(3,"0")+"]":"  ?"); }
+      cells.push(!v?"  .":v.state==="straight"?String(p).padStart(3," "):v.state==="cross"?"["+String(v.found).padStart(3,"0")+"]":v.state==="dis"?"DIS":"  ?"); }
       page(); doc.setFont("courier","normal"); doc.setFontSize(8); doc.setTextColor(20); doc.text("R"+String(r).padStart(2,"0")+"  "+cells.join(" "),L,y); y+=4.4; });
-    y+=2; para("Key: number = straight at that position; [nnn] = crossed, lands on far end fibre nnn; ? = not found; . = not tested.");
+    y+=2; para("Key: number = straight at that position; [nnn] = crossed, lands on far end fibre nnn; DIS = no light at the far end; ? = not found; . = not tested.");
     h2("Method");
     para("A CW tone at 1550 nm is emitted on the fibre at the tone end. An AdHoc OTDR is ordered on the same fibre number at the far end. The far RTU refuses the OTDR because it detects light (112_LiveFiberDetected), which proves the fibre end to end. A completed OTDR means the tone is on another fibre, and the search moves on to the likely crossings.");
     const n=doc.internal.getNumberOfPages(); for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150); doc.text(S("Reach Fibre Tester "+(s.appVersion||APP_VERSION)+"  |  E2E continuity  |  "+cableId(s.stem)+"  |  page "+p+" of "+n),L,288); }
@@ -1746,7 +1751,7 @@ let crosses={};                              // index -> "crossed with ..."
     const lines=["Reach Fibre Tester debug summary",
       "App "+x.app+" | Relay "+x.relay+" | "+x.generated, "User "+x.user,
       "Cable "+cableId(r.stem)+" | tone "+r.toneRtu+" -> OTDR "+r.testRtu+" | ribbons "+rangeText(r.ribbons),
-      "State "+r.state+(r.error?" ("+r.error+")":"")+" | "+r.done+"/"+r.targets+" fibres | straight "+r.counts.straight+", crossed "+r.counts.cross+", not found "+r.counts.unres,
+      "State "+r.state+(r.error?" ("+r.error+")":"")+" | "+r.done+"/"+r.targets+" fibres | straight "+r.counts.straight+", crossed "+r.counts.cross+", DIS "+(r.counts.dis||0)+", not found "+r.counts.unres,
       "Tests "+(t.tests||r.tests)+" | elapsed "+mins(t.elapsedS||0)+" | avg cycle "+t.avgCycleS+" s | clash avg "+t.clashAvgS+" s | clean avg "+t.cleanAvgS+" s",
       "Pace tone "+(r.pace||{}).toneS+" s lead "+(r.pace||{}).leadS+" s auto "+(r.pace||{}).auto+" | changes "+JSON.stringify(r.paceChanges||[]),
       "Errors "+fails.length+": "+fails.slice(0,5).map(e=>fname(e.cand)+" "+e.verdict+" "+String(e.detail||"").slice(0,80)).join(" / "),
