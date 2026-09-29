@@ -552,15 +552,17 @@
       </div>
 
       <div class="ct-panel" id="ctFbPanel" style="display:none;">
-        <h3>Did this match the site?</h3>
-        <div class="ct-note">Your answer is saved with the run log and used to improve the search.</div>
-        <div class="ct-actions" style="margin-top:8px;">
-          <button class="btn-wide" data-fb="correct">Correct</button>
-          <button class="btn-wide" data-fb="partly">Partly</button>
-          <button class="btn-wide danger" data-fb="wrong">Wrong</button>
-        </div>
-        <textarea id="ctFbNotes" rows="3" placeholder="What is actually on site? e.g. F412/F416 swapped at SNBC ODF, F409 unpatched" style="width:100%; margin-top:8px; box-sizing:border-box; background:var(--surface2); color:var(--text); border:1px solid var(--line, #333); border-radius:8px; padding:8px; font:inherit; font-size:.82rem;"></textarea>
-        <div class="ct-note mono" id="ctFbState" style="margin-top:6px;"></div>
+        <details class="ct-adv" id="ctFbBox">
+          <summary>Trial run? Record the planted faults</summary>
+          <div class="ct-note" style="margin-top:8px;">Only for test runs where faults were put in on purpose. Normal runs need nothing here; every run log is saved anyway.</div>
+          <textarea id="ctFbNotes" rows="3" placeholder="What was planted, e.g. F412/F416 swapped at SNBC ODF, F409 unpatched" style="width:100%; margin-top:8px; box-sizing:border-box; background:var(--surface2); color:var(--text); border:1px solid var(--line, #333); border-radius:8px; padding:8px; font:inherit; font-size:.82rem;"></textarea>
+          <div class="ct-actions" style="margin-top:8px;">
+            <button class="btn-wide" data-fb="correct">Result matched</button>
+            <button class="btn-wide" data-fb="partly">Partly</button>
+            <button class="btn-wide danger" data-fb="wrong">Did not match</button>
+          </div>
+          <div class="ct-note mono" id="ctFbState" style="margin-top:6px;"></div>
+        </details>
       </div>
 
       <div class="ct-panel">
@@ -696,8 +698,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v20";
+const APP_VERSION="v21";
 const APP_VERSIONS=[
+  ["v21","29 Sep 2026","The after-run question is now optional and folded away: Trial run? Record the planted faults. Normal runs need nothing; every run log is still saved."],
   ["v20","29 Sep 2026","After each E2E run: Did this match the site? (Correct / Partly / Wrong with notes), saved with the run log. Every run log is saved automatically on the relay side. Relay v20 judges a late FMS start from when the OTDR actually started, so slow dark results are no longer rechecked. Smart search help text updated."],
   ["v19","29 Sep 2026","E2E run screen shows fibre IDs: the map cells show the fibre number (e.g. 397) instead of the position in the ribbon, and the now testing line shows the toned and tested fibre IDs large, with ribbon and position and the full route names."],
   ["v18","29 Sep 2026","Smarter E2E search from the first cross trial: each ribbon is checked straight first; a found cross is checked for its swap partner at once; a missing fibre is only tried on free positions in its ribbon, then marked DIS if the rest of the ribbon is straight; a dark result after a late FMS start is rechecked. New DIS count."],
@@ -1687,7 +1690,7 @@ let crosses={};                              // index -> "crossed with ..."
   document.querySelectorAll("[data-fb]").forEach(b=>b.onclick=async()=>{
     if(!jobId) return;
     const verdict=b.dataset.fb, notes=$("ctFbNotes").value.trim();
-    if(verdict!=="correct" && !notes){ $("ctFbState").textContent="Please say what is actually on site, then tap again."; $("ctFbNotes").focus(); return; }
+    if(!notes){ $("ctFbState").textContent="Please write what was planted first, then tap again."; $("ctFbNotes").focus(); return; }
     $("ctFbState").textContent="Saving…";
     try{
       const d=await relay("/api/continuity/feedback",{jobId, verdict, notes, user:((jget("toneTester.session",{})||{}).user)||"", appVersion:APP_VERSION});

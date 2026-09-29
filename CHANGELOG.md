@@ -443,6 +443,13 @@ in one direction.
 
 ---
 
+## v21 — 29 September 2026 — planted-fault record is optional (app only)
+
+Alkis: testers in the field will not know whether a result matches the site; only a trial with planted faults does.
+- The after-run panel is folded away as "Trial run? Record the planted faults". Normal runs need nothing.
+- A note of what was planted is required before Result matched / Partly / Did not match. Saved with the run log.
+Relay stays v20.
+
 ## v20 — 29 September 2026 — late start judged from FMS task times, run logs and feedback (app and relay)
 
 Why: on the R35 trial (F412/F416 swapped, F409 DIS; found correctly in 22 tests, 11 min 10 sec) FMS was slow and
