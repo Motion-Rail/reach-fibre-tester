@@ -443,6 +443,26 @@ in one direction.
 
 ---
 
+## v22 — 29 September 2026 — interface tidy (app only)
+
+Alkis's review: the Motion logo rendered badly on phone and web, a "Setup" box top right did nothing, too much
+technical wording, token text on sign in, and the relay settings were not needed.
+- Logo: new logo-light.png (trimmed, lighter teal for the dark theme, larger). The clipped "M" mark in headers is
+  replaced by the full logo, hidden on phones where the header is tight.
+- Sign in: "Sign in with your EXFO FMS account." Token wording removed. Username field is an email field.
+  "Relay settings" replaced by a connection check: "Service online", or "Can't reach the service. Check signal;
+  retrying…" (checks every 15 s until it answers).
+- Service address and key are fixed in the app; no user setting (the uni-dir settings sheet lost its Advanced
+  relay URL / app key fields; "Test relay" is now "Check connection").
+- E2E: the Setup pill is gone (the status pill shows only while running or after a run); header subtitle shows the
+  cable; shorter find, ribbon and estimate text; the Smart search paragraph and the Advanced tuning note removed;
+  "Runs on the relay" is now "Recent runs".
+- E2E run: short ends line (Tone RGAC2 → OTDR SNBC · R35); now testing line without the long route names; Not found
+  tile only shows when there is one; pace/version line hidden (still in the debug report); "Fibre map" with a
+  shorter key; Activity log folded away; "Email to Alkis" is now "Email report".
+- Wording that mentioned the relay now says "service" or "connection".
+Relay unchanged (v20). A server side FMS reachability check needs a relay release; left until site testing ends.
+
 ## v21 — 29 September 2026 — planted-fault record is optional (app only)
 
 Alkis: testers in the field will not know whether a result matches the site; only a trial with planted faults does.

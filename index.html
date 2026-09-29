@@ -36,7 +36,7 @@
   .screen.on{display:flex;}
 
   /* generic inputs / buttons */
-  input[type=text],input[type=password]{
+  input[type=text],input[type=password],input[type=email]{
     width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
     border-radius:9px; padding:12px 12px; font-size:.95rem; -webkit-user-select:text; user-select:text;
   }
@@ -58,7 +58,8 @@
   .card{max-width:440px; margin:0 auto; width:100%;}
   .logo{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
   .logo{flex-direction:column; align-items:flex-start; gap:6px;}
-  .brandlogo{height:34px; width:auto; display:block;}
+  .brandlogo{height:52px; width:auto; display:block; margin:0 0 6px -4px;}
+  @media (min-width:760px){ .brandlogo{height:60px;} }
   .logo h1{font-size:1.02rem; letter-spacing:.06em; text-transform:uppercase; color:var(--text); font-weight:700;}
   .sub{color:var(--muted); font-size:.84rem; line-height:1.5; margin-bottom:18px;}
   .statusline{display:flex; align-items:center; gap:8px; margin-bottom:16px; font-size:.78rem; color:var(--muted);}
@@ -80,7 +81,11 @@
   /* ── TEST SCREEN ── */
   header{background:var(--surface); border-bottom:1px solid var(--border); padding:8px 12px 0; flex:0 0 auto;}
   .top-row{display:flex; align-items:center; gap:8px;}
-  .hdrlogo{height:22px; width:auto; flex:0 0 auto; opacity:.95;}
+  .hdrlogo{height:24px; width:auto; flex:0 0 auto;}
+  @media (max-width:430px){ header .hdrlogo{display:none;} }
+  .conn{display:flex; align-items:center; justify-content:center; gap:6px; font-size:.74rem; color:var(--muted); margin-top:14px;}
+  .conn i{width:8px; height:8px; border-radius:50%; background:var(--muted); display:inline-block;}
+  .conn.ok i{background:var(--done);} .conn.bad i{background:var(--off);} .conn.bad{color:var(--off);}
   .route-ref{flex:1; min-width:0; font-size:.82rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .route-ref small{display:block; font-weight:400; color:var(--muted); font-size:.66rem;}
   .icon-btn{flex:0 0 auto; width:36px; height:32px; border-radius:7px; background:var(--surface2); border:1px solid var(--border); color:var(--muted); font-size:1rem; cursor:pointer;}
@@ -308,14 +313,14 @@
 <section class="screen on" id="screen-login">
   <div class="centre"><div class="card">
     <div class="logo">
-      <img class="brandlogo" src="logo.png" alt="Motion">
+      <img class="brandlogo" src="logo-light.png" alt="Motion">
       <h1>Reach Fibre Tester</h1>
     </div>
-    <p class="sub">Sign in with your EXFO FMS credentials. Your token is held by the relay, never on this device.</p>
+    <p class="sub">Sign in with your EXFO FMS account.</p>
 
 
     <label class="fld" for="inUser">FMS username</label>
-    <input type="text" id="inUser" autocomplete="username" placeholder="your.name">
+    <input type="email" id="inUser" autocomplete="username" placeholder="name@motionrail.co.uk" autocapitalize="off">
     <label class="fld" for="inPass">FMS password</label>
     <input type="password" id="inPass" autocomplete="current-password" placeholder="••••••••">
 
@@ -323,9 +328,7 @@
     <button class="primary" id="loginBtn">Sign in</button>
     <div class="err" id="loginErr"></div>
 
-    <div style="text-align:center; margin-top:14px;">
-      <button class="linkbtn" id="cfgLink">Relay settings</button>
-    </div>
+    <div class="conn" id="connState"><i></i><span>Checking connection…</span></div>
     <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
 
   </div></div>
@@ -334,15 +337,15 @@
 <!-- ════════ MODE (v13) ════════ -->
 <section class="screen" id="screen-mode">
   <div class="centre"><div class="card">
-    <div class="logo"><img class="brandlogo" src="logo.png" alt="Motion"><h1>Reach Fibre Tester</h1></div>
-    <p class="sub" id="modeUser">Choose the check.</p>
+    <div class="logo"><img class="brandlogo" src="logo-light.png" alt="Motion"><h1>Reach Fibre Tester</h1></div>
+    <p class="sub" id="modeUser">Choose a check.</p>
     <button class="mode-opt" id="modeE2E">
       <span class="mode-ico">E2E</span>
-      <span><b>E2E Continuity Checker</b><small>RTU to RTU. Tone one end, OTDR the other. Proves every fibre end to end with no one on site.</small></span>
+      <span><b>E2E Continuity Checker</b><small>RTU to RTU. Checks every fibre end to end, no one needed on site.</small></span>
     </button>
     <button class="mode-opt" id="modeUni">
       <span class="mode-ico">UNI</span>
-      <span><b>Uni-dir Continuity Checker</b><small>Tone out from your node, fibre by fibre, and confirm at the far end with the clamp.</small></span>
+      <span><b>Uni-dir Continuity Checker</b><small>Tone from your node fibre by fibre. Confirm at the far end with the clamp.</small></span>
     </button>
     <div style="text-align:center; margin-top:14px;">
       <button class="linkbtn" id="modeSignOut">Sign out</button>
@@ -355,10 +358,10 @@
 <!-- ════════ ROUTE ════════ -->
 <section class="screen" id="screen-route">
   <div class="centre"><div class="card">
-    <div class="logo"><img class="brandlogo" src="logo.png" alt="Motion"><h1>Uni-dir Continuity Checker</h1></div>
-    <p class="sub">Search the node you are testing out from, then tap the cable. The RTU at that node emits the tone.</p>
+    <div class="logo"><img class="brandlogo" src="logo-light.png" alt="Motion"><h1>Uni-dir Continuity Checker</h1></div>
+    <p class="sub">Search the node you are testing from, then tap the cable.</p>
 
-    <label class="fld" for="inSearch">Search Node (e.g. SNBC, RGAC)</label>
+    <label class="fld" for="inSearch">Node</label>
     <div style="display:flex; gap:8px;">
       <input type="text" id="inSearch" placeholder="SNBC" autocapitalize="characters" autocomplete="off" style="flex:1">
       <button class="primary" id="searchBtn" style="width:auto; padding:12px 18px;">Find</button>
@@ -387,7 +390,7 @@
   <header>
     <div class="top-row">
       <button class="icon-btn" id="backToCable" aria-label="Change cable">‹</button>
-      <img class="hdrlogo" src="mark.png" alt="Motion">
+      <img class="hdrlogo" src="logo-light.png" alt="Motion">
       <div class="route-ref"><span id="hRoute">F-RGAC-SNBC-A-R432</span><small id="hUser">signed in</small></div>
       <span id="testModeBadge" class="badge live">Live</span>
       <button class="icon-btn" id="openLoc" aria-label="Location">⚑</button>
@@ -454,9 +457,9 @@
   <header>
     <div class="top-row" style="padding-bottom:8px;">
       <button class="icon-btn" id="ctBack" aria-label="Back">‹</button>
-      <img class="hdrlogo" src="mark.png" alt="Motion">
-      <div class="route-ref"><span id="ctTitle">E2E Continuity Checker</span><small>RTU to RTU. Tone one end, OTDR the other. Runs on the relay.</small></div>
-      <span class="ct-pill" id="ctState">Setup</span>
+      <img class="hdrlogo" src="logo-light.png" alt="Motion">
+      <div class="route-ref"><span id="ctTitle">E2E Continuity Checker</span><small id="ctSub">Tone one RTU, OTDR the other</small></div>
+      <span class="ct-pill" id="ctState" style="display:none"></span>
     </div>
   </header>
   <div class="ct-body"><div class="ct-wrap">
@@ -464,12 +467,12 @@
     <!-- setup -->
     <div id="ctSetup" class="ct-wrap">
       <div class="ct-panel">
-        <h3>Search node</h3>
+        <h3>Node</h3>
         <div style="display:flex; gap:8px;">
           <input type="text" id="ctSearch" placeholder="SNBC" autocapitalize="characters" autocomplete="off" style="flex:1">
           <button class="primary" id="ctFind" style="width:auto; padding:12px 18px;">Find</button>
         </div>
-        <div class="ct-note" id="ctFindMsg">Type a node code, e.g. SNBC or RGAC. Every cable with an RTU at both ends is listed by cable ID.</div>
+        <div class="ct-note" id="ctFindMsg">Type a node code, e.g. SNBC.</div>
         <div id="ctCables" style="margin-top:8px;"></div>
         <div id="ctEndsWrap" style="display:none; margin-top:6px;">
           <div class="ct-ends">
@@ -481,7 +484,7 @@
       </div>
 
       <div class="ct-panel">
-        <h3>Ribbons to check</h3>
+        <h3>Ribbons</h3>
         <div class="ct-bundles" id="ctRibbons"></div>
         <div class="ct-quick">
           <button data-q="all">All 36</button><button data-q="none">Clear</button>
@@ -495,18 +498,17 @@
           <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="10"></div>
           <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="3" max="30" value="3"></div>
         </div>
-        <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Auto pacing: lengthen the tone if a fibre only passes on its retry</label>
-        <div class="ct-note">Defaults were measured on the live cable: tone 10 s, OTDR 3 s, about 13 s a fibre. A longer tone does not slow the run until it passes about 11 s, and it covers slow responses from FMS. OTDR 3 s makes a wrong guess cost about 18 s; 1 s was erratic (14 to 35 s). Tone is CW (0 Hz) at 1550 nm.</div>
+        <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Auto pacing</label>
+        <div class="ct-note">The defaults suit normal runs. Only change these if asked to.</div>
         <button class="linkbtn" id="ctResetAdv" style="padding-left:0;">Reset to defaults</button>
       </details>
 
       <button class="primary" id="ctStart">Start continuity run</button>
       <div class="err" id="ctErr"></div>
-      <div class="ct-note" style="margin-top:-4px;"><b style="color:var(--text)">Smart search is on.</b> Each ribbon is checked straight first. A fibre that is dark on its own position is tried on the free positions in its ribbon; when it is found, its partner is checked at once for a swap. A fibre not on any free position, in a ribbon that is otherwise straight, is marked DIS after two rechecks. Neighbouring ribbons and bundles are searched only when a whole ribbon is out of place.</div>
 
 <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
       <div class="ct-panel" id="ctJobsPanel" style="display:none;">
-        <h3>Runs on the relay</h3>
+        <h3>Recent runs</h3>
         <div id="ctJobs"></div>
       </div>
     </div>
@@ -529,7 +531,7 @@
           <div class="ct-stat"><b class="mono" id="ctElapsed">0m</b><span>Elapsed</span></div>
         </div>
         <div class="ct-now" id="ctNow"></div>
-        <div class="ct-note mono" id="ctPace" style="margin-top:4px;"></div>
+        <div class="ct-note mono" id="ctPace" style="display:none"></div>
         <div class="ct-actions" style="margin-top:10px;">
           <button class="btn-wide" id="ctPause">Pause</button>
           <button class="btn-wide danger" id="ctStop">Stop</button>
@@ -539,14 +541,13 @@
       </div>
 
       <div class="ct-panel">
-        <h3>Map, far end position each fibre landed on</h3>
+        <h3>Fibre map</h3>
         <div class="ct-gridwrap" id="ctGrid"></div>
         <div class="ct-key">
           <span><i style="background:var(--done)"></i>straight</span>
-          <span>number = fibre ID</span>
-          <span><i style="background:var(--cross)"></i>crossed, number = far end fibre it landed on</span>
-          <span><i style="background:var(--off)"></i>DIS, no light at the far end (or ? not found)</span>
-          <span><i style="border:2px solid var(--tone)"></i>toning now</span>
+          <span><i style="background:var(--cross)"></i>crossed, shows the far end fibre</span>
+          <span><i style="background:var(--off)"></i>DIS</span>
+          <span><i style="border:2px solid var(--tone)"></i>testing now</span>
         </div>
         <div class="ct-cell-info" id="ctCellInfo"></div>
       </div>
@@ -554,7 +555,7 @@
       <div class="ct-panel" id="ctFbPanel" style="display:none;">
         <details class="ct-adv" id="ctFbBox">
           <summary>Trial run? Record the planted faults</summary>
-          <div class="ct-note" style="margin-top:8px;">Only for test runs where faults were put in on purpose. Normal runs need nothing here; every run log is saved anyway.</div>
+          <div class="ct-note" style="margin-top:8px;">Only for test runs with faults put in on purpose.</div>
           <textarea id="ctFbNotes" rows="3" placeholder="What was planted, e.g. F412/F416 swapped at SNBC ODF, F409 unpatched" style="width:100%; margin-top:8px; box-sizing:border-box; background:var(--surface2); color:var(--text); border:1px solid var(--line, #333); border-radius:8px; padding:8px; font:inherit; font-size:.82rem;"></textarea>
           <div class="ct-actions" style="margin-top:8px;">
             <button class="btn-wide" data-fb="correct">Result matched</button>
@@ -575,19 +576,19 @@
         </div>
         <details class="ct-adv" style="margin-top:10px;">
           <summary>Debug report</summary>
-          <div class="ct-note">For fault finding. Holds every test with its timing, the settings, app and relay versions and the activity log.</div>
+          <div class="ct-note">For fault finding only.</div>
           <div class="ct-actions" style="margin-top:8px;">
-            <button class="btn-wide" id="ctDbgMail">Email to Alkis</button>
+            <button class="btn-wide" id="ctDbgMail">Email report</button>
             <button class="btn-wide" id="ctDbgSave">Save debug file</button>
           </div>
           <div class="ct-note" id="ctDbgMsg"></div>
         </details>
       </div>
 
-      <div class="ct-panel">
-        <h3>Activity</h3>
-        <div class="ct-log mono" id="ctLog">-</div>
-      </div>
+      <details class="ct-panel ct-adv">
+        <summary>Activity log</summary>
+        <div class="ct-log mono" id="ctLog" style="margin-top:8px;">-</div>
+      </details>
     </div>
 
   </div></div>
@@ -606,7 +607,7 @@
 <div class="sheet-bg" id="sheetBg"></div>
 <div class="sheet" id="sheet">
   <h2>Settings</h2>
-  <p class="hint">Tone parameters used for every fibre. The relay connection is pre-configured.</p>
+  <p class="hint">Tone settings used for every fibre.</p>
 
   <label class="fld">Tone parameters</label>
   <div class="row2" style="margin-top:0;">
@@ -614,22 +615,12 @@
     <div style="flex:1"><input type="text" id="cfgDur" inputmode="numeric" placeholder="5"></div>
     <div style="flex:1"><input type="text" id="cfgFreq" inputmode="numeric" placeholder="1000"></div>
   </div>
-  <p class="hint" style="margin-top:6px;">Wavelength (nm) · Duration (s) · Modulation (Hz). 1000 Hz = 1 kHz.</p>
+  <p class="hint" style="margin-top:6px;">Wavelength (nm) · Duration (s) · Modulation (Hz)</p>
 
   <div class="link-status idle" id="linkStatus" style="font-size:.76rem; color:var(--muted); padding:8px 0;"></div>
-  <div class="row2"><button class="btn-wide" id="testRelay">Test relay</button><button class="btn-wide" id="closeSettings">Done</button></div>
+  <div class="row2"><button class="btn-wide" id="testRelay">Check connection</button><button class="btn-wide" id="closeSettings">Done</button></div>
   <div class="row2"><button class="btn-wide" id="finishBtn">Finish &amp; view summary</button><button class="btn-wide danger" id="resetBtn">Reset progress</button></div>
 
-  <div style="text-align:center; margin-top:10px;">
-    <button class="linkbtn" id="advLink">Advanced</button>
-  </div>
-  <div id="advWrap" style="display:none;">
-    <p class="hint" style="margin-top:8px;">Only change these if instructed.</p>
-    <label class="fld" for="cfgRelay">Relay URL</label>
-    <input type="text" id="cfgRelay" autocomplete="off">
-    <label class="fld" for="cfgKey">App key</label>
-    <input type="text" id="cfgKey" autocomplete="off">
-  </div>
 </div>
 
 <!-- Issue modal -->
@@ -698,8 +689,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v21";
+const APP_VERSION="v22";
 const APP_VERSIONS=[
+  ["v22","29 Sep 2026","Interface tidy: clearer Motion logo, connection check on the sign in screen instead of relay settings (the service address is fixed), Setup label removed, shorter wording throughout, technical notes removed, activity log folded away."],
   ["v21","29 Sep 2026","The after-run question is now optional and folded away: Trial run? Record the planted faults. Normal runs need nothing; every run log is still saved."],
   ["v20","29 Sep 2026","After each E2E run: Did this match the site? (Correct / Partly / Wrong with notes), saved with the run log. Every run log is saved automatically on the relay side. Relay v20 judges a late FMS start from when the OTDR actually started, so slow dark results are no longer rechecked. Smart search help text updated."],
   ["v19","29 Sep 2026","E2E run screen shows fibre IDs: the map cells show the fibre number (e.g. 397) instead of the position in the ribbon, and the now testing line shows the toned and tested fibre IDs large, with ribbon and position and the full route names."],
@@ -725,10 +717,10 @@ const APP_VERSIONS=[
   document.querySelectorAll(".appv").forEach(e=>e.textContent=APP_VERSION);
   function open(){
     $("verList").innerHTML=APP_VERSIONS.map(v=>'<div class="ver-item'+(v[0]===APP_VERSION?' cur':'')+'"><b>'+v[0]+(v[0]===APP_VERSION?' (this app)':'')+'</b><span class="vd">'+v[1]+'</span><p>'+v[2]+'</p></div>').join("");
-    $("verNow").textContent="App "+APP_VERSION+" · relay checking…";
+    $("verNow").textContent="App "+APP_VERSION+" · service checking…";
     let relay="https://relay-njqb.onrender.com"; try{ const c=JSON.parse(localStorage.getItem("toneTester.cfg")||"{}"); if(c.relay) relay=c.relay; }catch(e){}
-    fetch(relay.replace(/\/$/,"")+"/health").then(r=>r.json()).then(h=>{ $("verNow").textContent="App "+APP_VERSION+" · relay "+(h.version||"?")+" · tone "+(h.tone||"?"); })
-      .catch(()=>{ $("verNow").textContent="App "+APP_VERSION+" · relay not answering"; });
+    fetch(relay.replace(/\/$/,"")+"/health").then(r=>r.json()).then(h=>{ $("verNow").textContent="App "+APP_VERSION+" · service "+(h.version||"?"); })
+      .catch(()=>{ $("verNow").textContent="App "+APP_VERSION+" · service not answering"; });
     $("verBg").classList.add("open"); $("verSheet").classList.add("open");
   }
   function close(){ $("verBg").classList.remove("open"); $("verSheet").classList.remove("open"); }
@@ -820,7 +812,7 @@ let crosses={};                              // index -> "crossed with ..."
   async function doLogin(user,pass){
     const d=await relay("/api/login",{username:user,password:pass});
     session={id:d.session_id||d.sessionId||"", user:user}; saveSes();
-    if(!session.id) throw new Error("No session returned by relay");
+    if(!session.id) throw new Error("Sign in failed. Try again.");
   }
 
   async function fireTone(i){
@@ -1157,16 +1149,13 @@ let crosses={};                              // index -> "crossed with ..."
   const openS=()=>{$("sheetBg").classList.add("open");$("sheet").classList.add("open");};
   const closeS=()=>{$("sheetBg").classList.remove("open");$("sheet").classList.remove("open");};
   $("openSettings").onclick=openS; $("closeSettings").onclick=closeS; $("sheetBg").onclick=closeS;
-  $("advLink").onclick=()=>{ const w=$("advWrap"); w.style.display = w.style.display==="none"?"block":"none"; };
-  $("cfgRelay").oninput=e=>{cfg.relay=e.target.value.trim();saveCfg();};
-  $("cfgKey").oninput=e=>{cfg.key=e.target.value.trim();saveCfg();};
   $("cfgWl").oninput=e=>{cfg.wl=e.target.value.trim()||"1550";saveCfg();syncParams();};
   $("cfgDur").oninput=e=>{cfg.dur=e.target.value.trim()||"10";saveCfg();syncParams();};
   $("cfgFreq").oninput=e=>{cfg.freq=e.target.value.trim()||"1000";saveCfg();syncParams();};
   $("testRelay").onclick=async()=>{
-    setLink("idle","Testing…");
-    try{ const r=await fetch(cfg.relay.replace(/\/$/,"")+"/health"); setLink(r.ok?"ok":"err",r.ok?"Relay reachable ✓":"Relay returned "+r.status); }
-    catch(e){ setLink("err","Can't reach relay — check URL / it's awake."); }
+    setLink("idle","Checking…");
+    try{ const r=await fetch(DEFAULT_RELAY+"/health",{cache:"no-store"}); setLink(r.ok?"ok":"err",r.ok?"Connected ✓":"Service error ("+r.status+")"); }
+    catch(e){ setLink("err","No connection. Check signal and try again."); }
   };
   $("resetBtn").onclick=()=>{ if(!confirm("Reset all 432 fibres and clear issues?"))return; status=new Array(TOTAL).fill("pending"); issues={}; crosses={}; current=0; viewRib=0; closeS(); render(); saveRun(); };
   $("finishBtn").onclick=()=>{ closeS(); finish(); };
@@ -1262,7 +1251,18 @@ let crosses={};                              // index -> "crossed with ..."
     catch(e){ $("loginErr").textContent=e.message; }
     finally{ $("loginBtn").textContent="Sign in"; $("loginBtn").disabled=false; }
   };
-  $("cfgLink").onclick=openS;
+  // v22: connection check on the sign in screen, instead of relay settings.
+  async function checkConn(){
+    const el=$("connState"); if(!el) return;
+    try{
+      const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),12000);
+      const r=await fetch(DEFAULT_RELAY+"/health",{cache:"no-store",signal:ctl.signal}); clearTimeout(t);
+      const h=await r.json();
+      if(!r.ok||!h.ok) throw 0;
+      el.className="conn ok"; el.lastElementChild.textContent="Service online"+(h.tone==="live"?"":" (tone simulated)");
+    }catch(e){ el.className="conn bad"; el.lastElementChild.textContent="Can't reach the service. Check signal; retrying…"; setTimeout(checkConn,15000); }
+  }
+  checkConn();
   $("backToLogin").onclick=()=>{ session={id:"",user:""}; saveSes(); show("screen-login"); };
 
   // ── route screen ──
@@ -1366,7 +1366,7 @@ let crosses={};                              // index -> "crossed with ..."
   }
   session=jget(SES,session);
   { const pr=jget(RUN,null); if(pr){ rtuId=pr.rtuId||""; rtuName=pr.rtuName||""; rtuSite=pr.rtuSite||""; rtuOnline=pr.rtuOnline!==false; location_=pr.location_||""; scopeMode=pr.scopeMode||"all"; scopeFrom=pr.scopeFrom||1; scopeTo=pr.scopeTo||TOTAL; } }
-  $("cfgRelay").value=cfg.relay; $("cfgKey").value=cfg.key;
+  
   $("cfgWl").value=cfg.wl; $("cfgDur").value=cfg.dur; $("cfgFreq").value=cfg.freq;
   { const L=jget('toneTester.loc',null); if(L){ locJointV=L.j||''; locNoteV=L.n||''; location_=[locJointV,locNoteV].filter(Boolean).join(' \u2014 '); } }
   syncMode(); syncParams(); renderLocBar();
@@ -1397,7 +1397,7 @@ let crosses={};                              // index -> "crossed with ..."
   let ribbons=new Set(jget(LASTKEY,{}).ribbons||[1]);
   let jobId=jget(JOBKEY,""), snap=null, pollT=null;
 
-  function relayCfg(){ const c=jget("toneTester.cfg",{})||{}; return {relay:c.relay||DEFAULT_RELAY, key:c.key||DEFAULT_KEY}; }
+  function relayCfg(){ return {relay:DEFAULT_RELAY, key:DEFAULT_KEY}; }   // v22: fixed, no user setting
   async function relay(path, body){
     const c=relayCfg(), s=jget("toneTester.session",{})||{};
     const headers={"Content-Type":"application/json"};
@@ -1429,10 +1429,10 @@ let crosses={};                              // index -> "crossed with ..."
   function setupView(){
     stopPoll(); snap=null;
     $("ctSetup").style.display=""; $("ctRun").style.display="none";
-    setPill("", "Setup"); loadJobs();
+    $("ctState").style.display="none"; $("ctSub").textContent="Tone one RTU, OTDR the other"; loadJobs();
     if(!ends && $("ctSearch").value.trim()) find();
   }
-  function setPill(cls, txt){ const p=$("ctState"); p.className="ct-pill "+cls; p.textContent=txt; }
+  function setPill(cls, txt){ const p=$("ctState"); p.className="ct-pill "+cls; p.textContent=txt; p.style.display=""; }
 
   let findSeq=0;
   async function find(){
@@ -1468,7 +1468,7 @@ let crosses={};                              // index -> "crossed with ..."
         return; }
       if(!stems.length){ $("ctFindMsg").textContent="No cable with an RTU at both ends matched “"+q+"”."; return; }
       stems.sort();
-      $("ctFindMsg").textContent=stems.length+" cable"+(stems.length>1?"s":"")+" at "+q.toUpperCase()+", tap the cable ID:";
+      $("ctFindMsg").textContent="Tap a cable:";
       $("ctCables").innerHTML=stems.map((s,i)=>{
         const rs=by[s];
         return '<div class="cable-row" data-i="'+i+'"><div class="cinfo"><div class="cs mono">'+esc(cableId(s))+'</div>'+
@@ -1525,7 +1525,7 @@ let crosses={};                              // index -> "crossed with ..."
     const n=ribbons.size*PER, tone=Math.max(4,+$("ctToneS").value||DEF.toneS);
     const best=n*Math.max(13,tone+2.5);        // measured: 12.8 s a fibre at tone 10 s
     $("ctEstimate").textContent=ribbons.size
-      ? ribbons.size+" ribbon"+(ribbons.size>1?"s":"")+", "+n+" fibres. If all straight about "+mins(best)+"; each crossed fibre adds a few 18 s tests."
+      ? n+" fibres, about "+mins(best)+" if all straight."
       : "No ribbons selected.";
   }
   $("ctToneS").addEventListener("change",estimate);
@@ -1581,11 +1581,11 @@ let crosses={};                              // index -> "crossed with ..."
       if(e.status===404){
         const last=jget(SNAPKEY,null);
         if(last && last.id===jobId && last.done<last.targets){   // v17: relay restarted mid run, offer a resume
-          snap={...last, state:"lost", error:"The relay restarted, so this run stopped. Resume carries the finished fibres over."};
+          snap={...last, state:"lost", error:"The service restarted, so this run stopped. Resume carries the finished fibres over."};
           render(); return;
         }
-        jset(JOBKEY,""); jobId=""; $("ctErr").textContent="That run is no longer on the relay (it restarts when redeployed)."; setupView(); return; }
-      $("ctNow").textContent="Relay not answering ("+e.message+"). Retrying…";
+        jset(JOBKEY,""); jobId=""; $("ctErr").textContent="That run is no longer available."; setupView(); return; }
+      $("ctNow").textContent="Connection lost ("+e.message+"). Retrying…";
       pollT=setTimeout(poll, 10000);
     }
   }
@@ -1599,19 +1599,20 @@ let crosses={};                              // index -> "crossed with ..."
       pace:s.pace,appVersion:s.appVersion,relayVersion:s.relayVersion,log:(s.log||[]).slice(-40),patterns:s.patterns||[]});
     setPill(s.state, stateTxt);
     $("ctRunCable").textContent=cableId(s.stem);
-    $("ctRunEnds").textContent="Tone from "+s.toneRtu+"  →  OTDR from "+s.testRtu+"  ·  ribbons "+rangeText(s.ribbons);
+    const node=r=>{ const m=String(r||"").match(/^RTU\d*-([^-]+)-/i); return m?m[1]:r; };   // RTU2-RGAC2-1991133 -> RGAC2
+    $("ctRunEnds").textContent="Tone "+node(s.toneRtu)+"  →  OTDR "+node(s.testRtu)+"  ·  "+rangeText(s.ribbons);
     $("ctSimTag").style.display=s.simulate?"":"none";
     if(s.simulate) $("ctSimTag").textContent="Simulation, no light"+(s.truthNotes&&s.truthNotes.length?" · planted: "+s.truthNotes.join("; "):"");
     $("ctBar").style.width=(s.targets?100*s.done/s.targets:0)+"%";
     $("ctProg").textContent=s.done+" / "+s.targets;
-    $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNUnres").textContent=s.counts.unres; $("ctNDis").textContent=s.counts.dis||0;
+    $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNUnres").textContent=s.counts.unres; $("ctNUnres").parentElement.style.display=s.counts.unres?"":"none"; $("ctSub").textContent=cableId(s.stem); $("ctNDis").textContent=s.counts.dis||0;
     $("ctNTests").textContent=s.tests;
     $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
     const cand=s.candidate||s.current;
     $("ctNow").innerHTML = s.state==="running"&&s.current
       ? '<div class="ct-nowbig">Toning <b class="mono">'+fname(s.current)+'</b> <span class="ct-nowsub">'+rpl(s.current)+'</span>'
         +' &nbsp;→&nbsp; testing <b class="mono">'+fname(cand)+'</b> <span class="ct-nowsub">'+rpl(cand)+(cand===s.current?", own position":", checking for a cross")+'</span></div>'
-        +'<div class="ct-nowsub mono">'+esc(s.stem)+'-'+fname(s.current)+' at '+esc(s.toneRtu)+'  →  '+esc(s.stem)+'-'+fname(cand)+' at '+esc(s.testRtu)+'</div>' 
+  
       : (s.state==="error"||s.state==="lost") ? "Stopped with an error: "+esc(s.error) : "";
     $("ctPause").textContent=s.state==="paused"?"Resume":"Pause";
     $("ctPace").textContent = s.pace ? "Tone "+s.pace.toneS+" s, lead "+s.pace.leadS+" s"+(s.pace.auto?", auto pacing on":"")+"  ·  app "+(s.appVersion||"?")+", relay "+(s.relayVersion||"?") : "";
