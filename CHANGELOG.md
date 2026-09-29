@@ -443,6 +443,13 @@ in one direction.
 
 ---
 
+## v19 — 29 September 2026 — fibre IDs on the run screen (app only)
+
+Alkis: while toning, the screen showed the fibre's position in the ribbon, not its ID.
+- Map cells show the fibre ID (397 to 408 for R35) instead of 1 to 12. Crossed cells still show the far end fibre it landed on.
+- The now testing line shows the toned and tested fibre IDs large, with ribbon/position, whether it is the own position or a cross check, and the full route names at each RTU.
+Relay stays v18.
+
 ## v18 — 29 September 2026 — search follows physical fault logic (app and relay)
 
 Why: first blind cross trial, R4 of F-RGAC-SNBC-A (F041/F042 swapped, F048 disconnected).

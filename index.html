@@ -262,6 +262,8 @@
   table.ct-g td.nf{background:var(--off-dim); color:var(--off); border-color:var(--off);}
   table.ct-g td.now{outline:2px solid var(--tone); color:var(--tone);}
   table.ct-g td.cand{outline:2px dashed var(--tone);}
+  .ct-nowbig{font-size:1rem; line-height:1.5;} .ct-nowbig b{font-size:1.15rem; color:var(--tone);}
+  .ct-nowsub{font-size:.72rem; color:var(--muted); font-weight:400;}
   .ct-key{display:flex; flex-wrap:wrap; gap:12px; font-size:.66rem; color:var(--muted); margin-top:8px;}
   .ct-key i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px;}
   .ct-find li{font-size:.8rem; margin:0 0 5px 16px;}
@@ -541,7 +543,8 @@
         <div class="ct-gridwrap" id="ctGrid"></div>
         <div class="ct-key">
           <span><i style="background:var(--done)"></i>straight</span>
-          <span><i style="background:var(--cross)"></i>crossed, number = where it landed</span>
+          <span>number = fibre ID</span>
+          <span><i style="background:var(--cross)"></i>crossed, number = far end fibre it landed on</span>
           <span><i style="background:var(--off)"></i>DIS, no light at the far end (or ? not found)</span>
           <span><i style="border:2px solid var(--tone)"></i>toning now</span>
         </div>
@@ -681,8 +684,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v18";
+const APP_VERSION="v19";
 const APP_VERSIONS=[
+  ["v19","29 Sep 2026","E2E run screen shows fibre IDs: the map cells show the fibre number (e.g. 397) instead of the position in the ribbon, and the now testing line shows the toned and tested fibre IDs large, with ribbon and position and the full route names."],
   ["v18","29 Sep 2026","Smarter E2E search from the first cross trial: each ribbon is checked straight first; a found cross is checked for its swap partner at once; a missing fibre is only tried on free positions in its ribbon, then marked DIS if the rest of the ribbon is straight; a dark result after a late FMS start is rechecked. New DIS count."],
   ["v17","28 Sep 2026","Long runs no longer stop when the FMS sign in token runs out mid test. A test that errors is retried instead of ending the run. Resume from here button carries finished fibres into a new run, even after a relay restart."],
   ["v16","28 Sep 2026","Activity log times shown in local time (the relay logs in UTC, which read an hour behind during BST)."],
@@ -1587,8 +1591,11 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNUnres").textContent=s.counts.unres; $("ctNDis").textContent=s.counts.dis||0;
     $("ctNTests").textContent=s.tests;
     $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
+    const cand=s.candidate||s.current;
     $("ctNow").innerHTML = s.state==="running"&&s.current
-      ? "Toning <b>"+fname(s.current)+"</b> ("+rpl(s.current)+") at "+esc(s.toneRtu)+", testing <b>"+fname(s.candidate||s.current)+"</b> at "+esc(s.testRtu)
+      ? '<div class="ct-nowbig">Toning <b class="mono">'+fname(s.current)+'</b> <span class="ct-nowsub">'+rpl(s.current)+'</span>'
+        +' &nbsp;→&nbsp; testing <b class="mono">'+fname(cand)+'</b> <span class="ct-nowsub">'+rpl(cand)+(cand===s.current?", own position":", checking for a cross")+'</span></div>'
+        +'<div class="ct-nowsub mono">'+esc(s.stem)+'-'+fname(s.current)+' at '+esc(s.toneRtu)+'  →  '+esc(s.stem)+'-'+fname(cand)+' at '+esc(s.testRtu)+'</div>' 
       : (s.state==="error"||s.state==="lost") ? "Stopped with an error: "+esc(s.error) : "";
     $("ctPause").textContent=s.state==="paused"?"Resume":"Pause";
     $("ctPace").textContent = s.pace ? "Tone "+s.pace.toneS+" s, lead "+s.pace.leadS+" s"+(s.pace.auto?", auto pacing on":"")+"  ·  app "+(s.appVersion||"?")+", relay "+(s.relayVersion||"?") : "";
@@ -1618,7 +1625,7 @@ let crosses={};                              // index -> "crossed with ..."
       h+='<tr><th style="text-align:right">R'+r+'</th>';
       for(let p=1;p<=PER;p++){
         const f=(r-1)*PER+p, v=res[f];
-        let cls="", txt=p;
+        let cls="", txt=String(f).padStart(3,"0");     // v19: fibre ID, not position
         if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":"nf"; if(v.state==="cross") txt=String(v.found).padStart(3,"0"); if(v.state==="dis") txt="DIS"; if(v.state==="unres") txt="?"; }
         if(s.state==="running"&&s.current===f) cls+=" now";
         if(s.state==="running"&&s.candidate===f&&s.current!==f) cls+=" cand";
