@@ -689,8 +689,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v24";
+const APP_VERSION="v25";
 const APP_VERSIONS=[
+  ["v25","29 Sep 2026","When FMS stops answering, a run now waits and carries on by itself instead of marking fibres dark; the run screen and sign in screen say FMS is not responding. DIS distances come from one 30 s OTDR on each DIS fibre. Needs relay v22."],
   ["v24","29 Sep 2026","DIS fibres show where they stop along the route (distance and nearest joint, from the far end OTDR). A run interrupted by a service restart carries on by itself after sign in. Phone or browser notification when a run ends. Needs relay v21."],
   ["v23","29 Sep 2026","Uni-dir: no tone fires when a cable is opened. The NEXT button reads START until the first tone; press it to tone the current fibre."],
   ["v22","29 Sep 2026","Interface tidy: clearer Motion logo, connection check on the sign in screen instead of relay settings (the service address is fixed), Setup label removed, shorter wording throughout, technical notes removed, activity log folded away."],
@@ -1264,6 +1265,7 @@ let crosses={};                              // index -> "crossed with ..."
       const r=await fetch(DEFAULT_RELAY+"/health",{cache:"no-store",signal:ctl.signal}); clearTimeout(t);
       const h=await r.json();
       if(!r.ok||!h.ok) throw 0;
+      if(h.fms && h.fms.ok===false){ el.className="conn bad"; el.lastElementChild.textContent="Service online, but FMS is not responding"+(h.fms.since?" since "+new Date(h.fms.since*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):""); setTimeout(checkConn,60000); return; }
       el.className="conn ok"; el.lastElementChild.textContent="Service online"+(h.tone==="live"?"":" (tone simulated)");
     }catch(e){ el.className="conn bad"; el.lastElementChild.textContent="Can't reach the service. Check signal; retrying…"; setTimeout(checkConn,15000); }
   }
@@ -1631,7 +1633,9 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctNTests").textContent=s.tests;
     $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
     const cand=s.candidate||s.current;
-    $("ctNow").innerHTML = s.state==="running"&&s.current
+    $("ctNow").innerHTML = s.state==="running"&&s.fmsDown
+      ? '<div class="ct-nowbig" style="color:var(--off)">FMS not responding</div><div class="ct-nowsub">Since '+new Date(s.fmsDown.since*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})+'. Retrying every minute; nothing is marked until FMS answers, and the run carries on by itself.</div>'
+      : s.state==="running"&&s.current
       ? '<div class="ct-nowbig">Toning <b class="mono">'+fname(s.current)+'</b> <span class="ct-nowsub">'+rpl(s.current)+'</span>'
         +' &nbsp;→&nbsp; testing <b class="mono">'+fname(cand)+'</b> <span class="ct-nowsub">'+rpl(cand)+(cand===s.current?", own position":", checking for a cross")+'</span></div>'
   
@@ -1680,7 +1684,7 @@ let crosses={};                              // index -> "crossed with ..."
       $("ctCellInfo").textContent = !v ? fname(f)+" "+rpl(f)+", not tested yet."
         : v.state==="straight" ? fname(f)+" "+rpl(f)+" is straight through ("+v.tests+" test"+(v.tests>1?"s":"")+")."
         : v.state==="cross" ? fname(f)+" "+rpl(f)+" lands on "+fname(v.found)+" "+rpl(v.found)+" at the far end ("+v.why+", "+v.tests+" tests)."
-        : v.state==="dis" ? fname(f)+" "+rpl(f)+" is DIS: "+(v.loc? "the fibre "+v.loc.text+"." : v.why+" ("+v.tests+" tests).")
+        : v.state==="dis" ? fname(f)+" "+rpl(f)+" is DIS: "+(v.loc? "the fibre "+v.loc.text+(v.loc.method?" ["+v.loc.method+"]":"")+"." : v.why+" ("+v.tests+" tests).")
         : fname(f)+" "+rpl(f)+" was not found in "+v.tests+" tests. Check it with the toner.";
     });
   }

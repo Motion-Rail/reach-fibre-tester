@@ -443,6 +443,35 @@ in one direction.
 
 ---
 
+## v25 (app) + relay v22 — 29 September 2026 — FMS outages, accurate DIS distance
+
+Why: at 18:23 on 29 Sep FMS returned "503 Service Temporarily Unavailable" on tone calls and left OTDR
+workflows running; the R1 run read every fibre dark. And the 3 s OTDR readings on long dark fibres were short
+(R1: 61.4 to 64.6 km on a 70.6 km route), so a far-end DIS would have been placed mid-route.
+
+Relay v22
+- FMS outage: a tone call refused with 5xx, an OTDR that hangs past 90 s or gives no output, a 5xx on OTDR start,
+  or any connection error, is FMS being down, not a fibre result. The run waits (15 s, then every 60 s) and retries
+  the same test. Nothing is marked while FMS is down. Gives up after 2 h (run fails, resumable).
+  Status carries fmsDown {since, reason, retries}; /health carries fms {ok, since, detail} from the last real call.
+- DIS distance: each DIS fibre gets one 30 s OTDR (no tone needed) for the distance to its open end. Location uses
+  that reading ("30 s OTDR"); without it the 3 s readings are used and flagged "quick 3 s reading; beyond about 55 km
+  it can read short".
+
+- Break location is distance only (Alkis): "stops 15.12 km from SNBC", straight from the FMS OTDR, measured from
+  the test RTU's site. The joint schedule (route_schedules.json) is removed, so nothing needs updating when routes
+  change.
+
+App v25
+- Run screen: "FMS not responding since HH:MM. Retrying every minute; nothing is marked until FMS answers, and the
+  run carries on by itself."
+- Sign in screen: "Service online, but FMS is not responding since HH:MM" when the relay last saw FMS fail.
+- DIS map cell shows how the distance was measured.
+
+Tests (mock FMS with a switchable 503 outage): R1 run, outage switched on at 3/12 for 75 s: run waited, health showed
+FMS not OK, no fibre marked; FMS back, run carried on and finished 12/12 with the F005/F007 swap and F010 DIS
+located from the 30 s OTDR. Simulator: 0 wrong across all fault types.
+
 ## v24 (app) + relay v21 — 29 September 2026 — break location, restart-proof runs, run-end notices
 
 1. Where a DIS fibre stops (relay break_locator.py + route_schedules.json)
