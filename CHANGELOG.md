@@ -443,6 +443,31 @@ in one direction.
 
 ---
 
+## v20 — 29 September 2026 — late start judged from FMS task times, run logs and feedback (app and relay)
+
+Why: on the R35 trial (F412/F416 swapped, F409 DIS; found correctly in 22 tests, 11 min 10 sec) FMS was slow and
+every dark OTDR took about 40 s. v18 judged "late" from when the result came back, so every dark fibre was
+rechecked with a 20 s tone, about 4 min wasted. Alkis also asked for every run to feed back automatically.
+
+Relay v20
+- Late start: after a dark result the relay reads the sub workflow's task times from FMS, corrects for the FMS
+  clock using the parent workflow start, and takes the longest task as the acquisition. A dark result is only
+  rechecked if that acquisition started less than 1 s before the tone ended. Falls back to the old rule
+  (result later than tone start + tone + 25 s) when task times are missing. testLog carries acqAfterToneS and,
+  for the first 60 tests, the task timeline, so the rule can be checked on real runs.
+- Run logs: when a run ends (done, stopped or failed) the full debug report is written to a private GitHub repo
+  as runs/<date>/<date>_<hhmm>_<stem>_<ribbons>_<id>.json. Needs LOG_REPO and LOG_TOKEN on the relay; off otherwise.
+- POST /api/continuity/feedback {jobId, verdict: correct|partly|wrong, notes, user}: stored on the run and the log
+  file is rewritten with it. Status shows logSaved and feedback.
+
+App v20
+- "Did this match the site?" panel after a run: Correct / Partly / Wrong (Partly and Wrong need a note saying what
+  is actually on site). Saved with the run log.
+- Smart search help text describes the v18 search.
+
+Mock FMS + fake GitHub: R1 with F005/F007 swapped and F010 DIS found in 19 tests; log file written at run end;
+feedback rewrote it with verdict, notes, user and app version.
+
 ## v19 — 29 September 2026 — fibre IDs on the run screen (app only)
 
 Alkis: while toning, the screen showed the fibre's position in the ribbon, not its ID.
