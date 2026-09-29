@@ -443,6 +443,36 @@ in one direction.
 
 ---
 
+## v24 (app) + relay v21 — 29 September 2026 — break location, restart-proof runs, run-end notices
+
+1. Where a DIS fibre stops (relay break_locator.py + route_schedules.json)
+- Every dark OTDR's link length is now kept (testLog lenM). For a DIS fibre the far RTU's OTDR on its own
+  position reads the distance to the open end. The median reading is matched to the joint schedule
+  (Distances.xlsx rev 1.2, NRS-304, both directions, per ribbon group, Actual then Design):
+  within 150 m of 0 = near-end ODF/patch; within 150 m of the route total = far-end ODF/patch;
+  within 150 m of a location = "at A-21 (+7 m)"; otherwise "between A-21 and Baulking REB (614 m past A-21)".
+- Shown in the findings, the map cell, Copy text, PDF (new DIS section) and CSV (3 new columns), and in the
+  Teams message. Other cables need their schedules added to route_schedules.json.
+
+2. Runs survive a relay restart
+- The relay saves each run to the log store every 60 s and on shutdown. On start up it restores runs that
+  were in progress as "interrupted", with every finished fibre.
+- The app carries on by itself: after the restart it asks for sign in once ("Nothing is lost"), then resumes
+  the same cable and ribbons, carrying every finished fibre over. The old run points to the new one.
+- A resume now checks the sign in before creating anything (no half-made runs holding the RTUs).
+
+3. Notices when a run ends
+- Teams: set TEAMS_WEBHOOK on the relay (a Teams Workflows "post to a channel when a webhook request is
+  received" URL). Card: cable, ribbons, result counts, crosses, DIS with location, tests, minutes, who ran it,
+  and an Open Reach Fibre Tester button. Off when unset.
+- App: phone or browser notification (permission asked when a run starts) and a vibrate when it ends.
+
+Tests (mock FMS + fake GitHub + fake Teams): R1 run stopped by killing the relay at 3/12 (checkpoint and
+shutdown save both worked), restored as interrupted, app asked for sign in, resumed at 3/12 and finished
+12/12: F005/F007 swap, F010 DIS "stops about 15.12 km from SNBC, between A-21 and Baulking REB (614 m past
+A-21)", Teams card sent. Locator checked against the schedule: 68899 m on R35 = far end (RGAC2 ODF or patch),
+12 m = SNBC ODF, 15120 m = A-21 (+7 m).
+
 ## v23 — 29 September 2026 — uni-dir does not tone on open (app only)
 
 Alkis: the uni-dir checker fired a tone as soon as a cable was opened.

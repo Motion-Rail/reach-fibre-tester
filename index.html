@@ -689,8 +689,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v23";
+const APP_VERSION="v24";
 const APP_VERSIONS=[
+  ["v24","29 Sep 2026","DIS fibres show where they stop along the route (distance and nearest joint, from the far end OTDR). A run interrupted by a service restart carries on by itself after sign in. Phone or browser notification when a run ends. Needs relay v21."],
   ["v23","29 Sep 2026","Uni-dir: no tone fires when a cable is opened. The NEXT button reads START until the first tone; press it to tone the current fibre."],
   ["v22","29 Sep 2026","Interface tidy: clearer Motion logo, connection check on the sign in screen instead of relay settings (the service address is fixed), Setup label removed, shorter wording throughout, technical notes removed, activity log folded away."],
   ["v21","29 Sep 2026","The after-run question is now optional and folded away: Trial run? Record the planted faults. Normal runs need nothing; every run log is still saved."],
@@ -1548,8 +1549,9 @@ let crosses={};                              // index -> "crossed with ..."
     const adv = toneS!==DEF.toneS || otdrS!==DEF.otdrS || !$("ctAuto").checked;
     const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
                 toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:0,
-                simulate:null};
+                simulate:null, user:(jget("toneTester.session",{})||{}).user||""};
     jset(LASTKEY,{search:$("ctSearch").value.trim(), stem:ends.stem, tone:ends.a.rtuName, ribbons:body.ribbons, toneS, otdrS, auto:body.autoPace, adv});
+    try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
     $("ctStart").disabled=true; $("ctStart").textContent="Starting…";
     try{ const d=await relay("/api/continuity/start",body); jobId=d.jobId; jset(JOBKEY,jobId); attach(jobId); }
     catch(e){ $("ctErr").textContent=e.message; }
@@ -1596,9 +1598,24 @@ let crosses={};                              // index -> "crossed with ..."
   }
   document.addEventListener("visibilitychange",()=>{ if(!document.hidden && jobId && $("screen-cont").classList.contains("on") && snap && (snap.state==="running"||snap.state==="paused")) poll(); });
 
+  const autoResumed={}, lastState={};
+  function notifyEnd(s){
+    const c=s.counts||{}, title=cableId(s.stem)+" "+rangeText(s.ribbons)+": "+({done:"complete",stopped:"stopped",error:"failed"}[s.state]||s.state);
+    const body=c.straight+" straight, "+c.cross+" crossed, "+(c.dis||0)+" DIS. "+mins((s.ended||s.now)-s.started)+".";
+    try{ if(window.Notification && Notification.permission==="granted"){
+      navigator.serviceWorker && navigator.serviceWorker.ready.then(r=>r.showNotification(title,{body, icon:"icons/icon-192.png", tag:"run-"+s.id}))
+        .catch(()=>new Notification(title,{body})); } }catch(e){}
+    try{ navigator.vibrate && navigator.vibrate([200,100,200]); }catch(e){}
+  }
   function render(){
     const s=snap;
-    const stateTxt={running:"Running",paused:"Paused",done:"Complete",stopped:"Stopped",error:"Failed",lost:"Interrupted"}[s.state]||s.state;
+    const stateTxt={running:"Running",paused:"Paused",done:"Complete",stopped:"Stopped",error:"Failed",lost:"Interrupted",interrupted:"Interrupted",resumed:"Resumed"}[s.state]||s.state;
+    // v24: a run whose relay restarted comes back as "interrupted"; carry on automatically, once.
+    if(s.state==="resumed" && s.resumedAs && s.resumedAs!==jobId){ jobId=s.resumedAs; jset(JOBKEY,jobId); setTimeout(poll,300); }
+    if(s.state==="interrupted" && !autoResumed[s.id]){ autoResumed[s.id]=1; setTimeout(()=>$("ctResumeRun").click(),900); }
+    // v24: tell the tester when a run ends, even if the tab is in the background
+    if(lastState[s.id] && ["running","paused"].includes(lastState[s.id]) && ["done","stopped","error"].includes(s.state)) notifyEnd(s);
+    lastState[s.id]=s.state;
     if(s.results && s.state!=="lost") jset(SNAPKEY,{id:s.id,stem:s.stem,toneRtu:s.toneRtu,testRtu:s.testRtu,ribbons:s.ribbons,targets:s.targets,
       done:s.done,counts:s.counts,tests:s.tests,started:s.started,ended:s.ended||s.now,now:s.now,results:s.results,settings:s.settings,
       pace:s.pace,appVersion:s.appVersion,relayVersion:s.relayVersion,log:(s.log||[]).slice(-40),patterns:s.patterns||[]});
@@ -1663,7 +1680,7 @@ let crosses={};                              // index -> "crossed with ..."
       $("ctCellInfo").textContent = !v ? fname(f)+" "+rpl(f)+", not tested yet."
         : v.state==="straight" ? fname(f)+" "+rpl(f)+" is straight through ("+v.tests+" test"+(v.tests>1?"s":"")+")."
         : v.state==="cross" ? fname(f)+" "+rpl(f)+" lands on "+fname(v.found)+" "+rpl(v.found)+" at the far end ("+v.why+", "+v.tests+" tests)."
-        : v.state==="dis" ? fname(f)+" "+rpl(f)+" is DIS: "+v.why+" ("+v.tests+" tests). Check the splice or patch with the toner."
+        : v.state==="dis" ? fname(f)+" "+rpl(f)+" is DIS: "+(v.loc? "the fibre "+v.loc.text+"." : v.why+" ("+v.tests+" tests).")
         : fname(f)+" "+rpl(f)+" was not found in "+v.tests+" tests. Check it with the toner.";
     });
   }
@@ -1672,7 +1689,7 @@ let crosses={};                              // index -> "crossed with ..."
     Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(f=>{ const v=res[f];
       if(v.state==="cross") cr.push(fname(f)+" ("+rpl(f)+") lands on "+fname(v.found)+" ("+rpl(v.found)+")");
       if(v.state==="unres") nf.push(fname(f)+" ("+rpl(f)+")");
-      if(v.state==="dis") ds.push(fname(f)+" ("+rpl(f)+")"); });
+      if(v.state==="dis") ds.push(fname(f)+" ("+rpl(f)+")"+(v.loc?": "+v.loc.text:"")); });
     const pats=(snap.patterns||[]).filter(p=>p.hits>=2).map(p=>p.label.charAt(0).toUpperCase()+p.label.slice(1)+", seen on "+p.hits+" fibres");
     return {cr,nf,ds,pats};
   }
@@ -1680,7 +1697,8 @@ let crosses={};                              // index -> "crossed with ..."
     const {cr,nf,ds,pats}=lists(), out=[];
     pats.forEach(p=>out.push(p+"."));
     if(cr.length) out.push(cr.length+" crossed fibre"+(cr.length>1?"s":"")+": "+cr.slice(0,6).join("; ")+(cr.length>6?"; …":"")+".");
-    if(ds.length) out.push(ds.length+" DIS, no light at the far end (rest of the ribbon in place): "+ds.slice(0,10).join(", ")+(ds.length>10?", …":"")+".");
+    ds.slice(0,10).forEach(d=>out.push("DIS "+d+"."));
+    if(ds.length>10) out.push("…and "+(ds.length-10)+" more DIS.");
     if(nf.length) out.push(nf.length+" not found, check with the toner: "+nf.slice(0,10).join(", ")+(nf.length>10?", …":"")+".");
     if(!out.length) out.push(snap.done? "Every fibre checked so far is straight through." : "Nothing yet.");
     $("ctFindings").innerHTML=out.map(t=>"<li>"+esc(t)+"</li>").join("");
@@ -1710,32 +1728,37 @@ let crosses={};                              // index -> "crossed with ..."
     const st=s.settings;
     const body={toneRtu:st.toneRtu, testRtu:st.testRtu, stem:st.stem, ribbons:st.ribbons, toneS:st.toneS, otdrS:st.otdrS,
                 autoPace:st.autoPace, appVersion:APP_VERSION, wavelengthNm:st.wavelengthNm||1550, freqHz:st.freqHz||0,
-                simulate:null, prior:s.results||{}, resumeOf:s.resumeOf||s.id};
+                simulate:null, prior:s.results||{}, resumeOf:(s.state==="interrupted"||s.state==="lost")?s.id:(s.resumeOf||s.id),
+                user:(jget("toneTester.session",{})||{}).user||""};
     $("ctResumeRun").disabled=true; $("ctResumeRun").textContent="Resuming…";
     try{ const d=await relay("/api/continuity/start",body); jobId=d.jobId; jset(JOBKEY,jobId); attach(jobId); }
-    catch(e){ $("ctNow").textContent="Could not resume: "+e.message; }
+    catch(e){ $("ctNow").innerHTML=/session|sign in/i.test(e.message)
+        ? 'Sign in again to carry on. Nothing is lost. <button class="linkbtn" id="ctReSign">Sign in</button>'
+        : "Could not resume: "+esc(e.message);
+      const b=$("ctReSign"); if(b) b.onclick=()=>{ jset("toneTester.session",{id:"",user:""}); location.reload(); }; }
     finally{ $("ctResumeRun").disabled=false; $("ctResumeRun").textContent="Resume from here"; }
   };
   $("ctNew").onclick=()=>{ jobId=""; jset(JOBKEY,""); setupView(); };
 
   // ── reports ──
   function reportText(){
-    const s=snap, {cr,nf,pats}=lists();
+    const s=snap, {cr,nf,ds,pats}=lists();
     return ["Reach Fibre Tester - E2E continuity report"+(s.simulate?" (SIMULATION, no light)":""),
       "Cable: "+cableId(s.stem), "Tone from: "+s.toneRtu, "OTDR from: "+s.testRtu, "Ribbons: "+rangeText(s.ribbons),
       "Started: "+new Date(s.started*1000).toLocaleString("en-GB")+(s.ended?"  Ended: "+new Date(s.ended*1000).toLocaleString("en-GB"):""),
       "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", DIS "+(s.counts.dis||0)+", not found "+s.counts.unres+". Tests "+s.tests+". Time "+mins((s.ended||s.now)-s.started)+".",
       "Versions: app "+(s.appVersion||APP_VERSION)+", relay "+(s.relayVersion||"?"),
-      "", "Crossed:", ...(cr.length?cr:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
+      "", "Crossed:", ...(cr.length?cr:["None"]), "", "DIS:", ...(ds.length?ds:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
       ...(pats.length?["","Patterns:",...pats]:[]),
       "", "Method: CW tone at the tone end; AdHoc OTDR on the same fibre at the far end. The far RTU refusing the OTDR as live fibre (112_LiveFiberDetected) proves the fibre end to end."].join("\n");
   }
   function csv(){
-    const rows=[["Cable","Fibre","Ribbon","Position","Result","Far end fibre","Far end ribbon","Far end position","How found","Tests"]];
+    const rows=[["Cable","Fibre","Ribbon","Position","Result","Far end fibre","Far end ribbon","Far end position","How found","Tests","DIS distance (m)","DIS measured from","DIS location"]];
     const res=snap.results||{};
     Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(f=>{ const v=res[f], a=rp(f), b=v.found?rp(v.found):null;
       rows.push([snap.stem,fname(f),a.r,a.p,v.state==="straight"?"Straight":v.state==="cross"?"Crossed":v.state==="dis"?"DIS":"Not found",
-                 v.found?fname(v.found):"",b?b.r:"",b?b.p:"",'"'+String(v.why).replace(/"/g,"'")+'"',v.tests]); });
+                 v.found?fname(v.found):"",b?b.r:"",b?b.p:"",'"'+String(v.why).replace(/"/g,"'")+'"',v.tests,
+                 v.loc?v.loc.distM:"", v.loc?v.loc.from:"", v.loc?'"'+String(v.loc.text).replace(/"/g,"'")+'"':""]); });
     return rows.map(r=>r.join(",")).join("\r\n");
   }
   function fileBase(){ return "Continuity_"+(snap.stem||"cable").replace(/[^A-Z0-9-]/gi,"_")+"_"+new Date(snap.started*1000).toISOString().slice(0,10); }
@@ -1766,6 +1789,7 @@ let crosses={};                              // index -> "crossed with ..."
     h2("Result");
     kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); kv("Crossed",String(s.counts.cross)); kv("DIS",String(s.counts.dis||0)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
     h2("Crossed fibres"); if(cr.length) cr.forEach(c=>para("-  "+c)); else para("None");
+    h2("DIS"); { const dl=lists().ds; if(dl.length) dl.forEach(d=>para("-  "+d)); else para("None"); }
     h2("Not found"); para(nf.length?nf.join(", "):"None");
     if(pats.length){ h2("Patterns"); pats.forEach(p=>para("-  "+p)); }
     h2("Map, far end fibre per position");
