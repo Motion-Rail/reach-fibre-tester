@@ -267,6 +267,8 @@
   table.ct-g td.nf{background:var(--off-dim); color:var(--off); border-color:var(--off);}
   table.ct-g td.now{outline:2px solid var(--tone); color:var(--tone);}
   table.ct-g td.cand{outline:2px dashed var(--tone);}
+  .ct-step{margin-top:8px; padding:8px 10px; border-left:3px solid var(--tone); background:var(--surface2); border-radius:6px; font-size:.8rem; line-height:1.45; color:var(--text);}
+  .ct-step.warn{border-left-color:var(--off);}
   .ct-nowbig{font-size:1rem; line-height:1.5;} .ct-nowbig b{font-size:1.15rem; color:var(--tone);}
   .ct-nowsub{font-size:.72rem; color:var(--muted); font-weight:400;}
   .ct-key{display:flex; flex-wrap:wrap; gap:12px; font-size:.66rem; color:var(--muted); margin-top:8px;}
@@ -531,6 +533,7 @@
           <div class="ct-stat"><b class="mono" id="ctElapsed">0m</b><span>Elapsed</span></div>
         </div>
         <div class="ct-now" id="ctNow"></div>
+        <div class="ct-step" id="ctStep" style="display:none"></div>
         <div class="ct-note mono" id="ctPace" style="display:none"></div>
         <div class="ct-actions" style="margin-top:10px;">
           <button class="btn-wide" id="ctPause">Pause</button>
@@ -689,8 +692,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v25";
+const APP_VERSION="v26";
 const APP_VERSIONS=[
+  ["v26","29 Sep 2026","When a whole ribbon is dark the search checks, and says in the activity log, whether it is crossed with the ribbons either side or with the same ribbon in the neighbouring bundle, before calling it disconnected. The run screen shows the current step. Needs relay v23."],
   ["v25","29 Sep 2026","When FMS stops answering, a run now waits and carries on by itself instead of marking fibres dark; the run screen and sign in screen say FMS is not responding. DIS distances come from one 30 s OTDR on each DIS fibre. Needs relay v22."],
   ["v24","29 Sep 2026","DIS fibres show where they stop along the route (distance and nearest joint, from the far end OTDR). A run interrupted by a service restart carries on by itself after sign in. Phone or browser notification when a run ends. Needs relay v21."],
   ["v23","29 Sep 2026","Uni-dir: no tone fires when a cable is opened. The NEXT button reads START until the first tone; press it to tone the current fibre."],
@@ -1633,6 +1637,11 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctNTests").textContent=s.tests;
     $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
     const cand=s.candidate||s.current;
+    // v26: the latest step the search has explained in the activity log (ribbon checks, warnings, FMS)
+    { const steps=(s.log||[]).map(l=>String(l).replace(/^\d\d:\d\d:\d\d\s+/,"")).filter(l=>/^(R\d+:|Warning|FMS)/.test(l));
+      const last=steps[steps.length-1]||"", el=$("ctStep");
+      el.style.display=last && (s.state==="running"||s.state==="paused"||/Warning|disconnected/.test(last))?"":"none";
+      el.className="ct-step"+(/Warning|disconnected|not responding/.test(last)?" warn":""); el.textContent=last; }
     $("ctNow").innerHTML = s.state==="running"&&s.fmsDown
       ? '<div class="ct-nowbig" style="color:var(--off)">FMS not responding</div><div class="ct-nowsub">Since '+new Date(s.fmsDown.since*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})+'. Retrying every minute; nothing is marked until FMS answers, and the run carries on by itself.</div>'
       : s.state==="running"&&s.current

@@ -443,6 +443,32 @@ in one direction.
 
 ---
 
+## v26 (app) + relay v23 — 29 September 2026 — whole ribbon dark: crossed ribbon or bundle first, and say so
+
+Alkis, after R1 read completely dark on 29 Sep evening (R3 and R35 fine): if a whole ribbon is dark it could be a
+crossed ribbon, so check the ribbons either side, then a crossed bundle, so check the same ribbon in the next bundle.
+The activity log must state these steps so users know what the issue is and what the search is doing.
+
+Engine (relay v23)
+- The first 4 fibres of a ribbon all dark on their own positions: the search stops and checks the whole ribbon with
+  one fibre: the ribbon reversed, the ribbon either side (and reversed), then the same ribbon in the next and the
+  previous bundle (and reversed). Each check is written to the log ("F001 on F013 R2 f1: R1 crossed with R2?").
+- Found: the pattern (for example "bundles 1 and 2 crossed") is applied to the rest of the ribbon, each fibre
+  confirmed with one test; a fibre that does not follow it is searched on its own. Partners are swap checked.
+- Not found: the rest of the ribbon is tested on its own positions. If still nothing gets through, the check is
+  repeated with two more fibres, then the ribbon is reported as disconnected, not crossed, with the next steps:
+  check the patching at both ODFs and the ribbon splices; if other ribbons are also all dark, check the tone RTU
+  and FMS first. Two ribbons in a row completely dark gives a warning to check the tone RTU and FMS.
+- Only the first two fibres of a dark ribbon get the 30 s distance OTDR.
+
+App v26
+- The run screen shows the current search step from the log (ribbon checks, warnings, FMS state) under the
+  now testing line, highlighted red for warnings and a disconnected ribbon.
+
+Simulator (tests; all answers correct): R1 dark 39 (v17 search 1308); R1 and R2 dark 51; R1/R2 crossed 21;
+R1/R7 bundle crossed 23; R1 reversed 20; straight, pair, DIS and cross-ribbon cases unchanged.
+Mock FMS: R1/R7 crossed: found on the 4th probe test, all 12 placed in 23 tests with the log above.
+
 ## v25 (app) + relay v22 — 29 September 2026 — FMS outages, accurate DIS distance
 
 Why: at 18:23 on 29 Sep FMS returned "503 Service Temporarily Unavailable" on tone calls and left OTDR
