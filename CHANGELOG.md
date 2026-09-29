@@ -443,6 +443,13 @@ in one direction.
 
 ---
 
+## v23 — 29 September 2026 — uni-dir does not tone on open (app only)
+
+Alkis: the uni-dir checker fired a tone as soon as a cable was opened.
+- Opening a cable only loads it ("Ready. Press START to tone F001"). The NEXT button reads START until the first tone;
+  pressing it tones the current fibre, then it works as NEXT as before. Tapping a fibre on the grid still tones it.
+Checked on the mock: no tone call after opening, one tone call after START. Relay unchanged (v20).
+
 ## v22 — 29 September 2026 — interface tidy (app only)
 
 Alkis's review: the Motion logo rendered badly on phone and web, a "Setup" box top right did nothing, too much

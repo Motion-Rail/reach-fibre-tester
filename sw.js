@@ -1,5 +1,5 @@
 // Minimal offline shell. Bump CACHE to force an update after editing the app.
-const CACHE = "reachtester-v22";
+const CACHE = "reachtester-v23";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
                 "./icons/icon-192.png", "./icons/icon-512.png", "./logo.png", "./logo-light.png", "./mark.png"];
 self.addEventListener("install", e => {

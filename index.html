@@ -689,8 +689,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v22";
+const APP_VERSION="v23";
 const APP_VERSIONS=[
+  ["v23","29 Sep 2026","Uni-dir: no tone fires when a cable is opened. The NEXT button reads START until the first tone; press it to tone the current fibre."],
   ["v22","29 Sep 2026","Interface tidy: clearer Motion logo, connection check on the sign in screen instead of relay settings (the service address is fixed), Setup label removed, shorter wording throughout, technical notes removed, activity log folded away."],
   ["v21","29 Sep 2026","The after-run question is now optional and folded away: Trial run? Record the planted faults. Normal runs need nothing; every run log is still saved."],
   ["v20","29 Sep 2026","After each E2E run: Did this match the site? (Correct / Partly / Wrong with notes), saved with the run log. Every run log is saved automatically on the relay side. Relay v20 judges a late FMS start from when the OTDR actually started, so slow dark results are no longer rechecked. Smart search help text updated."],
@@ -776,6 +777,7 @@ let crosses={};                              // index -> "crossed with ..."
   let toning=false, cdTimer=null;
   let busyUntil=0;            // RTU source is occupied until this timestamp
   let toneOk=false;           // did a tone actually fire for the current fibre?
+  let started=false;          // v23: nothing is toned until the tester presses START
   const busyMs=()=>Math.max(0,busyUntil-Date.now());
   const isBusy=()=>busyMs()>0;
 
@@ -851,7 +853,7 @@ let crosses={};                              // index -> "crossed with ..."
     toneOk=false;
     try{
       const r=await fireTone(current);
-      toneOk=true;
+      toneOk=true; started=true;
       busyUntil=Date.now()+((+cfg.dur||5)*1000)+500;   // +0.5s grace; EXFO enforces this too
       lockUI();
       const sim = !!(r && r.simulated);
@@ -881,6 +883,7 @@ let crosses={};                              // index -> "crossed with ..."
   }
   function next(){
     if(isBusy()) return nudge();
+    if(!started){ toneCurrent(); return; }     // v23: first press starts toning the current fibre
     // Only mark confirmed if a tone actually fired for this fibre.
     if(status[current]!=="dis" && status[current]!=="cross"){
       if(!toneOk){ setLink("err","No tone was sent for "+label(current)+" — press Repeat."); return; }
@@ -950,6 +953,7 @@ let crosses={};                              // index -> "crossed with ..."
     const nx=findNext(ci), nb=$("nextBtn"), nt=$("nxTarget");
     if(!isBusy()){   // while busy, lockUI owns the button label
       if(nx===-1){ nb.classList.add("finished"); nb.querySelector("span").textContent="FINISH ✓"; nt.textContent="all confirmed"; }
+      else if(!started){ nb.classList.remove("finished"); nb.querySelector("span").textContent="START ▸"; nt.textContent="tone "+label(ci)+" · R"+(ribOf(ci)+1); }
       else{ nb.classList.remove("finished"); nb.querySelector("span").textContent="NEXT ▸"; nt.textContent=label(nx)+" · R"+(ribOf(nx)+1); }
     }
 
@@ -1319,9 +1323,10 @@ let crosses={};                              // index -> "crossed with ..."
   }
   async function primeAndStart(){
     setState("idle","Priming "+route+"…");
-    try{ const d=await relay("/api/prime",{search:route, rtuId:rtuId}); setLink("ok","Primed "+d.primed+" fibres"); setState("idle","Ready — "+d.primed+" fibres found"); }
-    catch(e){ setLink("err","Prime failed: "+e.message); setState("offT","Prime failed: "+e.message); }
-    toneCurrent();
+    started=false; toneOk=false; render();
+    try{ const d=await relay("/api/prime",{search:route, rtuId:rtuId}); setLink("ok","Ready"); setState("idle","Ready. Press START to tone "+label(current)); }
+    catch(e){ setLink("err","Prime failed: "+e.message); setState("offT","Could not load the cable: "+e.message); }
+    // v23: no automatic tone on entry. The tester starts it with START.
   }
   $("clearRecent").onclick=()=>{
     if(!confirm("Clear the saved session? Progress for that cable is lost.")) return;
