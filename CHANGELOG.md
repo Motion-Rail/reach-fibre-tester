@@ -443,6 +443,34 @@ in one direction.
 
 ---
 
+## v27 (app) + relay v24 — 1 October 2026 — ad hoc OTDR (no FMS Task per fibre), Neos logo
+
+EXFO reported that every OTDR the tester ran created a Task in FMS (the Conductor
+bulk workflow), which can affect system performance. The relay now uses the ad hoc
+call the FMS UI uses for Test On Demand > Start Test (captured 1 Oct 2026).
+
+### Relay v24
+- Start: `POST /api/topology/control/remotetestunits/{rtu}/command/opticalroutes/{route}/otdr`
+  with the UI's payload (1550 nm, our duration, auto settings). Returns a promise id. No Task.
+- Outcome: the relay listens on the FMS push channel (STOMP over SockJS websocket,
+  `/api/topology/ws/connection`, topic `/topic/monitoredassets/{route}/testsetups/adhoc/message/{promise}`)
+  and also polls `/api/measure/v1/results` for the stored result. Whichever answers first wins.
+- Live fibre refusal ("Live fiber detected.") only arrives as a push; it still counts as a PASS.
+- Link length from `brief.LinkResults.Length` (metres); FMS TestTime (UTC) used for the late start check.
+- If the push channel cannot connect, that one test falls back to the old workflow call so a
+  refusal is never missed. Each test log entry records `via` (adhoc or workflow).
+- `OTDR_MODE=workflow` in Render switches everything back to the old path. `/health` shows `otdrMode`.
+- New dependency: `websockets`.
+
+### App v27
+- Neos Networks logo beside the Motion logo on the sign in screen.
+
+### Verified (mock FMS)
+- R1 crossed with R7: 12/12 found, 26 ad hoc OTDRs, 0 workflows, timing the same as v26.
+- Push channel down: falls back to workflow, result correct.
+
+---
+
 ## v26 (app) + relay v23 — 29 September 2026 — whole ribbon dark: crossed ribbon or bundle first, and say so
 
 Alkis, after R1 read completely dark on 29 Sep evening (R3 and R35 fine): if a whole ribbon is dark it could be a

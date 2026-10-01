@@ -1,7 +1,7 @@
 // Minimal offline shell. Bump CACHE to force an update after editing the app.
-const CACHE = "reachtester-v26";
+const CACHE = "reachtester-v27";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
-                "./icons/icon-192.png", "./icons/icon-512.png", "./logo.png", "./logo-light.png", "./mark.png"];
+                "./icons/icon-192.png", "./icons/icon-512.png", "./logo.png", "./logo-light.png", "./mark.png", "./neos-logo.svg"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });

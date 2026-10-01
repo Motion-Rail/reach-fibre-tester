@@ -60,6 +60,11 @@
   .logo{flex-direction:column; align-items:flex-start; gap:6px;}
   .brandlogo{height:52px; width:auto; display:block; margin:0 0 6px -4px;}
   @media (min-width:760px){ .brandlogo{height:60px;} }
+  .brandrow{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:6px;}
+  .brandrow .brandlogo{margin-bottom:0;}
+  .neoschip{background:#fff; border-radius:8px; padding:7px 10px; display:inline-flex; align-items:center;}
+  .neoschip img{height:24px; width:auto; display:block;}
+  @media (min-width:760px){ .neoschip img{height:28px;} }
   .logo h1{font-size:1.02rem; letter-spacing:.06em; text-transform:uppercase; color:var(--text); font-weight:700;}
   .sub{color:var(--muted); font-size:.84rem; line-height:1.5; margin-bottom:18px;}
   .statusline{display:flex; align-items:center; gap:8px; margin-bottom:16px; font-size:.78rem; color:var(--muted);}
@@ -315,7 +320,10 @@
 <section class="screen on" id="screen-login">
   <div class="centre"><div class="card">
     <div class="logo">
-      <img class="brandlogo" src="logo-light.png" alt="Motion">
+      <div class="brandrow">
+        <img class="brandlogo" src="logo-light.png" alt="Motion">
+        <span class="neoschip"><img src="neos-logo.svg" alt="Neos Networks"></span>
+      </div>
       <h1>Reach Fibre Tester</h1>
     </div>
     <p class="sub">Sign in with your EXFO FMS account.</p>
@@ -692,8 +700,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v26";
+const APP_VERSION="v27";
 const APP_VERSIONS=[
+  ["v27","1 Oct 2026","Neos Networks logo on the sign in screen. OTDR checks now use the FMS ad hoc test, so they no longer add a Task per fibre in FMS (needs service v24)."],
   ["v26","29 Sep 2026","When a whole ribbon is dark the search checks, and says in the activity log, whether it is crossed with the ribbons either side or with the same ribbon in the neighbouring bundle, before calling it disconnected. The run screen shows the current step. Needs relay v23."],
   ["v25","29 Sep 2026","When FMS stops answering, a run now waits and carries on by itself instead of marking fibres dark; the run screen and sign in screen say FMS is not responding. DIS distances come from one 30 s OTDR on each DIS fibre. Needs relay v22."],
   ["v24","29 Sep 2026","DIS fibres show where they stop along the route (distance and nearest joint, from the far end OTDR). A run interrupted by a service restart carries on by itself after sign in. Phone or browser notification when a run ends. Needs relay v21."],
