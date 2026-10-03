@@ -443,6 +443,53 @@ in one direction.
 
 ---
 
+## v28 (app) + relay v25 — 3 October 2026 — who is online, run history, finish alert, housekeeping
+
+### Who is online
+- A button in the header of the start screen, the Uni-dir screen, the E2E screen and the history
+  screen shows how many people are signed in and how many tests are running ("2 online · 1 running").
+- Tap it for the list: each person, what they are doing (screen, cable, RTU) and when last seen;
+  E2E runs on the relay (owner, RTUs, progress); FMS bulk Tasks RUNNING on FMS from anyone,
+  including tests started in the FMS screen (type, RTU, owner, progress).
+- E2E start warns when one of its RTUs is already busy (an E2E run, an FMS bulk Task, or someone
+  toning from it in Uni-dir) and asks before starting.
+- The app sends a heartbeat every 30 s (90 s when hidden); people drop off after 2 minutes.
+  Sign out removes you at once. Single ad hoc tests started straight from the FMS screen create
+  no Task, so they cannot be seen.
+- Relay: `POST /api/presence` (heartbeat + list), `POST /api/presence/leave`.
+
+### Run history
+- New "Run history" option on the start screen. Rows from the relay's run logs (every E2E run,
+  and Uni-dir sessions from this version on) and from FMS bulk iOLM / OTDR Tasks.
+- Filter by test type, RTU, owner and result (Pass, Issues found, Part done, Failed, Stopped,
+  Running); 7, 30 or 90 days; tap a row for the detail (counts, crosses, DIS, site check, OTDR
+  method, versions); CSV export of what is shown.
+- Uni-dir: FINISH saves the session (cable, RTU, location, scope, confirmed, DIS, crossed) to the
+  log store. Pressing FINISH again updates the same entry.
+- Owners shown by name: FMS creator names and sign in emails are matched to one spelling.
+- Old one-fibre "continuity" OTDR Tasks (before relay v24) are left out of the FMS rows.
+- Relay: `POST /api/history`, `POST /api/history/add` (new module `relay_team.py`).
+
+### Finish alert
+- When an E2E run ends the app now plays a short chime (rising when complete, falling when stopped
+  or failed) as well as the phone or browser notification and vibration, and flashes the tab title
+  if the page is in the background. "Sound when a run ends" in E2E Advanced turns the chime off.
+- The Teams card at run end is unchanged.
+
+### Housekeeping
+- Relay no longer allows the retired `https://tone-tester.onrender.com` origin, even if APP_ORIGIN
+  still lists it.
+- The relay version reported on run screens and in run logs was stuck at v23 (a second constant in
+  `relay_continuity.py`); both now read v25.
+- Still to confirm on live after deploy: runs go `via adhoc` (shown in each history row's detail),
+  and the Teams card and run log arrive.
+
+Tested on the local mock FMS and GitHub store: presence with two users and a running FMS Task,
+busy RTU warning, history with E2E, Uni-dir and FMS iOLM / OTDR rows and every filter, Uni-dir log
+add and update, no browser errors.
+
+---
+
 ## v27 (app) + relay v24 — 1 October 2026 — ad hoc OTDR (no FMS Task per fibre), Neos logo
 
 EXFO reported that every OTDR the tester ran created a Task in FMS (the Conductor

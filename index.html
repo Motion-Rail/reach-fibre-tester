@@ -312,6 +312,37 @@
   .ver-item b{font-size:.84rem;} .ver-item .vd{font-size:.7rem; color:var(--muted); margin-left:6px;}
   .ver-item p{font-size:.76rem; color:var(--muted); margin-top:3px; line-height:1.45;}
   .ver-item.cur b{color:var(--tone);}
+
+  /* v28: who's online chip + sheet */
+  .online-chip{flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px; border-radius:7px;
+    background:var(--surface2); border:1px solid var(--border); color:var(--text); font-size:.74rem; font-weight:700; cursor:pointer; white-space:nowrap;}
+  .online-chip i{width:8px; height:8px; border-radius:50%; background:var(--done); display:inline-block;}
+  .online-chip.busy i{background:#e0a93f;} .online-chip.off i{background:var(--muted);}
+  .online-chip.inline{margin:0 auto 4px; display:flex; width:max-content;}
+  .online-chip b{font-weight:700;} .online-chip .short{display:none;}
+  @media (max-width:560px){ header .online-chip{padding:0 8px;} header .online-chip .full{display:none;} header .online-chip .short{display:inline;} }
+  .on-sec{font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:14px 0 6px; font-weight:700;}
+  .on-row{display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--border); font-size:.82rem;}
+  .on-row:last-child{border-bottom:none;}
+  .on-row .av{flex:0 0 30px; height:30px; border-radius:50%; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:800; color:var(--tone);}
+  .on-row .who{font-weight:700;} .on-row .what{color:var(--muted); font-size:.74rem; margin-top:2px; line-height:1.4;}
+  .on-row .tag{margin-left:auto; font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); white-space:nowrap;}
+  .on-row .tag.run{color:var(--tone);} .on-empty{color:var(--muted); font-size:.78rem; padding:6px 0;}
+  /* v28: run history */
+  .hist-filters{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px;}
+  @media (max-width:640px){ .hist-filters{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .hist-filters label{display:block; font-size:.66rem; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.08em; font-weight:700;}
+  .hist-filters select{width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px; font-size:.82rem;}
+  .hist-row{padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer;}
+  .hist-row:last-child{border-bottom:none;}
+  .hist-top{display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:.84rem;}
+  .hist-top .ty{font-size:.62rem; font-weight:800; letter-spacing:.08em; padding:3px 6px; border-radius:5px; background:var(--surface2); color:var(--muted);}
+  .hist-top .res{margin-left:auto; font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:5px;}
+  .res.Pass{background:var(--done-dim); color:var(--done);} .res.Issues,.res.Part{background:var(--cross-dim); color:var(--cross);}
+  .res.Failed,.res.Stopped{background:var(--off-dim); color:var(--off);} .res.Running{background:#0d2b30; color:var(--tone);}
+  .hist-sub{color:var(--muted); font-size:.74rem; margin-top:3px; line-height:1.45;}
+  .hist-more{display:none; font-size:.76rem; line-height:1.5; margin-top:6px; color:var(--text);}
+  .hist-row.open .hist-more{display:block;}
 </style>
 </head>
 <body>
@@ -348,6 +379,7 @@
 <section class="screen" id="screen-mode">
   <div class="centre"><div class="card">
     <div class="logo"><img class="brandlogo" src="logo-light.png" alt="Motion"><h1>Reach Fibre Tester</h1></div>
+    <button class="online-chip inline" data-online aria-label="Who is online"><i></i><span>Online</span></button>
     <p class="sub" id="modeUser">Choose a check.</p>
     <button class="mode-opt" id="modeE2E">
       <span class="mode-ico">E2E</span>
@@ -356,6 +388,10 @@
     <button class="mode-opt" id="modeUni">
       <span class="mode-ico">UNI</span>
       <span><b>Uni-dir Continuity Checker</b><small>Tone from your node fibre by fibre. Confirm at the far end with the clamp.</small></span>
+    </button>
+    <button class="mode-opt" id="modeHist">
+      <span class="mode-ico">LOG</span>
+      <span><b>Run history</b><small>Every run and FMS bulk test. Filter by test type, RTU, owner and result.</small></span>
     </button>
     <div style="text-align:center; margin-top:14px;">
       <button class="linkbtn" id="modeSignOut">Sign out</button>
@@ -402,6 +438,7 @@
       <button class="icon-btn" id="backToCable" aria-label="Change cable">‹</button>
       <img class="hdrlogo" src="logo-light.png" alt="Motion">
       <div class="route-ref"><span id="hRoute">F-RGAC-SNBC-A-R432</span><small id="hUser">signed in</small></div>
+      <button class="online-chip" data-online aria-label="Who is online"><i></i><span>Online</span></button>
       <span id="testModeBadge" class="badge live">Live</span>
       <button class="icon-btn" id="openLoc" aria-label="Location">⚑</button>
       <button class="icon-btn" id="openSettings" aria-label="Settings">⚙</button>
@@ -470,6 +507,7 @@
       <img class="hdrlogo" src="logo-light.png" alt="Motion">
       <div class="route-ref"><span id="ctTitle">E2E Continuity Checker</span><small id="ctSub">Tone one RTU, OTDR the other</small></div>
       <span class="ct-pill" id="ctState" style="display:none"></span>
+      <button class="online-chip" data-online aria-label="Who is online"><i></i><span>Online</span></button>
     </div>
   </header>
   <div class="ct-body"><div class="ct-wrap">
@@ -509,6 +547,7 @@
           <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="3" max="30" value="3"></div>
         </div>
         <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Auto pacing</label>
+        <label class="ct-check"><input type="checkbox" id="ctSound" checked> Sound when a run ends</label>
         <div class="ct-note">The defaults suit normal runs. Only change these if asked to.</div>
         <button class="linkbtn" id="ctResetAdv" style="padding-left:0;">Reset to defaults</button>
       </details>
@@ -605,6 +644,47 @@
   </div></div>
 </section>
 
+<!-- ════════ RUN HISTORY (v28) ════════ -->
+<section class="screen" id="screen-hist">
+  <header>
+    <div class="top-row" style="padding-bottom:8px;">
+      <button class="icon-btn" id="hiBack" aria-label="Back">‹</button>
+      <img class="hdrlogo" src="logo-light.png" alt="Motion">
+      <div class="route-ref"><span>Run history</span><small id="hiSub">Loading…</small></div>
+      <button class="online-chip" data-online aria-label="Who is online"><i></i><span>Online</span></button>
+    </div>
+  </header>
+  <div class="ct-body"><div class="ct-wrap">
+    <div class="ct-panel">
+      <div class="hist-filters">
+        <div><label for="hiType">Test type</label><select id="hiType"></select></div>
+        <div><label for="hiRtu">RTU</label><select id="hiRtu"></select></div>
+        <div><label for="hiOwner">Owner</label><select id="hiOwner"></select></div>
+        <div><label for="hiRes">Result</label><select id="hiRes"></select></div>
+      </div>
+      <div class="row2" style="margin-top:10px;">
+        <select id="hiDays" style="flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px; font-size:.82rem;">
+          <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option>
+        </select>
+        <button class="btn-wide" id="hiReload" style="flex:0 0 auto; padding:8px 14px;">Refresh</button>
+        <button class="btn-wide" id="hiCsv" style="flex:0 0 auto; padding:8px 14px;">CSV</button>
+      </div>
+      <div class="ct-note" id="hiNote"></div>
+    </div>
+    <div class="ct-panel"><div id="hiList"><div class="on-empty">Loading…</div></div></div>
+  </div></div>
+</section>
+
+<!-- Who is online (v28) -->
+<div class="sheet-bg" id="onBg"></div>
+<div class="sheet" id="onSheet">
+  <h2>Who is online</h2>
+  <p class="hint" id="onHint">People using Reach Fibre Tester now, and tests running on the RTUs.</p>
+  <div class="on-sec">People</div><div id="onPeople"></div>
+  <div class="on-sec">Running now</div><div id="onRuns"></div>
+  <div class="row2"><button class="btn-wide" id="onRefresh">Refresh</button><button class="btn-wide" id="onClose">Close</button></div>
+</div>
+
 <!-- Version history (v14) -->
 <div class="sheet-bg" id="verBg"></div>
 <div class="sheet" id="verSheet">
@@ -700,8 +780,9 @@
 
 <script>
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v27";
+const APP_VERSION="v28";
 const APP_VERSIONS=[
+  ["v28","3 Oct 2026","Who is online: a button in the header shows who is signed in, what each is testing, and any test running on an RTU (including FMS bulk tests started by anyone), and E2E warns before starting on a busy RTU. Run history: every E2E run, Uni-dir session and FMS bulk test, filtered by test type, RTU, owner and result, with CSV export. A sound as well as the notification when an E2E run ends. Needs service v25."],
   ["v27","1 Oct 2026","Neos Networks logo on the sign in screen. OTDR checks now use the FMS ad hoc test, so they no longer add a Task per fibre in FMS (needs service v24)."],
   ["v26","29 Sep 2026","When a whole ribbon is dark the search checks, and says in the activity log, whether it is crossed with the ribbons either side or with the same ribbon in the neighbouring bundle, before calling it disconnected. The run screen shows the current step. Needs relay v23."],
   ["v25","29 Sep 2026","When FMS stops answering, a run now waits and carries on by itself instead of marking fibres dark; the run screen and sign in screen say FMS is not responding. DIS distances come from one 30 s OTDR on each DIS fibre. Needs relay v22."],
@@ -799,7 +880,8 @@ let crosses={};                              // index -> "crossed with ..."
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
   const saveCfg=()=>jset(CFG,cfg), saveSes=()=>jset(SES,session);
-  const saveRun=()=>jset(RUN,{route,rtuId,rtuName,rtuSite,rtuOnline,location_,scopeMode,scopeFrom,scopeTo,status,issues,crosses,current,viewRib});
+  let uniId="", uniStarted=0;   // v28: one history entry per Uni-dir session
+  const saveRun=()=>jset(RUN,{route,rtuId,rtuName,rtuSite,rtuOnline,location_,scopeMode,scopeFrom,scopeTo,status,issues,crosses,current,viewRib,uniId,uniStarted});
 
   const ribOf=i=>Math.floor(i/PER), posOf=i=>i%PER;
   const label=i=>"F"+String(i+1).padStart(3,"0");
@@ -1020,6 +1102,16 @@ let crosses={};                              // index -> "crossed with ..."
     $("finCross").innerHTML=crs.length?crs.map(o=>'<div class="line"><span class="fn" style="color:var(--cross)">'+o.f+'</span>'+(o.w?' \u2715 with '+o.w.replace(/</g,"&lt;"):'')+'</div>').join(""):'<div class="line">None</div>';
     $("finIssues").innerHTML=iss.length?iss.map(o=>'<div class="line"><span class="fn">'+o.f+'</span> — '+o.n.replace(/</g,"&lt;")+'</div>').join(""):'<div class="line">None</div>';
     $("fin").classList.add("show");
+    logUni(done, offs, crs, iss.length);
+  }
+  // v28: save this Uni-dir session to the run history (same id each time, so FINISH twice updates it)
+  async function logUni(done, offs, crs, nIss){
+    if(!uniId) return;
+    try{
+      await relay("/api/history/add",{id:uniId, cable:route, rtu:rtuName||rtuId, site:rtuSite, location:location_||"",
+        scope:scopeLabel(), inScope:scopeCount(), confirmed:done, dis:offs, cross:crs.map(o=>o.f+(o.w?" with "+o.w:"")),
+        issues:nIss, started:uniStarted||Date.now()/1000, ended:Date.now()/1000, appVersion:APP_VERSION});
+    }catch(e){}
   }
   function report(){
     const offs=[],crs=[],iss=[]; let done=0;
@@ -1332,7 +1424,9 @@ let crosses={};                              // index -> "crossed with ..."
     const prev=jget(RUN,null);
     if(prev && prev.route===v && (prev.rtuId||"")===rtuId){
       status=prev.status; issues=prev.issues||{}; crosses=prev.crosses||{}; current=prev.current||0; viewRib=prev.viewRib||0; scopeMode=prev.scopeMode||"all"; scopeFrom=prev.scopeFrom||1; scopeTo=prev.scopeTo||TOTAL;
-    } else { status=new Array(TOTAL).fill("pending"); issues={}; crosses={}; current=0; viewRib=0; }
+      uniId=prev.uniId||""; uniStarted=prev.uniStarted||0;
+    } else { status=new Array(TOTAL).fill("pending"); issues={}; crosses={}; current=0; viewRib=0; uniId=""; uniStarted=0; }
+    if(!uniId){ uniId=Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); uniStarted=Date.now()/1000; }
     saveRun(); syncParams(); show("screen-test"); render(); renderLocBar();
     if(!location_){ openLoc(); }      // location is required — ask up front
     primeAndStart();
@@ -1357,7 +1451,8 @@ let crosses={};                              // index -> "crossed with ..."
   window.gotoMode = gotoMode;
   $("modeUni").onclick=()=>gotoRoute();
   $("modeE2E").onclick=()=>{ if(window.openCont) window.openCont(); };
-  $("modeSignOut").onclick=()=>{ session={id:"",user:""}; saveSes(); show("screen-login"); };
+  $("modeSignOut").onclick=()=>{ if(window.rftLeave) window.rftLeave(); session={id:"",user:""}; saveSes(); show("screen-login"); };
+  $("modeHist").onclick=()=>{ if(window.openHistory) window.openHistory(); };
   $("routeToMode").onclick=()=>gotoMode();
   function gotoRoute(){
     show("screen-route");
@@ -1443,6 +1538,8 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctToneS").value=last.adv&&last.toneS?last.toneS:DEF.toneS; $("ctOtdrS").value=last.adv&&last.otdrS?last.otdrS:DEF.otdrS;
     $("ctAuto").checked=last.adv? last.auto!==false : true;
     buildRibbons();
+    $("ctSound").checked=jget("toneTester.sound",true)!==false;
+    $("ctSound").onchange=()=>{ jset("toneTester.sound",$("ctSound").checked); if($("ctSound").checked && window.rftChime) window.rftChime("ok"); };
     if(jobId){ attach(jobId); } else { setupView(); }
   }
 
@@ -1562,6 +1659,9 @@ let crosses={};                              // index -> "crossed with ..."
     if(!ribbons.size){ $("ctErr").textContent="Pick at least one ribbon."; return; }
     const toneS=Math.min(20,Math.max(4,+$("ctToneS").value||DEF.toneS)), otdrS=Math.min(30,Math.max(3,+$("ctOtdrS").value||DEF.otdrS));
     const adv = toneS!==DEF.toneS || otdrS!==DEF.otdrS || !$("ctAuto").checked;
+    // v28: warn when someone else is already testing on one of these RTUs
+    if(window.rftBusyOn){ const b=window.rftBusyOn([ends.a.rtuName, ends.b.rtuName]);
+      if(b && !confirm(b+"\n\nTwo tests on one RTU will clash. Start anyway?")) return; }
     const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
                 toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:0,
                 simulate:null, user:(jget("toneTester.session",{})||{}).user||""};
@@ -1621,6 +1721,8 @@ let crosses={};                              // index -> "crossed with ..."
       navigator.serviceWorker && navigator.serviceWorker.ready.then(r=>r.showNotification(title,{body, icon:"icons/icon-192.png", tag:"run-"+s.id}))
         .catch(()=>new Notification(title,{body})); } }catch(e){}
     try{ navigator.vibrate && navigator.vibrate([200,100,200]); }catch(e){}
+    if(jget("toneTester.sound",true)!==false && window.rftChime) window.rftChime(s.state==="done"?"ok":"bad");   // v28
+    if(window.rftFlashTitle) window.rftFlashTitle(title);
   }
   function render(){
     const s=snap;
@@ -1868,6 +1970,192 @@ let crosses={};                              // index -> "crossed with ..."
       download(blob,file.name);
     }catch(e){ $("ctNow").textContent=e.message; } finally{ b.disabled=false; b.textContent=t; } };
 })();
+</script>
+<script>
+/* ════════ v28 WHO IS ONLINE, FINISH ALERT, RUN HISTORY ════════ */
+(() => {
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const RELAY="https://relay-njqb.onrender.com", KEY="123456";
+  const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const ses=()=>jget("toneTester.session",{})||{};
+  async function relay(path, body){
+    const s=ses(), h={"Content-Type":"application/json","X-App-Key":KEY};
+    if(s.id) h["X-Session"]=s.id;
+    const r=await fetch(RELAY+path,{method:"POST",headers:h,body:JSON.stringify(body||{})});
+    let d={}; try{d=await r.json();}catch(e){}
+    if(!r.ok){ const e=new Error(d.detail||("HTTP "+r.status)); e.status=r.status; throw e; }
+    return d;
+  }
+  const node=r=>{ const m=String(r||"").match(/^RTU\d*-([^-]+)-/i); return m?m[1]:String(r||""); };
+  const ago=t=>{ const s=Math.max(0,Math.round(Date.now()/1000-t)); return s<60?"just now":s<3600?Math.round(s/60)+" min ago":Math.round(s/3600)+" h ago"; };
+  const when=t=>t?new Date(t*1000).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
+  const dur=(a,b)=>{ if(!a||!b) return ""; const m=Math.round((b-a)/60); return m<60?m+" min":Math.floor(m/60)+" h "+(m%60)+" min"; };
+  const initials=n=>String(n||"?").split(/[\s@.]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("");
+
+  // ── finish alert: a short chime and a flashing tab title ──
+  let actx=null;
+  window.rftChime=(kind)=>{
+    try{
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      if(actx.state==="suspended") actx.resume();
+      const notes=kind==="bad"?[523,392,330]:[523,659,784];
+      notes.forEach((f,i)=>{
+        const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime+i*0.22;
+        o.type="sine"; o.frequency.value=f; o.connect(g); g.connect(actx.destination);
+        g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.35,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
+        o.start(t); o.stop(t+0.21);
+      });
+    }catch(e){}
+  };
+  // unlock audio on the first tap, so a later chime is allowed to play
+  document.addEventListener("pointerdown",()=>{ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){} },{once:true});
+  let flashT=null; const baseTitle=document.title;
+  window.rftFlashTitle=(t)=>{
+    if(!document.hidden) return;
+    clearInterval(flashT); let on=false;
+    flashT=setInterval(()=>{ on=!on; document.title=on?("● "+t):baseTitle; },1000);
+    const stop=()=>{ if(!document.hidden){ clearInterval(flashT); document.title=baseTitle; document.removeEventListener("visibilitychange",stop); } };
+    document.addEventListener("visibilitychange",stop);
+  };
+
+  // ── who is online ──
+  let last=null, hbT=null;
+  function context(){
+    const on=document.querySelector(".screen.on"), id=on?on.id:"";
+    const txt=i=>{ const e=$(i); return e?e.textContent.trim():""; };
+    if(id==="screen-test"){
+      const u=txt("hUser").match(/Tone from ([^·]+)/);
+      return {screen:"uni", cable:txt("hRoute"), rtu:u?u[1].trim():"", detail:"Uni-dir, "+txt("fibNo")};
+    }
+    if(id==="screen-cont"){
+      const running=$("ctRun") && $("ctRun").style.display!=="none";
+      return running ? {screen:"e2e", cable:txt("ctRunCable"), rtu:"", detail:"E2E run "+txt("ctProg")+" · "+txt("ctRunEnds")}
+                     : {screen:"e2e", cable:"", rtu:"", detail:"Setting up an E2E run"};
+    }
+    if(id==="screen-hist") return {screen:"history", cable:"", rtu:"", detail:"Looking at run history"};
+    if(id==="screen-route") return {screen:"uni", cable:"", rtu:"", detail:"Choosing a cable (Uni-dir)"};
+    if(id==="screen-mode") return {screen:"menu", cable:"", rtu:"", detail:"On the start screen"};
+    return null;
+  }
+  async function beat(){
+    clearTimeout(hbT);
+    const c=context();
+    if(!ses().id || !c){ paintChips(null); hbT=setTimeout(beat,30000); return; }
+    try{ last=await relay("/api/presence",{...c, appVersion:(typeof APP_VERSION!=="undefined"?APP_VERSION:"")}); paintChips(last);
+         if($("onSheet").classList.contains("open")) paintSheet(); }
+    catch(e){ if(e.status===401){ last=null; paintChips(null); } }
+    hbT=setTimeout(beat, document.hidden?90000:30000);
+  }
+  function busyCount(d){ return (d.runs||[]).length+(d.fmsTasks||[]).filter(t=>!t.error).length; }
+  function paintChips(d){
+    document.querySelectorAll("[data-online]").forEach(b=>{
+      const sp=b.querySelector("span");
+      if(!d){ b.className=b.className.replace(/\s?(busy|off)/g,"")+" off"; sp.textContent="Online"; return; }
+      const n=(d.people||[]).length, busy=busyCount(d);
+      b.classList.remove("off"); b.classList.toggle("busy",busy>0);
+      sp.innerHTML='<b class="full">'+n+" online"+(busy?" · "+busy+" running":"")+'</b><b class="short">'+n+(busy?" · "+busy+" ▶":"")+'</b>';
+    });
+  }
+  function paintSheet(){
+    const d=last;
+    if(!d){ $("onPeople").innerHTML='<div class="on-empty">Not connected. Sign in to see who is online.</div>'; $("onRuns").innerHTML=""; return; }
+    $("onPeople").innerHTML=(d.people||[]).map(p=>'<div class="on-row"><div class="av">'+esc(initials(p.name))+'</div><div><div class="who">'+esc(p.name)+(p.you?' (you)':'')+'</div>'
+      +'<div class="what">'+esc(p.detail||p.screen)+(p.cable?' · '+esc(p.cable):'')+(p.rtu?' · '+esc(node(p.rtu)):'')+'</div></div>'
+      +'<span class="tag">'+esc(ago(p.seen))+'</span></div>').join("")||'<div class="on-empty">Nobody else is signed in.</div>';
+    const runs=(d.runs||[]).map(r=>'<div class="on-row"><div class="av">E2E</div><div><div class="who">'+esc(r.cable)+' '+esc(r.scope)+'</div>'
+      +'<div class="what">'+esc(r.rtu)+' · '+esc(r.owner||"?")+' · '+esc(r.progress)+' fibres · started '+esc(ago(r.started))+'</div></div><span class="tag run">'+esc(r.state)+'</span></div>');
+    const tasks=(d.fmsTasks||[]).map(t=>t.error?'<div class="on-empty">'+esc(t.error)+'</div>'
+      :'<div class="on-row"><div class="av">'+esc(t.type.replace("FMS ",""))+'</div><div><div class="who">'+esc(t.cable)+' '+esc(t.scope)+'</div>'
+      +'<div class="what">'+esc(t.type)+' on '+esc(node(t.rtu))+' · '+esc(t.owner||"?")+' · '+esc(t.progress||"")+' done · started '+esc(ago(t.started))+'</div></div><span class="tag run">running</span></div>');
+    $("onRuns").innerHTML=runs.concat(tasks).join("")||'<div class="on-empty">No tests running on the RTUs.</div>';
+    $("onHint").textContent="Updated "+new Date(d.now*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+      +". Single tests started straight from the FMS screen do not show here.";
+  }
+  function openSheet(){ paintSheet(); $("onBg").classList.add("open"); $("onSheet").classList.add("open"); beat(); }
+  function closeSheet(){ $("onBg").classList.remove("open"); $("onSheet").classList.remove("open"); }
+  document.querySelectorAll("[data-online]").forEach(b=>b.onclick=openSheet);
+  $("onClose").onclick=closeSheet; $("onBg").onclick=closeSheet; $("onRefresh").onclick=beat;
+  // Is anyone else testing on one of these RTUs? Returns a message, or "" if clear.
+  window.rftBusyOn=(rtus)=>{
+    if(!last) return "";
+    const want=new Set((rtus||[]).filter(Boolean).map(r=>String(r).toUpperCase())), nodes=new Set([...want].map(node));
+    const hit=r=>want.has(String(r||"").toUpperCase())||nodes.has(node(r));
+    const out=[];
+    (last.runs||[]).forEach(r=>{ if((r.rtus||[]).some(hit)) out.push("E2E run by "+(r.owner||"someone")+" on "+r.rtu+" ("+r.progress+")"); });
+    (last.fmsTasks||[]).forEach(t=>{ if(!t.error && hit(t.rtu)) out.push(t.type+" by "+(t.owner||"someone")+" on "+node(t.rtu)+" ("+(t.progress||"")+")"); });
+    (last.people||[]).forEach(p=>{ if(!p.you && p.screen==="uni" && p.rtu && hit(p.rtu)) out.push(p.name+" is toning from "+node(p.rtu)+" (Uni-dir)"); });
+    return out.length?"Already in use:\n"+out.join("\n"):"";
+  };
+  window.rftLeave=()=>{ try{ relay("/api/presence/leave",{}); }catch(e){} last=null; paintChips(null); };
+  // heartbeat: on screen changes and every 30 s
+  { const mo=new MutationObserver(()=>{ clearTimeout(window.__rftHb); window.__rftHb=setTimeout(beat,600); });
+    document.querySelectorAll("section.screen").forEach(sc=>mo.observe(sc,{attributes:true,attributeFilter:["class"]})); }
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) beat(); });
+  setTimeout(beat,1500);
+
+  // ── run history ──
+  let rows=[], loading=false;
+  const RES=[["","All results"],["Pass","Pass"],["Issues","Issues found"],["Part done","Part done"],["Failed","Failed"],["Stopped","Stopped"],["Running","Running"]];
+  function opts(id, vals, allLabel){
+    const el=$(id), cur=el.value;
+    el.innerHTML='<option value="">'+allLabel+'</option>'+vals.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join("");
+    if([...el.options].some(o=>o.value===cur)) el.value=cur;
+  }
+  function rtusOf(r){ return String(r.rtu||"").split(/\s+to\s+/).map(node).filter(Boolean); }
+  function fill(){
+    const uniq=a=>[...new Set(a.filter(Boolean))].sort((x,y)=>x.localeCompare(y));
+    opts("hiType", uniq(rows.map(r=>r.type)), "All types");
+    opts("hiRtu", uniq(rows.flatMap(rtusOf)), "All RTUs");
+    opts("hiOwner", uniq(rows.map(r=>r.owner)), "Everyone");
+    if(!$("hiRes").options.length) $("hiRes").innerHTML=RES.map(r=>'<option value="'+r[0]+'">'+r[1]+'</option>').join("");
+  }
+  function filtered(){
+    const t=$("hiType").value, rt=$("hiRtu").value, o=$("hiOwner").value, re=$("hiRes").value;
+    return rows.filter(r=>(!t||r.type===t)&&(!rt||rtusOf(r).includes(rt))&&(!o||r.owner===o)&&(!re||r.result===re));
+  }
+  function paint(){
+    const f=filtered();
+    $("hiSub").textContent=f.length+" of "+rows.length+" in the last "+$("hiDays").value+" days";
+    $("hiList").innerHTML=f.map((r,i)=>'<div class="hist-row" data-i="'+i+'">'
+      +'<div class="hist-top"><span class="ty">'+esc(r.type)+'</span><b class="mono">'+esc(r.cable)+'</b><span class="mono">'+esc(r.scope)+'</span>'
+      +'<span class="res '+esc(String(r.result).split(" ")[0])+'">'+esc(r.result)+'</span></div>'
+      +'<div class="hist-sub">'+esc(when(r.started))+(r.ended&&r.result!=="Running"?' · '+esc(dur(r.started,r.ended)):'')+' · '+esc(rtusOf(r).join(" to ")||"?")+' · '+esc(r.owner||"?")+'</div>'
+      +'<div class="hist-more">'+esc(r.summary||"")+(r.location?'<br>Location: '+esc(r.location):'')
+      +(r.via&&r.via.length?'<br>OTDR method: '+esc(r.via.join(", ")):'')+(r.app?'<br>App '+esc(r.app)+(r.relay?', service '+esc(r.relay):''):'')
+      +(r.source==="fms"?'<br>FMS Task '+esc(r.id):'')+'</div></div>').join("")||'<div class="on-empty">No runs match these filters.</div>';
+    $("hiList").querySelectorAll(".hist-row").forEach(el=>el.onclick=()=>el.classList.toggle("open"));
+  }
+  async function load(){
+    if(loading) return; loading=true;
+    $("hiNote").textContent="Loading runs from the log store and FMS…"; $("hiReload").disabled=true;
+    try{
+      const d=await relay("/api/history",{days:+$("hiDays").value, fms:true});
+      rows=d.rows||[]; fill(); paint();
+      $("hiNote").textContent=(d.notes||[]).join(" ");
+    }catch(e){ $("hiNote").textContent="Could not load the history: "+e.message; if(e.status===401) $("hiNote").textContent+=" Sign in again."; }
+    finally{ loading=false; $("hiReload").disabled=false; }
+  }
+  function csv(){
+    const f=filtered(), q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+    const head=["Started","Ended","Type","Cable","Scope","RTU","Owner","Result","Summary"];
+    const lines=[head.join(",")].concat(f.map(r=>[when(r.started),when(r.ended),r.type,r.cable,r.scope,r.rtu,r.owner,r.result,r.summary].map(q).join(",")));
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([lines.join("\r\n")],{type:"text/csv"}));
+    a.download="Reach run history "+new Date().toISOString().slice(0,10)+".csv"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  }
+  window.openHistory=()=>{
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); $("screen-hist").classList.add("on");
+    fill(); if(!rows.length) load(); else paint();
+  };
+  ["hiType","hiRtu","hiOwner","hiRes"].forEach(id=>$(id).onchange=paint);
+  $("hiDays").onchange=()=>{ rows=[]; load(); };
+  $("hiReload").onclick=load; $("hiCsv").onclick=csv;
+  $("hiBack").onclick=()=>{ if(window.gotoMode) window.gotoMode(); };
+})();
+
 </script>
 </body>
 </html>
