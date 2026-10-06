@@ -443,6 +443,15 @@ in one direction.
 
 ---
 
+## v33 (app only, relay stays v28) — 6 October 2026 — updates show straight away, richer Glass
+
+- **No more stale screens**: the app pages now come from the network first (the offline copy is only used with no signal), and a new version takes over and reloads once by itself. On 6 Oct phones kept showing v31 after v32 went live because the old offline copy was served first. The desktop page now checks for updates the same way.
+- **Glass look richer** on desktop and phone: more colour in the middle of the screen and more see-through panels, so Tasks and Bulk Test look frosted like E2E and Tone.
+- **Desktop sign in page shows the version** (desktop v33).
+- App only: no sign out.
+
+---
+
 ## v32 + relay v28 — 6 October 2026 — native desktop E2E and Tone, faster Run history
 
 - **E2E Continuity on the desktop** is now built for the desktop instead of the phone screen inside a frame. Ends card (tone from the picked RTU, OTDR from the far end, Swap), ribbon picker, pace under Advanced, time estimate and a busy warning. The run view shows a live results grid (green straight, amber crossed with the fibre it lands on, red DIS or not found, purple outline testing now), counts, findings, activity log, Pause, Stop with a confirm, Resume from here, and a CSV export. A run already going on the cable opens straight away. Same relay calls as the phone (`/api/continuity/start|status|control|jobs`).

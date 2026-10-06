@@ -306,6 +306,21 @@
   .lookpick button{border:0;background:var(--soft);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;cursor:pointer}
   .lookpick button[aria-pressed=true]{background:var(--ink);color:#fff}
   .lookpick{margin-top:4px}
+  /* v33: richer glass. More colour mid page and more see-through panels, so Tasks and Bulk Test look frosted too (Alkis) */
+  :root[data-look=glass]{--surface:rgba(255,255,255,.44);--soft:rgba(255,255,255,.42);--soft2:rgba(255,255,255,.7)}
+  :root[data-look=glass] body{background:
+      radial-gradient(38% 34% at 50% 40%,rgba(214,198,255,.7),transparent 70%),
+      radial-gradient(30% 30% at 75% 62%,rgba(170,228,214,.6),transparent 70%),
+      radial-gradient(42% 38% at 8% 12%,rgba(203,188,255,.85),transparent 70%),
+      radial-gradient(36% 34% at 92% 8%,rgba(255,200,176,.8),transparent 70%),
+      radial-gradient(40% 40% at 78% 92%,rgba(166,228,208,.8),transparent 70%),
+      radial-gradient(34% 36% at 24% 92%,rgba(182,208,255,.8),transparent 70%),
+      linear-gradient(160deg,#F2EEFF,#FBF4F0 50%,#EEF7F5);background-attachment:fixed}
+  :root[data-look=glass] body::before{opacity:.85;width:680px;height:520px}
+  :root[data-look=glass] body::after{opacity:.75;width:560px;height:460px}
+  :root[data-look=glass] .bside{background:linear-gradient(160deg,rgba(255,255,255,.62),rgba(255,255,255,.34))}
+  :root[data-look=glass] .task{background:rgba(255,255,255,.4)}
+  .signver{margin-top:16px;font-size:12px;color:var(--faint);font-weight:600;letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -315,6 +330,7 @@
     <div class="brandrow"><img src="logo.png" alt="Motion"><img src="neos-logo.svg" alt="Neos Networks"></div>
     <h1>Reach Fibre Tester</h1>
     <p>Desktop console. Sign in with your FMS account.</p>
+    <div class="signver" id="signVer">desktop v33</div>
     <label class="f" for="user">FMS username (email)<input id="user" type="email" autocomplete="username" required></label>
     <label class="f" for="pass" style="margin-top:12px">Password<input id="pass" type="password" autocomplete="current-password" required></label>
     <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
@@ -699,7 +715,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v32";
+  const APP_VERSION="v33";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1484,6 +1500,12 @@
   }
   window.addEventListener("pagehide",()=>{ try{ fetch(RELAY+"/api/presence/leave",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","X-App-Key":KEY,"X-Session":session.id},body:"{}"}); }catch(e){} });
 
+  if("serviceWorker" in navigator && location.protocol.startsWith("http")){   // v33: same update check as the phone app
+    const hadSW=!!navigator.serviceWorker.controller; let reloaded=false;
+    navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(hadSW && !reloaded){ reloaded=true; location.reload(); } });
+    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
+  }
+  $("signVer").textContent="desktop "+APP_VERSION;
   if(session.id) start(); else signedOut("");
 })();
 </script>

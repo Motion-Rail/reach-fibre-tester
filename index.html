@@ -406,6 +406,15 @@
   .lookrow button{border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
   .lookrow button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
   :root[data-look=glass] .lookrow button[aria-pressed=true]{background:#1F1C3B;color:#fff}
+  /* v33: richer glass, more colour mid screen and more see-through cards */
+  :root[data-look=glass]{--surface:rgba(255,255,255,.46);--bg:rgba(255,255,255,.5)}
+  :root[data-look=glass] body{background:
+      radial-gradient(50% 30% at 50% 45%,rgba(214,198,255,.6),transparent 70%),
+      radial-gradient(60% 40% at 0% 0%,rgba(203,188,255,.85),transparent 70%),
+      radial-gradient(55% 35% at 100% 10%,rgba(255,200,176,.8),transparent 70%),
+      radial-gradient(60% 40% at 100% 100%,rgba(166,228,208,.8),transparent 70%),
+      radial-gradient(55% 40% at 0% 90%,rgba(182,208,255,.8),transparent 70%),
+      linear-gradient(160deg,#F2EEFF,#FBF4F0 50%,#EEF7F5)}
 </style>
 </head>
 <body>
@@ -855,8 +864,9 @@
   if(window.RFT_EMBED) document.documentElement.classList.add("embed");
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v32";
+const APP_VERSION="v33";
 const APP_VERSIONS=[
+  ["v33","6 Oct 2026","New versions show on the next open (no more stale screens). Glass look a little richer. Desktop shows its version on the sign in page."],
   ["v32","6 Oct 2026","New Glass look on the phone (switch back to Dark on the start screen). Desktop: E2E and Tone rebuilt, faster Run history, Glass look. Needs service v28."],
   ["v31","6 Oct 2026","Desktop console only: Help guide, simpler Start, automatic comment, cables start collapsed. Nothing changes on the phone. Service stays v27."],
   ["v30","6 Oct 2026","Desktop console (for named accounts only): RTU status lights, Bulk Test builder, Run history. Nothing changes on the phone. Needs service v27."],
@@ -1591,7 +1601,10 @@ let crosses={};                              // index -> "crossed with ..."
 
   // service worker (only when hosted over http/https)
   if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-    navigator.serviceWorker.register("sw.js").catch(()=>{});
+    // v33: check for a new version on every open; when one takes over, reload once so it shows straight away
+    const hadSW=!!navigator.serviceWorker.controller; let reloaded=false;
+    navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(hadSW && !reloaded){ reloaded=true; location.reload(); } });
+    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
   }
 })();
 </script>
