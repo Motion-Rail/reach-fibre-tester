@@ -443,6 +443,17 @@ in one direction.
 
 ---
 
+## v35 + relay v30 — 7 October 2026 — Notifications on the phone and the browser
+
+Step 4.2. Not Teams: a notification on the device, even with the app closed.
+
+- **What you hear about (only your own):** your E2E run ends (complete, stopped, failed, with the straight / crossed / DIS line); your FMS bulk Task ends (finished, failed, cancelled, with fibres done; also Tasks started in FMS itself, matched by creator); an RTU you asked about is free (no Task, E2E run or tone on it); FMS stops answering during your run, and when it is back.
+- **Phone:** Alerts row on the start screen (Turn on, Test). On iPhone the app must be added to the Home Screen first; the row says so. E2E start on a busy RTU now offers "Get a notification when it is free?". The busy check also matches Tasks by RTU id (live FMS often gives no RTU name).
+- **Desktop:** Alerts button in the header (on / off, test, the RTUs you are waiting for), and "Tell me when free" under a busy RTU and in the E2E busy warning.
+- **Relay v30 (`relay_push.py`):** Web Push done with `cryptography` (RFC 8291 / 8292), checked against the http_ece reference. `GET /api/push/key`, `POST /api/push/subscribe|unsubscribe|test|watch|unwatch|status`. Background watcher every 30 s reads running FMS Tasks with a signed in session. Devices and watches kept in `config/push-devices.json` in the run log repo, so a restart keeps them. Off until `VAPID_PRIVATE_KEY` is set in Render.
+- `push.js` shared by both pages; `sw.js` shows the notification and a tap opens or focuses the app (Tasks and free RTUs go to the desktop page).
+- Tests: test_push 25 (relay, decrypted with http_ece), ui_v35 20 (phone and desktop, push service stubbed), sw_test 6, FMS down / back check.
+
 ## v34 + relay v29 — 6 October 2026 — Live screen, Dark glass, short names, No signal banner
 
 - **Live** is the desktop's first screen: the Reach route with every RTU light (the cable pulses purple while something runs on it), a card for each E2E run (live ribbon grid), Uni-dir tone (the fibre the tester is on, toning or waiting, confirmed / DIS / crossed) and bulk Task, who is online (e.g. "Phone · Tone on SNBC2") and what finished today. Click a card or an RTU to open it in the console. Updates every 5 seconds.

@@ -404,6 +404,8 @@
   :root[data-look=glass] .cell .cband,:root[data-look=glass] .swatch{border-color:rgba(0,0,0,.12)}
   .lookrow{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:10px;font-size:.72rem;color:var(--muted)}
   .lookrow button{border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
+  .pushtxt{text-align:center;font-size:.7rem;color:var(--muted);margin:6px 12px 0;min-height:1em}
+  #pushBtn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
   .lookrow button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
   :root[data-look=glass] .lookrow button[aria-pressed=true]{background:#1F1C3B;color:#fff}
   /* v33: richer glass, more colour mid screen and more see-through cards */
@@ -514,6 +516,8 @@
     <div style="text-align:center; margin-top:14px;">
       <button class="linkbtn" id="modeSignOut">Sign out</button>
     </div>
+    <div class="lookrow alertrow" id="pushRow"><span>Alerts</span><button type="button" id="pushBtn">Turn on</button><button type="button" id="pushTest" hidden>Test</button></div>
+    <p class="pushtxt" id="pushTxt"></p>
     <div class="lookrow" role="group" aria-label="Appearance"><span>Look</span><button type="button" data-th="light">Light</button><button type="button" data-th="dark">Dark</button></div>
     <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
 
@@ -924,8 +928,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v34";
+const APP_VERSION="v35";
 const APP_VERSIONS=[
+  ["v35","7 Oct 2026","Notifications on your phone or browser, even with the app closed: when your E2E run or FMS Task ends, when a busy RTU is free, and when FMS stops answering during your run. Turn on under Alerts on the start screen. On iPhone add the app to the Home Screen first. Needs service v30."],
   ["v34","6 Oct 2026","Light or Dark glass (switch on the start screen). Short RTU names. A No signal banner when the connection drops. Your Uni-dir progress shows on the desktop Live screen. Needs service v29."],
   ["v33","6 Oct 2026","New versions show on the next open (no more stale screens). Glass look a little richer. Desktop shows its version on the sign in page."],
   ["v32","6 Oct 2026","New Glass look on the phone (switch back to Dark on the start screen). Desktop: E2E and Tone rebuilt, faster Run history, Glass look. Needs service v28."],
@@ -1062,6 +1067,7 @@ let crosses={};                              // index -> "crossed with ..."
     const d=await relay("/api/login",{username:user,password:pass});
     session={id:d.session_id||d.sessionId||"", user:user}; saveSes();
     if(!session.id) throw new Error("Sign in failed. Try again.");
+    if(window.RFTPush) RFTPush.resync();
   }
 
   async function fireTone(i){
@@ -1616,7 +1622,24 @@ let crosses={};                              // index -> "crossed with ..."
   function gotoMode(){
     show("screen-mode");
     $("modeUser").textContent = session.user ? "Signed in as "+session.user+". Choose the check." : "Choose the check.";
+    paintPush();
   }
+  // v35: notifications from the relay (push.js)
+  async function paintPush(){
+    if(!window.RFTPush){ $("pushRow").hidden=true; return; }
+    const st=await RFTPush.state(), on=st.code==="on";
+    $("pushBtn").textContent=on?"On":"Turn on"; $("pushBtn").classList.toggle("on",on);
+    $("pushBtn").hidden=!["on","off"].includes(st.code); $("pushTest").hidden=!on;
+    $("pushTxt").textContent=on?"You hear when your runs and Tasks end, even with the app closed. Tap On to turn off.":st.text;
+  }
+  $("pushBtn").onclick=async()=>{
+    const b=$("pushBtn"); b.disabled=true;
+    try{ (await RFTPush.state()).code==="on" ? await RFTPush.disable() : await RFTPush.enable(); }
+    catch(e){ $("pushTxt").textContent=e.message; b.disabled=false; return; }
+    b.disabled=false; paintPush();
+  };
+  setTimeout(()=>{ if($("screen-mode").classList.contains("on")) paintPush(); },1200);
+  $("pushTest").onclick=async()=>{ try{ await RFTPush.test(); $("pushTxt").textContent="Test sent. It should pop up in a few seconds."; }catch(e){ $("pushTxt").textContent=e.message; } };
   window.gotoMode = gotoMode;
   $("modeUni").onclick=()=>gotoRoute();
   $("modeE2E").onclick=()=>{ if(window.openCont) window.openCont(); };
@@ -1852,8 +1875,18 @@ let crosses={};                              // index -> "crossed with ..."
     const toneS=Math.min(20,Math.max(4,+$("ctToneS").value||DEF.toneS)), otdrS=Math.min(30,Math.max(3,+$("ctOtdrS").value||DEF.otdrS));
     const adv = toneS!==DEF.toneS || otdrS!==DEF.otdrS || !$("ctAuto").checked;
     // v28: warn when someone else is already testing on one of these RTUs
-    if(window.rftBusyOn){ const b=window.rftBusyOn([ends.a.rtuName, ends.b.rtuName]);
-      if(b && !confirm(b+"\n\nTwo tests on one RTU will clash. Start anyway?")) return; }
+    if(window.rftBeat) await window.rftBeat();          // v35: fresh list of who is testing where
+    if(window.rftBusyOn){ const b=window.rftBusyOn([ends.a.rtuName, ends.b.rtuName],[ends.a.rtuId, ends.b.rtuId]);
+      if(b && !confirm(b+"\n\nTwo tests on one RTU will clash. Start anyway?")){
+        // v35: offer a notification when the busy end is free
+        if(window.RFTPush && confirm("Get a notification when it is free?")){
+          try{ if(!RFTPush.isOn()) await RFTPush.enable();
+            const busy=[ends.a,ends.b].filter(e=>e&&e.rtuId&&window.rftBusyOn([e.rtuName],[e.rtuId]));
+            for(const e of (busy.length?busy:[ends.a,ends.b].filter(e=>e&&e.rtuId))) await RFTPush.watch(e.rtuId, e.rtuName);
+            $("ctErr").textContent="You will get a notification when it is free.";
+          }catch(e){ $("ctErr").textContent=e.message; }
+        }
+        return; } }
     const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
                 toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:0,
                 simulate:null, user:(jget("toneTester.session",{})||{}).user||""};
@@ -2269,16 +2302,19 @@ let crosses={};                              // index -> "crossed with ..."
   document.querySelectorAll("[data-online]").forEach(b=>b.onclick=openSheet);
   $("onClose").onclick=closeSheet; $("onBg").onclick=closeSheet; $("onRefresh").onclick=beat;
   // Is anyone else testing on one of these RTUs? Returns a message, or "" if clear.
-  window.rftBusyOn=(rtus)=>{
+  window.rftBusyOn=(rtus, ids)=>{
     if(!last) return "";
     const want=new Set((rtus||[]).filter(Boolean).map(r=>String(r).toUpperCase())), nodes=new Set([...want].map(node));
-    const hit=r=>want.has(String(r||"").toUpperCase())||nodes.has(node(r));
+    const idset=new Set((ids||[]).filter(Boolean).map(String));     // v35: live FMS often gives a Task only its RTU id
+    const idl=(ids||[]).map(x=>String(x||"")), label=t=>{ const i=idl.indexOf(String(t.rtuId||"")); return node(/^RTU \d+$/.test(t.rtu||"")&&i>=0?(rtus||[])[i]:t.rtu); };
+    const hit=(r,id)=>want.has(String(r||"").toUpperCase())||nodes.has(node(r))||(id&&idset.has(String(id)));
     const out=[];
     (last.runs||[]).forEach(r=>{ if((r.rtus||[]).some(hit)) out.push("E2E run by "+(r.owner||"someone")+" on "+r.rtu+" ("+r.progress+")"); });
-    (last.fmsTasks||[]).forEach(t=>{ if(!t.error && hit(t.rtu)) out.push(t.type+" by "+(t.owner||"someone")+" on "+node(t.rtu)+" ("+(t.progress||"")+")"); });
+    (last.fmsTasks||[]).forEach(t=>{ if(!t.error && hit(t.rtu,t.rtuId)) out.push(t.type+" by "+(t.owner||"someone")+" on "+label(t)+" ("+(t.progress||"")+")"); });
     (last.people||[]).forEach(p=>{ if(!p.you && p.screen==="uni" && p.rtu && hit(p.rtu)) out.push(p.name+" is toning from "+node(p.rtu)+" (Uni-dir)"); });
     return out.length?"Already in use:\n"+out.join("\n"):"";
   };
+  window.rftBeat=beat;
   window.rftLeave=()=>{ try{ relay("/api/presence/leave",{}); }catch(e){} last=null; paintChips(null); };
   // heartbeat: on screen changes and every 30 s
   { const mo=new MutationObserver(()=>{ clearTimeout(window.__rftHb); window.__rftHb=setTimeout(beat,600); });
@@ -2368,5 +2404,6 @@ let crosses={};                              // index -> "crossed with ..."
   theme(document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light");
 })();
 </script>
+<script src="push.js"></script>
 </body>
 </html>

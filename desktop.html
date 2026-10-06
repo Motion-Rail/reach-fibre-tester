@@ -66,6 +66,8 @@
   .hdrlink:hover{color:var(--ink)}
   .who{color:var(--muted);font-size:13px;font-weight:500}
   .online{position:absolute;right:24px;top:68px;width:360px;max-width:calc(100vw - 32px);background:var(--surface);color:var(--ink);border-radius:var(--r);box-shadow:0 12px 40px rgba(23,26,32,.14);padding:16px;z-index:5}
+  #alertBtn.on{color:var(--ok,#2FA36B)}
+  .linkbtn{border:0;background:none;color:var(--accent,#4B3FD0);font:inherit;font-weight:600;cursor:pointer;padding:0}
   .online h3{margin:4px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
   .online .row{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line2);font-size:13px}
 
@@ -470,6 +472,7 @@
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
+    <button class="pill" id="alertBtn" aria-expanded="false" aria-controls="alertPanel" title="Notifications"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="alertText">Alerts</span></button>
     <span class="themesw" role="group" aria-label="Appearance"><button type="button" data-th="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button><button type="button" data-th="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Dark</button></span>
     <span class="who" id="who"></span>
     <button class="hdrlink" id="helpBtn" aria-haspopup="dialog">Help</button>
@@ -477,6 +480,13 @@
     <button class="hdrlink" id="signOut">Sign out</button>
   </header>
   <div class="online" id="onlinePanel" hidden></div>
+  <div class="online" id="alertPanel" hidden>
+    <h3>Notifications</h3>
+    <p class="note" id="alertState" style="margin:0 0 10px">Checking…</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="alertToggle" type="button">Turn on</button><button class="btn" id="alertTest" type="button" hidden>Send a test</button></div>
+    <p class="note" style="margin:12px 0 0">You hear when your E2E run or FMS Task ends, when an RTU you asked about is free, and when FMS stops answering during your run. Works with this page closed.</p>
+    <div id="alertWatches"></div>
+  </div>
 
   <div class="layout">
     <aside class="side" id="side" aria-label="Cables and RTUs">
@@ -518,6 +528,7 @@
         <div class="crumb" id="crumb"></div>
         <h1 class="rtuname"><span class="dot" id="rtuDot"></span><span id="rtuName"></span></h1>
         <div class="note" id="rtuState"></div>
+        <button class="btn" id="freeBtn" type="button" hidden style="margin-top:8px">Tell me when free</button>
       </div>
       <div class="tabs" role="tablist" aria-label="Modules for this RTU">
         <button role="tab" id="tab-tasks" aria-controls="pane-tasks" data-tab="tasks">Tasks<span class="count" id="taskCount">0</span></button>
@@ -850,12 +861,12 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v34";
+  const APP_VERSION="v35";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
   let RELAY=LIVE_RELAY; try{ RELAY=sessionStorage.getItem("rft.relay")||LIVE_RELAY; }catch(e){}
-  RELAY=RELAY.replace(/\/$/,"");
+  RELAY=RELAY.replace(/\/$/,""); window.RFT_RELAY=RELAY;
 
   const $=id=>document.getElementById(id);
   const nice=n=>String(n||"").split(/\s+/).map(w=>w?w[0].toUpperCase()+w.slice(1):w).join(" ");
@@ -1034,6 +1045,7 @@
     $("crumb").textContent=cab?`${cab.name} · ${cab.pre} · ${site} end`:"";
     $("rtuName").textContent=short(selected); $("rtuName").title=selected; $("rtuDot").className="dot "+L.dot; $("rtuDot").setAttribute("aria-label",L.word);
     $("rtuState").textContent=st?(st.found?nice(L.word):"Not found in FMS"):"Checking FMS…";
+    paintFree(L);
     const ts=tasksFor(selected);
     $("taskCount").textContent=ts?ts.length:"…";
     const id=idOf(selected);
@@ -1258,7 +1270,8 @@
     $("eEst").textContent=n?mins(n*Math.max(13,tone+2.5)):"–";
     $("eRibSum").textContent=E.ribbons.size?`${E.ribbons.size} ribbon${E.ribbons.size>1?"s":""} (${rangeText([...E.ribbons])}), ${n} fibres.`:"No ribbons chosen.";
     const b=busyText([E.tone,E.test].filter(Boolean));
-    $("eBusy").innerHTML=b?`<div class="warnbox">${esc(b)}. Two tests on one RTU clash, so this run would be slower and less reliable.</div>`:"";
+    $("eBusy").innerHTML=b?`<div class="warnbox">${esc(b)}. Two tests on one RTU clash, so this run would be slower and less reliable. <button class="btn" type="button" data-free-e2e="1" style="margin-top:8px">Tell me when free</button></div>`:"";
+    $("eBusy").querySelectorAll("[data-free-e2e]").forEach(x=>x.onclick=()=>[E.tone,E.test].filter(n=>n&&light(n).dot==="busy").forEach(n=>watchFree(n)));
     const off=[E.tone,E.test].filter(n=>n&&rtuState[n]&&!rtuState[n].online).map(siteOf);
     $("eStart").disabled=!E.stem||!E.ribbons.size||!E.test;
     if(off.length) $("eBusy").innerHTML+=`<div class="warnbox" style="margin-top:8px">${esc(off.join(" and "))} offline in FMS. The run will fail until ${off.length>1?"they are":"it is"} back.</div>`;
@@ -1302,7 +1315,10 @@
     const c=s.counts||{}, title=`${cableId(s.stem)} ${rangeText(s.ribbons)}: ${({done:"complete",stopped:"stopped",error:"failed"})[s.state]||s.state}`;
     const body=`${c.straight} straight, ${c.cross} crossed, ${c.dis||0} DIS. ${mins((s.ended||s.now)-s.started)}.`;
     toast(title+". "+body);
-    try{ if(window.Notification && Notification.permission==="granted") new Notification(title,{body}); }catch(e){}
+    if(window.RFTPush && RFTPush.isOn()) return;        // v35: the relay sends it to every device
+    try{ if(window.Notification && Notification.permission==="granted"){
+      const tag="run-"+(s.id||E.jobId);
+      (navigator.serviceWorker?navigator.serviceWorker.ready.then(r=>r.showNotification(title,{body,tag,icon:"icons/icon-192.png"})):Promise.reject()).catch(()=>new Notification(title,{body,tag})); } }catch(e){}
   }
   function eRender(){
     const s=E.snap; if(!s) return;
@@ -1715,11 +1731,53 @@
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
+  // ── v35: notifications (Web Push from the relay, see push.js) ──
+  let watches=[];
+  async function paintAlerts(){
+    if(!window.RFTPush) return;
+    const st=await RFTPush.state(), on=st.code==="on";
+    $("alertState").textContent=st.text;
+    $("alertText").textContent=on?"Alerts on":"Alerts";
+    $("alertBtn").classList.toggle("on",on);
+    $("alertToggle").textContent=on?"Turn off":"Turn on";
+    $("alertToggle").hidden=!["on","off"].includes(st.code);
+    $("alertTest").hidden=!on;
+    if(on){ try{ watches=(await RFTPush.status()).watches||[]; }catch(e){ watches=[]; } } else watches=[];
+    $("alertWatches").innerHTML=watches.length?"<h3 style='margin-top:14px'>Waiting for</h3>"+watches.map(w=>`<div class="row"><span class="grow">${esc(short(w.rtuName)||w.rtuId)} to be free</span><button class="linkbtn" type="button" data-unwatch="${esc(w.rtuId)}">Stop</button></div>`).join(""):"";
+    $("alertWatches").querySelectorAll("[data-unwatch]").forEach(b=>b.onclick=async()=>{ try{ await RFTPush.unwatch(b.dataset.unwatch); }catch(e){} paintAlerts(); renderMain(); });
+    if(screen==="console") paintFree(light(selected));
+  }
+  $("alertBtn").onclick=()=>{ const open=$("alertPanel").hidden; $("alertPanel").hidden=!open; $("alertBtn").setAttribute("aria-expanded",String(open)); if(open) paintAlerts(); };
+  document.addEventListener("click",e=>{ if(!$("alertPanel").hidden && !$("alertPanel").contains(e.target) && !$("alertBtn").contains(e.target)){ $("alertPanel").hidden=true; $("alertBtn").setAttribute("aria-expanded","false"); } });
+  $("alertToggle").onclick=async()=>{
+    const b=$("alertToggle"); b.disabled=true;
+    try{ (await RFTPush.state()).code==="on" ? await RFTPush.disable() : await RFTPush.enable(); }
+    catch(e){ toast(e.message); }
+    finally{ b.disabled=false; paintAlerts(); }
+  };
+  $("alertTest").onclick=async()=>{ try{ await RFTPush.test(); toast("Test sent. It should pop up in a few seconds."); }catch(e){ toast(e.message); } };
+  function paintFree(L){
+    const b=$("freeBtn"); if(!b) return;
+    const id=idOf(selected), w=watches.find(x=>String(x.rtuId)===String(id));
+    b.hidden=!(L&&L.dot==="busy"&&id);
+    b.textContent=w?"Waiting for it to be free · Stop":"Tell me when free";
+    b.onclick=async()=>{ if(w){ try{ await RFTPush.unwatch(id); }catch(e){} paintAlerts(); } else watchFree(selected); };
+  }
+  async function watchFree(full){
+    const id=idOf(full); if(!id) return;
+    try{
+      if(!(window.RFTPush && RFTPush.isOn())){ await RFTPush.enable(); }
+      await RFTPush.watch(id, full); toast(`You will get a notification when ${short(full)} is free.`);
+    }catch(e){ toast(e.message); }
+    paintAlerts();
+  }
+
   async function start(){
     try{ const a=await relay("/api/desktop/access",{}); if(!a.allowed){ showBlocked(); return; } }
     catch(e){ if(quiet(e)) return; if(e.status===404){ showBlocked("This service is too old for the desktop console (needs v27)."); return; } }
     $("signin").hidden=true; $("blocked").hidden=true; $("app").hidden=false;
     $("who").textContent=session.user;
+    if(window.RFTPush) RFTPush.resync().then(paintAlerts);
     renderSide(); renderMain(); screen="console"; showTab(["tasks","bulk","e2e","uni"].includes(tab)?tab:"tasks");
     setScreen("live");                 // v34: Live is the landing screen
     health(); heartbeat(); refreshRtus().then(()=>refreshTasks(true));
@@ -1738,5 +1796,6 @@
   if(session.id) start(); else signedOut("");
 })();
 </script>
+<script src="push.js"></script>
 </body>
 </html>
