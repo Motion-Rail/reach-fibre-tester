@@ -32,6 +32,8 @@
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   .mono{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;}
+  /* v29: inside the desktop page */
+  html.embed #modeSignOut, html.embed #routeToMode, html.embed #ctBack, html.embed #backToLogin{display:none!important;}
   .screen{display:none; flex:1 1 auto; flex-direction:column; overflow:hidden;}
   .screen.on{display:flex;}
 
@@ -779,9 +781,21 @@
 </div>
 
 <script>
+/* ════════ v29: relay override (local checks) and desktop embedding ════════
+   ?relay=http://127.0.0.1:8770  use another relay for this browser tab (desktop local check)
+   ?embed=1&mode=e2e|uni&cable=F-RGAC-SNBC&rtu=RTU2-RGAC2-1991133
+       opened inside the desktop page: go straight to E2E or Uni-dir, preset to that cable and RTU */
+(()=>{ const q=new URLSearchParams(location.search);
+  try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
+  let r=""; try{ r=sessionStorage.getItem("rft.relay")||""; }catch(e){}
+  window.RFT_RELAY=(r||"https://relay-njqb.onrender.com").replace(/\/$/,"");
+  window.RFT_EMBED=q.get("embed")==="1"?{mode:q.get("mode")||"",cable:(q.get("cable")||"").toUpperCase(),rtu:q.get("rtu")||""}:null;
+  if(window.RFT_EMBED) document.documentElement.classList.add("embed");
+})();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v28";
+const APP_VERSION="v29";
 const APP_VERSIONS=[
+  ["v29","6 Oct 2026","Desktop console (desktop.html): pick an RTU to see its bulk Tasks with progress, queue and cancel, and open E2E or Uni-dir for that RTU. On a phone nothing changes. Needs service v26."],
   ["v28","3 Oct 2026","Who is online: a button in the header shows who is signed in, what each is testing, and any test running on an RTU (including FMS bulk tests started by anyone), and E2E warns before starting on a busy RTU. Run history: every E2E run, Uni-dir session and FMS bulk test, filtered by test type, RTU, owner and result, with CSV export. A sound as well as the notification when an E2E run ends. Needs service v25."],
   ["v27","1 Oct 2026","Neos Networks logo on the sign in screen. OTDR checks now use the FMS ad hoc test, so they no longer add a Task per fibre in FMS (needs service v24)."],
   ["v26","29 Sep 2026","When a whole ribbon is dark the search checks, and says in the activity log, whether it is crossed with the ribbons either side or with the same ribbon in the neighbouring bundle, before calling it disconnected. The run screen shows the current step. Needs relay v23."],
@@ -815,7 +829,7 @@ const APP_VERSIONS=[
   function open(){
     $("verList").innerHTML=APP_VERSIONS.map(v=>'<div class="ver-item'+(v[0]===APP_VERSION?' cur':'')+'"><b>'+v[0]+(v[0]===APP_VERSION?' (this app)':'')+'</b><span class="vd">'+v[1]+'</span><p>'+v[2]+'</p></div>').join("");
     $("verNow").textContent="App "+APP_VERSION+" · service checking…";
-    let relay="https://relay-njqb.onrender.com"; try{ const c=JSON.parse(localStorage.getItem("toneTester.cfg")||"{}"); if(c.relay) relay=c.relay; }catch(e){}
+    let relay=window.RFT_RELAY;
     fetch(relay.replace(/\/$/,"")+"/health").then(r=>r.json()).then(h=>{ $("verNow").textContent="App "+APP_VERSION+" · service "+(h.version||"?"); })
       .catch(()=>{ $("verNow").textContent="App "+APP_VERSION+" · service not answering"; });
     $("verBg").classList.add("open"); $("verSheet").classList.add("open");
@@ -841,7 +855,7 @@ const APP_VERSIONS=[
   // Relay defaults. APP_KEY is NOT a secret: it ships to the browser and is readable
 // by anyone who opens the page. The real control is APP_ORIGIN on the relay, which
 // restricts which site may call it. Keep APP_ORIGIN locked to the app URL.
-  const DEFAULT_RELAY="https://relay-njqb.onrender.com";
+  const DEFAULT_RELAY=window.RFT_RELAY;
   const DEFAULT_KEY="123456";
   let cfg={relay:DEFAULT_RELAY, key:DEFAULT_KEY, wl:"1550", dur:"5", freq:"1000"};
   let session={id:"", user:""};
@@ -1486,7 +1500,26 @@ let crosses={};                              // index -> "crossed with ..."
   $("cfgWl").value=cfg.wl; $("cfgDur").value=cfg.dur; $("cfgFreq").value=cfg.freq;
   { const L=jget('toneTester.loc',null); if(L){ locJointV=L.j||''; locNoteV=L.n||''; location_=[locJointV,locNoteV].filter(Boolean).join(' \u2014 '); } }
   syncMode(); syncParams(); renderLocBar();
-  if(session.id){ gotoMode(); } else { show("screen-login"); }
+  if(session.id && window.RFT_EMBED){ document.addEventListener("DOMContentLoaded", embedStart); }   // openCont is defined by a later script
+  else if(session.id){ gotoMode(); } else if(window.RFT_EMBED){ show("screen-login"); $("loginErr").textContent="Sign in on the desktop page first."; } else { show("screen-login"); }
+
+  // v29: opened inside the desktop page for one RTU
+  async function embedStart(){
+    const E=window.RFT_EMBED;
+    if(E.mode==="e2e" && window.openCont){
+      $("ctSearch").value=E.cable; window.openCont(); return; }
+    if(E.mode==="uni"){
+      show("screen-route"); $("inSearch").value=E.rtu; $("cableStatus").textContent="Opening "+E.cable+" from "+E.rtu+"…";
+      try{
+        const d=await relay("/api/routes",{search:E.rtu});
+        const c=(d.cables||[]).find(c=>String(c.stem).toUpperCase().startsWith(E.cable) && (c.rtuName||"")===E.rtu)
+               || (d.cables||[]).find(c=>String(c.stem).toUpperCase().startsWith(E.cable));
+        if(!c){ $("cableStatus").textContent="No "+E.cable+" route found on "+E.rtu+"."; return; }
+        beginRoute(c.stem,c.rtuId,c.rtuName,c.site,c.online);
+      }catch(e){ $("cableStatus").textContent="Could not open the cable: "+e.message; }
+      return; }
+    gotoMode();
+  }
 
   // service worker (only when hosted over http/https)
   if("serviceWorker" in navigator && location.protocol.startsWith("http")){
@@ -1500,7 +1533,7 @@ let crosses={};                              // index -> "crossed with ..."
   "use strict";
   const $=id=>document.getElementById(id);
   const PER=12, RIBBONS=36, BUNDLE=6;
-  const DEFAULT_RELAY="https://relay-njqb.onrender.com", DEFAULT_KEY="123456";
+  const DEFAULT_RELAY=window.RFT_RELAY, DEFAULT_KEY="123456";
   const JOBKEY="toneTester.contJob", LASTKEY="toneTester.contLast", SNAPKEY="toneTester.contSnap";
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
@@ -1607,6 +1640,7 @@ let crosses={};                              // index -> "crossed with ..."
     ends={stem, a:rs[0], b:rs[1]};
     const last=jget(LASTKEY,{});
     if(last.stem===stem && last.tone===ends.b.rtuName){ ends={stem, a:rs[1], b:rs[0]}; }
+    const E=window.RFT_EMBED; if(E && E.rtu && ends.b.rtuName===E.rtu){ ends={stem, a:ends.b, b:ends.a}; }   // v29: tone from the RTU picked on the desktop
     $("ctCables").querySelectorAll(".cable-row").forEach(el=>el.style.borderColor=el.textContent.includes(cableId(stem))?"var(--tone)":"");
     paintEnds();
   }
@@ -1976,7 +2010,7 @@ let crosses={};                              // index -> "crossed with ..."
 (() => {
   "use strict";
   const $=id=>document.getElementById(id);
-  const RELAY="https://relay-njqb.onrender.com", KEY="123456";
+  const RELAY=window.RFT_RELAY, KEY="123456";
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const ses=()=>jget("toneTester.session",{})||{};

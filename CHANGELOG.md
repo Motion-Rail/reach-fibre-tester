@@ -443,6 +443,26 @@ in one direction.
 
 ---
 
+## v29 (app) + relay v26 — 6 October 2026 — desktop console: RTU modules, Tasks with cancel, bulk start (in progress, not deployed)
+
+### Relay v26 (`relay_bulk.py`, new)
+- `POST /api/tasks`: every FMS bulk Task RUNNING (from anyone), grouped by RTU (`rtuId`, `rtuName`), in start order with queue position, state (testing / queued / starting), done / testing / waiting and each fibre's state; recent finished Tasks; the relay's cancel records.
+- `POST /api/tasks/cancel`: Conductor terminate `DELETE /workflow/{id}?reason=`. Own Tasks straight away; someone else's needs `confirmOwner` (= their creator name) unless `CANCEL_POLICY=own`, which allows own only. Each cancel is kept in memory and, with `LOG_REPO`, written as `runs/<day>/..._CANCEL_<id>.json`, because FMS's Tasks page hides TERMINATED Tasks.
+- `POST /api/bulk/plan` (nothing started) and `POST /api/bulk/start`: the same Task input the FMS screen sends. OTDR: one Task per wavelength (1310 / 1550 / 1625), duration, auto or pulse (FMS list, 5 ns to 20 µs) and range (km), thresholds. iOLM: test limit, Standard iOLM / Fast F1 (`FastOvwNode`) / RTU Connection (`FastOvwNode;RequiredDynamicRange_dB=14`), wavelength list. Returns the time estimate, busy Tasks on the RTU and queue position.
+- `GET /api/bulk/options`.
+- Proven live on 6 Oct 2026 from a local copy of the relay: Tasks list; 3 fibre OTDR on RGAC2 F061 to F063 started and cancelled after 1 fibre (F062 cancelled, F063 never started); 1 fibre iOLM Fast F1 started and completed.
+
+### Desktop page (`desktop.html`, new)
+- Sign in shared with the mobile app. Header: screens, who is online, Mobile view, Sign out.
+- Cables and RTUs down the side with idle / running / queued badges (every 15 s).
+- Per RTU modules as tabs: **Tasks** (progress, queue, Cancel with a confirm naming whose Task it is, cancelled recently), **Bulk Test** (builder next), **E2E Continuity** and **Tone (Uni-dir)** (the mobile screens opened inside the tab, preset to the RTU and cable).
+- `?relay=http://127.0.0.1:8770` points the page (and the embedded mobile screens) at a local relay for checks.
+
+### Mobile app (`index.html`)
+- `?embed=1&mode=e2e|uni&cable=&rtu=` opens straight into E2E (tone from that RTU) or Uni-dir (that cable from that RTU), with sign out and back buttons hidden. `?relay=` override for the browser tab. Otherwise unchanged.
+
+---
+
 ## v28 (app) + relay v25 — 3 October 2026 — who is online, run history, finish alert, housekeeping
 
 ### Who is online

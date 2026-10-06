@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reach Fibre Tester · Desktop</title>
+<!-- v29, 6 Oct 2026: desktop console, step 1.4 (shell: sign in, header, cables and RTUs, who is online). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#F3F4F1; --surface:#FFFFFF; --line:#D9DCD5; --line2:#E6E8E3;
+    --ink:#15191E; --muted:#545B63; --head:#15191E; --head2:#2A3038; --headtext:#C9CED4;
+    --brand:#016976; --brand-tint:#E3F1F2;
+    --ok:#2E7D5B; --warn:#B86E0A; --warn-tint:#FBEBD0; --bad:#A61E1E; --bad-tint:#FBEDEC;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:14px}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  button,input{font:inherit}
+  a{color:var(--brand)}
+  [hidden]{display:none!important}
+
+  /* sign in */
+  #signin{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:28px;width:100%;max-width:400px}
+  .card h1{margin:12px 0 4px;font-size:22px}
+  .card p{margin:0 0 18px;color:var(--muted)}
+  label{display:block;font-size:13px;font-weight:500;margin:14px 0 6px}
+  input[type=email],input[type=password],input[type=text]{width:100%;min-height:44px;border:1px solid #C4C8C0;border-radius:8px;padding:0 12px;background:#fff;color:var(--ink)}
+  .btn{min-height:44px;padding:10px 18px;border-radius:8px;border:1px solid #C4C8C0;background:#fff;color:var(--ink);cursor:pointer;font-weight:500}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+  .btn:disabled{opacity:.6;cursor:default}
+  .err{color:var(--bad);min-height:20px;margin-top:10px;font-size:13px}
+  .brandrow{display:flex;align-items:center;gap:10px}
+  .brandrow img{height:30px}
+
+  /* app */
+  header{background:var(--head);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:20px;padding:0 20px;min-height:56px}
+  header .logo{height:26px}
+  header .title{font-weight:600;font-size:16px}
+  header .title small{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:12px;color:var(--headtext);margin-left:6px}
+  nav{display:flex;gap:4px;flex-wrap:wrap}
+  nav button{background:none;border:0;color:var(--headtext);padding:8px 12px;border-radius:6px;cursor:pointer;min-height:36px}
+  nav button[aria-current=page]{background:var(--head2);color:#fff}
+  nav button:disabled{opacity:.45;cursor:default}
+  .grow{flex:1 1 0}
+  .pill{display:flex;align-items:center;gap:8px;background:var(--head2);color:#fff;border:0;border-radius:999px;padding:8px 14px;min-height:36px;cursor:pointer}
+  .dot{width:8px;height:8px;border-radius:50%;background:#4FC28B;flex:0 0 auto}
+  .dot.idle{background:#9AA19A}.dot.busy{background:#E3A23B}.dot.off{background:#E5484D}
+  .hdrlink{color:var(--headtext);font-size:13px;background:none;border:0;cursor:pointer;text-decoration:underline;padding:6px}
+  .who{color:var(--headtext)}
+  .online{position:absolute;right:20px;top:60px;width:360px;max-width:calc(100vw - 32px);background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:14px;z-index:5}
+  .online h3{margin:4px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .online .row{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--line2);font-size:13px}
+
+  .layout{display:flex;flex-wrap:wrap;align-items:stretch;min-height:calc(100vh - 56px - 34px)}
+  aside.side{flex:1 1 250px;max-width:100%;background:var(--surface);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:16px}
+  .sect{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .cable{margin-bottom:6px}
+  .cable .name{font-weight:600}
+  .cable .pre{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);margin:2px 0 6px}
+  .rtu{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 10px;margin-top:4px;border-radius:8px;border:1px solid transparent;background:#F6F7F4;cursor:pointer;text-align:left;color:var(--ink)}
+  .rtu[aria-pressed=true]{border-color:var(--brand);background:var(--brand-tint)}
+  .rtu .site{flex:1 1 0;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .rtu .badge{font-size:12px;color:var(--muted)}
+  main{flex:999 1 560px;min-width:0;padding:24px;display:flex;flex-direction:column;gap:16px}
+  .crumb{font-size:12px;color:var(--muted)}
+  h1.rtuname{margin:2px 0 0;font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:600}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .panel h2{margin:0 0 10px;font-size:15px}
+  .task{border:1px solid var(--line2);border-radius:10px;padding:12px 14px;margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .chip{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;align-self:flex-start}
+  .chip.testing{background:var(--ok);color:#fff}.chip.queued,.chip.starting{background:var(--warn-tint);color:#6B3F05}
+  .bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden}.bar i{display:block;height:6px;background:var(--brand)}
+  .note{color:var(--muted);font-size:13px}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;min-height:44px;cursor:pointer;color:var(--muted);font-weight:500}
+  .tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--brand)}
+  .tabs .count{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--line2);border-radius:999px;padding:1px 7px;margin-left:6px;color:var(--ink)}
+  .confirm{background:var(--bad-tint);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+  .btn.danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:600}
+  .btn.cancel{color:var(--bad);border-color:#E3B4B0;align-self:flex-start;min-height:38px;padding:6px 14px}
+  .embedwrap{background:#0c0f14;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .embedwrap iframe{display:block;width:100%;height:860px;border:0}
+  .embedhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .toast{position:fixed;bottom:48px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:9}
+  footer{height:34px;display:flex;align-items:center;gap:16px;padding:0 20px;border-top:1px solid var(--line);background:var(--surface);font-size:12px;color:var(--muted)}
+  @media (max-width:640px){ header{padding:8px 16px} main{padding:16px} .online{right:16px} }
+</style>
+</head>
+<body>
+
+<section id="signin" hidden>
+  <form class="card" id="loginForm" autocomplete="on">
+    <div class="brandrow"><img src="logo.png" alt="Motion"><img src="neos-logo.svg" alt="Neos Networks"></div>
+    <h1>Reach Fibre Tester</h1>
+    <p>Desktop console. Sign in with your FMS account.</p>
+    <label for="user">FMS username (email)</label>
+    <input id="user" type="email" autocomplete="username" required>
+    <label for="pass">Password</label>
+    <input id="pass" type="password" autocomplete="current-password" required>
+    <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+      <button class="btn primary" id="loginBtn" type="submit">Sign in</button>
+      <a class="btn" href="index.html?view=mobile" style="text-decoration:none;display:inline-flex;align-items:center">Mobile app</a>
+    </div>
+    <div class="err" id="loginErr" role="alert"></div>
+  </form>
+</section>
+
+<section id="app" hidden>
+  <header>
+    <img class="logo" src="logo-light.png" alt="Motion">
+    <div class="title">Reach Fibre Tester<small>desktop</small></div>
+    <nav aria-label="Screens">
+      <button aria-current="page">Console</button>
+      <button disabled title="Step 1.6">Bulk Test</button>
+      <button disabled title="Step 1.7">Run history</button>
+    </nav>
+    <span class="grow"></span>
+    <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot" id="onlineDot"></span><span id="onlineText">connecting…</span></button>
+    <span class="who" id="who"></span>
+    <button class="hdrlink" id="mobileBtn">Mobile view</button>
+    <button class="hdrlink" id="signOut">Sign out</button>
+  </header>
+  <div class="online" id="onlinePanel" hidden></div>
+
+  <div class="layout">
+    <aside class="side" aria-label="Cables and RTUs">
+      <div class="sect">Cables and RTUs</div>
+      <div id="cables"></div>
+    </aside>
+    <main>
+      <div>
+        <div class="crumb" id="crumb"></div>
+        <h1 class="rtuname" id="rtuName"></h1>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Modules for this RTU">
+        <button role="tab" id="tab-tasks" aria-controls="pane-tasks" data-tab="tasks">Tasks<span class="count" id="taskCount">0</span></button>
+        <button role="tab" id="tab-bulk" aria-controls="pane-bulk" data-tab="bulk">Bulk Test</button>
+        <button role="tab" id="tab-e2e" aria-controls="pane-e2e" data-tab="e2e">E2E Continuity</button>
+        <button role="tab" id="tab-uni" aria-controls="pane-uni" data-tab="uni">Tone (Uni-dir)</button>
+      </div>
+      <section class="panel" role="tabpanel" id="pane-tasks" aria-labelledby="tab-tasks" aria-live="polite">
+        <h2>Bulk Tasks on this RTU</h2>
+        <div id="tasks" class="note">Loading…</div>
+        <p class="note" style="margin:12px 0 0">Tests started with Test On Demand in FMS create no Task and cannot be seen here. A cancelled Task drops off the FMS Tasks page; the relay keeps a record.</p>
+        <div id="cancelledList"></div>
+      </section>
+      <section class="panel" role="tabpanel" id="pane-bulk" aria-labelledby="tab-bulk" hidden>
+        <h2>Bulk Test</h2>
+        <div class="note">The Bulk Test builder for this RTU arrives in the next step (fibre pickers, OTDR and iOLM settings, time estimate, start).</div>
+      </section>
+      <section role="tabpanel" id="pane-e2e" aria-labelledby="tab-e2e" hidden>
+        <div class="embedhead"><span class="note" id="e2eNote"></span><button class="btn" data-reload="e2e">Reload</button></div>
+        <div class="embedwrap" style="margin-top:10px"><iframe id="frame-e2e" title="E2E Continuity for this RTU"></iframe></div>
+      </section>
+      <section role="tabpanel" id="pane-uni" aria-labelledby="tab-uni" hidden>
+        <div class="embedhead"><span class="note" id="uniNote"></span><button class="btn" data-reload="uni">Reload</button></div>
+        <div class="embedwrap" style="margin-top:10px"><iframe id="frame-uni" title="Tone (Uni-dir) for this RTU"></iframe></div>
+      </section>
+    </main>
+  </div>
+  <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span>desktop v29</span></footer>
+</section>
+
+<script>
+(()=>{
+  "use strict";
+  const APP_VERSION="v29";
+  // Relay: the live one by default. For a local check open desktop.html?relay=http://127.0.0.1:8770
+  // (remembered for this browser tab only).
+  const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
+  const q=new URLSearchParams(location.search);
+  try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
+  let RELAY=LIVE_RELAY; try{ RELAY=sessionStorage.getItem("rft.relay")||LIVE_RELAY; }catch(e){}
+  RELAY=RELAY.replace(/\/$/,"");
+
+  const $=id=>document.getElementById(id);
+  const nice=n=>String(n||"").split(/\s+/).map(w=>w?w[0].toUpperCase()+w.slice(1):w).join(" ");
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const SES="toneTester.session";               // shared with the mobile app: one sign in for both
+  const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
+  const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
+  let session=jget(SES,{id:"",user:""})||{id:"",user:""};
+  const DEFAULT_USER="alkis.kardasopoulos@motionrail.co.uk";
+
+  // Cables and the RTU at each end (rtu-cable-topology.md, 20 Aug 2026)
+  const CABLES=[
+    {name:"Slough to Reading", pre:"F-0057-RGAC", rtus:[["0057","RTU2-0057-1991132"],["RGAC","RTU2-RGAC-1991133"]]},
+    {name:"Reading to Swindon", pre:"F-RGAC-SNBC", rtus:[["RGAC2","RTU2-RGAC2-1991133"],["SNBC","RTU2-SNBC-1991132"]]},
+    {name:"Swindon to Stoke Gifford", pre:"F-SGIC-SNBC", rtus:[["SNBC2","RTU2-SNBC2-1984400"],["SGIC","RTU2-SGIC-1984398"]]},
+    {name:"Stoke Gifford to Cardiff", pre:"F-0001-SGIC", rtus:[["SGIC2","RTU2-SGIC-2026965"],["0001","RTU2-0001-2026282"]]}
+  ];
+  let selected=jget("rft.desktop.rtu","RTU2-RGAC2-1991133");
+  let tasksData=null, timers=[];
+
+  async function relay(path, body){
+    const h={"Content-Type":"application/json","X-App-Key":KEY};
+    if(session.id) h["X-Session"]=session.id;
+    const r=await fetch(RELAY+path,{method:"POST",headers:h,body:JSON.stringify(body||{})});
+    let d={}; try{d=await r.json();}catch(e){}
+    if(r.status===401){ signedOut("Your session ended. Sign in again."); throw new Error("signed out"); }
+    if(!r.ok) throw new Error(d.detail||("HTTP "+r.status));
+    return d;
+  }
+
+  // ── sign in ──
+  function signedOut(msg){
+    timers.forEach(clearInterval); timers=[];
+    session={id:"",user:""}; jset(SES,session);
+    $("app").hidden=true; $("signin").hidden=false;
+    $("loginErr").textContent=msg||"";
+    $("user").value=jget("rft.lastUser",DEFAULT_USER); $("pass").value=""; $("pass").focus();
+  }
+  $("loginForm").onsubmit=async e=>{
+    e.preventDefault();
+    $("loginBtn").disabled=true; $("loginErr").textContent="";
+    try{
+      const user=$("user").value.trim();
+      const d=await relay("/api/login",{username:user,password:$("pass").value});
+      session={id:d.session_id||"",user}; jset(SES,session); jset("rft.lastUser",user);
+      $("pass").value="";
+      start();
+    }catch(err){ $("loginErr").textContent=err.message==="signed out"?"Sign in failed.":"Sign in failed: "+err.message; }
+    finally{ $("loginBtn").disabled=false; }
+  };
+  $("signOut").onclick=async()=>{ try{ await relay("/api/presence/leave",{}); }catch(e){} signedOut(""); };
+  $("mobileBtn").onclick=()=>{ location.href="index.html?view=mobile"; };
+
+  // ── who is online ──
+  let online=null;
+  async function heartbeat(){
+    try{
+      const rtu=selected, cab=CABLES.find(c=>c.rtus.some(r=>r[1]===rtu));
+      online=await relay("/api/presence",{screen:"desktop",cable:cab?cab.pre:"",rtu,detail:"Console",appVersion:APP_VERSION});
+      const people=online.people||[], running=(online.runs||[]).length+(online.fmsTasks||[]).filter(t=>!t.error).length;
+      $("onlineText").textContent=people.length+" online · "+running+" running";
+      $("onlineDot").className="dot"+(running?" busy":"");
+      const me=people.find(p=>p.you); if(me) $("who").textContent=nice(me.name);
+      renderOnline();
+    }catch(e){ if(e.message!=="signed out"){ $("onlineText").textContent="relay unreachable"; $("onlineDot").className="dot off"; } }
+  }
+  function renderOnline(){
+    if(!online) return;
+    const p=online.people||[], runs=online.runs||[], fms=(online.fmsTasks||[]).filter(t=>!t.error);
+    $("onlinePanel").innerHTML=
+      "<h3>Signed in now</h3>"+(p.map(x=>`<div class="row"><span class="dot"></span><span style="flex:1"><b>${esc(nice(x.name))}</b>${x.you?" (you)":""}<br><span class="note">${esc(x.screen||"")}${x.rtu?" · "+esc(x.rtu):""}</span></span></div>`).join("")||"<div class='note'>Nobody else</div>")+
+      "<h3 style='margin-top:12px'>Running</h3>"+((runs.map(r=>`<div class="row"><span style="flex:1">E2E ${esc(r.cable)} ${esc(r.scope)}<br><span class="note">${esc(r.owner)} · ${esc(r.progress)}</span></span></div>`).join("")+
+        fms.map(t=>`<div class="row"><span style="flex:1">${esc(t.type)} ${esc(t.scope)}<br><span class="note">${esc(t.owner)} · ${esc(t.rtu)} · ${esc(t.progress||"")}</span></span></div>`).join(""))||"<div class='note'>Nothing running</div>");
+  }
+  $("onlineBtn").onclick=()=>{ const open=$("onlinePanel").hidden; $("onlinePanel").hidden=!open; $("onlineBtn").setAttribute("aria-expanded",String(open)); };
+  document.addEventListener("click",e=>{ if(!$("onlinePanel").hidden && !$("onlinePanel").contains(e.target) && !$("onlineBtn").contains(e.target)){ $("onlinePanel").hidden=true; $("onlineBtn").setAttribute("aria-expanded","false"); } });
+
+  // ── cables, RTUs and their Tasks ──
+  function tasksFor(rtuName){
+    if(!tasksData) return null;
+    return (tasksData.running||[]).filter(t=>t.rtuName===rtuName).sort((a,b)=>a.position-b.position);
+  }
+  function renderSide(){
+    $("cables").innerHTML=CABLES.map(c=>`<div class="cable"><div class="name">${esc(c.name)}</div><div class="pre">${esc(c.pre)}</div>`+
+      c.rtus.map(([site,full])=>{
+        const ts=tasksFor(full), n=ts?ts.length:0;
+        const badge=ts==null?"":n?(n>1?`1 running · ${n-1} queued`:"1 running"):"idle";
+        return `<button class="rtu" data-rtu="${esc(full)}" aria-pressed="${full===selected}"><span class="dot ${n?"busy":"idle"}"></span><span class="site">${esc(site)}</span><span class="badge">${badge}</span></button>`;
+      }).join("")+"</div>").join("");
+    document.querySelectorAll(".rtu").forEach(b=>b.onclick=()=>{ selected=b.dataset.rtu; jset("rft.desktop.rtu",selected); confirming=null; renderSide(); renderMain(); refreshTasks(true); heartbeat(); if(tab==="e2e"||tab==="uni") loadFrame(tab,false); });
+  }
+  function renderMain(){
+    const cab=CABLES.find(c=>c.rtus.some(r=>r[1]===selected));
+    const site=cab?cab.rtus.find(r=>r[1]===selected)[0]:"";
+    $("crumb").textContent=cab?`${cab.name} · ${cab.pre} · ${site} end`:"";
+    $("rtuName").textContent=selected;
+    const ts=tasksFor(selected);
+    $("taskCount").textContent=ts?ts.length:"…";
+    const mineRtu=(tasksData&&tasksData.cancelled||[]).filter(c=>c.rtuName===selected).slice(0,5);
+    $("cancelledList").innerHTML=mineRtu.length?"<h2 style='margin:16px 0 6px;font-size:14px'>Cancelled recently</h2>"+mineRtu.map(c=>`<div class="note">${new Date(c.cancelled*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})} · ${esc(c.taskKind)} · ${esc(nice(c.owner))}'s Task cancelled by ${esc(nice(c.by))} · ${c.doneBefore} of ${c.total} done</div>`).join(""):"";
+    if(ts==null){ $("tasks").innerHTML="<span class='note'>Loading…</span>"; return; }
+    if(!ts.length){ $("tasks").innerHTML="<div class='note'>Idle. No bulk Tasks running or queued on this RTU.</div>"; return; }
+    $("tasks").innerHTML=ts.map(t=>{
+      const pct=t.total?Math.round(100*t.done/t.total):0;
+      const left=t.total-t.done, who=nice(t.owner);
+      const ask=confirming===t.id
+        ? `<div class="confirm"><div>Cancel ${esc(who)}'s Task? ${t.done?t.done+" finished fibre"+(t.done>1?"s keep their":" keeps its")+" results; ":""}${left} fibre${left>1?"s":""} will not run. It will drop off the FMS Tasks page.</div>
+             <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger" data-do="${esc(t.id)}">Cancel Task</button><button class="btn" data-keep="1">Keep running</button></div></div>`
+        : `<button class="btn cancel" data-ask="${esc(t.id)}">Cancel…</button>`;
+      return `<div class="task"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="chip ${esc(t.state)}">${t.state==="testing"?"Running":t.state==="queued"?"Queued #"+t.position:"Starting"}</span><span class="note">${esc(t.kind)} · ${esc(t.setting)}</span><span class="grow"></span><span class="note">started ${new Date(t.started*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span></div>
+        <b>${esc(who)}</b><span class="note">${esc(t.comment)}</span>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <span class="mono note">${t.done} of ${t.total} done · ${t.testing} testing · ${t.waiting} waiting</span>${ask}</div>`;
+    }).join("");
+    $("tasks").querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>{ confirming=b.dataset.ask; renderMain(); });
+    $("tasks").querySelectorAll("[data-keep]").forEach(b=>b.onclick=()=>{ confirming=null; renderMain(); });
+    $("tasks").querySelectorAll("[data-do]").forEach(b=>b.onclick=()=>{ b.disabled=true; b.textContent="Cancelling…"; const t=ts.find(x=>x.id===b.dataset.do); if(t) doCancel(t); });
+  }
+  let busy=false;
+  async function refreshTasks(force){
+    if(busy && !force) return; busy=true;
+    try{
+      tasksData=await relay("/api/tasks",{recent:0});
+      $("updated").textContent="updated "+new Date().toLocaleTimeString("en-GB");
+    }catch(e){ if(e.message!=="signed out") $("updated").textContent="Tasks could not be read: "+e.message; }
+    busy=false; renderSide(); renderMain();
+  }
+
+  // ── RTU modules (tabs) ──
+  let tab=jget("rft.desktop.tab","tasks"), frameFor={};
+  function cableOf(rtu){ return CABLES.find(c=>c.rtus.some(r=>r[1]===rtu)); }
+  function showTab(t){
+    tab=t; jset("rft.desktop.tab",t);
+    document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
+    ["tasks","bulk","e2e","uni"].forEach(k=>$("pane-"+k).hidden=k!==t);
+    if(t==="e2e"||t==="uni") loadFrame(t,false);
+  }
+  function loadFrame(kind, force){
+    const cab=cableOf(selected); if(!cab) return;
+    const key=selected+"|"+kind;
+    if(frameFor[kind]===key && !force) return;
+    frameFor[kind]=key;
+    const site=cab.rtus.find(r=>r[1]===selected)[0], other=cab.rtus.find(r=>r[1]!==selected)[0];
+    $(kind+"Note").textContent= kind==="e2e"
+      ? `${cab.name}: tone from ${site}, OTDR from ${other}. Swap ends inside if needed.`
+      : `${cab.name}: tone from ${site}. Someone at the far end confirms each fibre.`;
+    const u=new URLSearchParams({embed:"1",mode:kind,cable:cab.pre,rtu:selected});
+    if(RELAY!==LIVE_RELAY) u.set("relay",RELAY);
+    $("frame-"+kind).src="index.html?"+u.toString();
+  }
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+  document.querySelectorAll("[data-reload]").forEach(b=>b.onclick=()=>loadFrame(b.dataset.reload,true));
+
+  // ── cancel ──
+  let confirming=null;
+  function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),4500); }
+  async function doCancel(t){
+    const mine=tasksData && tasksData.me && nice(t.creator).toLowerCase()===nice(tasksData.me.name).toLowerCase();
+    try{
+      const r=await relay("/api/tasks/cancel",{id:t.id, confirmOwner:mine?"":t.creator});
+      toast(`Cancelled. ${r.doneBefore} of ${r.total} fibres had finished; the rest will not run.`);
+    }catch(e){ if(e.message!=="signed out") toast("Not cancelled: "+e.message); }
+    confirming=null; refreshTasks(true);
+  }
+
+  async function health(){
+    try{ const r=await fetch(RELAY+"/health",{cache:"no-store"}); const h=await r.json();
+      $("relayInfo").textContent=`relay ${h.version} · ${RELAY===LIVE_RELAY?"live":"local: "+RELAY}`;
+    }catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; }
+  }
+
+  function start(){
+    $("signin").hidden=true; $("app").hidden=false;
+    $("who").textContent=session.user;
+    renderSide(); renderMain(); showTab(tab); health(); heartbeat(); refreshTasks(true);
+    timers.push(setInterval(heartbeat,30000), setInterval(refreshTasks,15000), setInterval(health,60000));
+  }
+  window.addEventListener("pagehide",()=>{ try{ navigator.sendBeacon && fetch(RELAY+"/api/presence/leave",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","X-App-Key":KEY,"X-Session":session.id},body:"{}"}); }catch(e){} });
+
+  if(session.id) start(); else signedOut("");
+})();
+</script>
+</body>
+</html>
