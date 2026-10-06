@@ -443,6 +443,14 @@ in one direction.
 
 ---
 
+## v38 + relay v32 — 7 October 2026 — Live OTDR
+
+Step 4.6 (Alkis, 7 Oct: EXFO's concern was a Task per fibre, not load; OTDR on automatic settings at 1550 nm).
+- **Relay v32 (`relay_otdr.py`):** `POST /api/otdr/live/start|status|stop|reference|list`. Each shot is the direct ad hoc OTDR (no Task): 1550 nm, automatic settings, 5 s (`LIVE_OTDR_S`). The stored result is read back with its trace (`OtdrMeasurements`), reduced to about 1500 points and cut a little past the fibre end. The first trace is the reference; new loss steps of 0.15 dB or more (`LIVE_OTDR_STEP_DB`) are reported with their distance, against the reference and against the previous trace. One session per RTU; refused when a Task, E2E run, tone or another live OTDR is on the RTU; the RTU shows as testing; stops after 10 minutes (`LIVE_OTDR_MINUTES`). Trace numbers read as `TRACE_FORMAT` uint16 little endian x `TRACE_SCALE` 0.001 dB until the PC probe confirms it.
+- **Desktop:** Live from RGAC2 / SNBC buttons in the fibre detail; Live OTDR window with the chart (grey reference, blue latest, red marks with dB), findings, zoom on a mark, Whole fibre, Use latest as reference, Stop. The cable health check pulses the fibre and the live strip names the session (click to reopen).
+- **PC `otdr_probe\`:** read only probe of a real stored OTDR (trace format, .sor download address, a Task's results).
+- Tests: test_otdr 17, ui_otdr 12 (mock FMS now answers the direct ad hoc OTDR with a trace and can add a bend).
+
 ## v37 + relay v31 — 7 October 2026 — Fibres screen with real results, in real time
 
 Step 4.3. The desktop Fibres screen (designed with Alkis in v36) now reads real results.

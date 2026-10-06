@@ -273,6 +273,23 @@
   .fchip[aria-pressed=true]{background:var(--ink);color:#fff}
 
   dialog.help{border:0;border-radius:16px;padding:0;width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 48px);box-shadow:0 24px 70px rgba(23,26,32,.25)}
+  dialog.lotdr{border:0;border-radius:16px;padding:0;width:min(1200px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 24px 70px rgba(23,26,32,.25);background:var(--surface);color:var(--ink)}
+  :root[data-look=glass] dialog.lotdr{background:rgba(255,255,255,.96)}
+  :root[data-look=glass][data-theme=dark] dialog.lotdr{background:rgba(22,20,44,.97)}
+  dialog.lotdr::backdrop{background:rgba(23,26,32,.35);backdrop-filter:blur(2px)}
+  .lohead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:18px 24px;border-bottom:1px solid var(--line2)}
+  .lohead h2{margin:0;font-size:20px;font-weight:500}
+  .lobody{padding:14px 24px 22px;display:flex;flex-direction:column;gap:12px}
+  .lochart{width:100%;height:auto;display:block;background:var(--soft);border-radius:12px}
+  .lochart .ref{fill:none;stroke:var(--faint);stroke-width:1.4}
+  .lochart .new{fill:none;stroke:var(--brand);stroke-width:1.6}
+  .lochart .grid{stroke:var(--line);stroke-width:1}
+  .lochart text{fill:var(--muted);font-size:11px;font-family:var(--sans)}
+  .lochart .bend{stroke:var(--bad);stroke-width:1.5;stroke-dasharray:4 3}
+  .lochart .bendt{fill:var(--bad);font-weight:700}
+  .lofind{display:flex;flex-wrap:wrap;gap:8px}
+  .lofind button{border:0;border-radius:999px;padding:6px 12px;font-weight:700;font-size:12px;cursor:pointer;background:var(--bad-tint);color:var(--bad)}
+  .lofind .ok{background:var(--ok-tint);color:var(--ok)}
   dialog.help::backdrop{background:rgba(23,26,32,.35);backdrop-filter:blur(2px)}
   .helphead{display:flex;align-items:center;gap:10px;padding:20px 26px;border-bottom:1px solid var(--line2);position:sticky;top:0;background:var(--surface)}
   .helphead h2{margin:0;font-size:20px;font-weight:500;flex:1}
@@ -905,6 +922,8 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <h3>v38 (7 Oct 2026)</h3>
+      <ul><li>Live OTDR: open a fibre on the cable health check and press Live from an end. A short OTDR repeats about every 20 to 30 s; new loss since the first trace is marked in red with its distance.</li></ul>
       <h3>v37 (7 Oct 2026)</h3>
       <ul><li>Cable health check (Fibres) shows real results: E2E, Uni-dir, OTDR and iOLM from both ends.</li><li>Real time: fibres under test pulse and fill in as results arrive.</li><li>Uni-dir sends each confirmed fibre, so the health check shows them as you go.</li><li>Release notes in Help. One Light or Dark button.</li></ul>
       <h3>v36 (7 Oct 2026)</h3>
@@ -960,11 +979,27 @@
 
       <h3>Cable health check (Fibres)</h3>
       <p>The Fibres button opens the cable health check: every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. Click a fibre for its E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
+      <h3>Live OTDR</h3>
+      <p>On the cable health check, click a fibre and press Live from one end. The RTU repeats a 5 s OTDR at 1550 nm with FMS automatic settings, with no FMS Task, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
       <h3>Run history</h3>
       <p>Finished work: every E2E run, Uni-dir session and FMS bulk Task, including cancelled ones. (The Tasks tab is different: it shows bulk Tasks running on one RTU now, and lets you cancel them.) It opens on Today, which is quickest; choose 7, 30 or 90 days for more. "App runs only" skips the FMS Tasks and loads fastest. The last list shows at once while it refreshes. Filter by result, type, RTU and person, click a row for detail, or export a CSV.</p>
 
       <h3>Who is online</h3>
       <p>The pill at the top shows who is signed in (mobile or desktop) and what is running. Click it for the list.</p>
+    </div>
+  </dialog>
+  <dialog class="lotdr" id="loDlg" aria-labelledby="loTitle">
+    <div class="lohead"><h2 id="loTitle">Live OTDR</h2><span class="chip" id="loState">…</span><span class="grow"></span>
+      <button class="btn" type="button" id="loWhole">Whole fibre</button>
+      <button class="btn" type="button" id="loRef">Use latest as reference</button>
+      <button class="btn danger" type="button" id="loStop">Stop</button>
+      <button class="btn" type="button" id="loClose">Close</button></div>
+    <div class="lobody">
+      <p class="note" id="loInfo" style="margin:0">Starting…</p>
+      <div class="warnbox" id="loErr" hidden></div>
+      <svg class="lochart" id="loChart" viewBox="0 0 1100 380" role="img" aria-label="OTDR trace"></svg>
+      <div class="lofind" id="loFind"></div>
+      <p class="note" style="margin:0">Grey is the reference (the first trace, or the one you chose). Blue is the latest. A red line marks new loss of 0.15 dB or more since the reference, with its distance from the RTU. Click a red mark to zoom in. Each trace is a 5 s OTDR at 1550 nm with FMS automatic settings, so a new one arrives about every 20 to 30 s.</p>
     </div>
   </dialog>
   <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span id="appv">desktop</span></footer>
@@ -973,7 +1008,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v37";
+  const APP_VERSION="v38";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1914,6 +1949,7 @@
       if(u.fibre) mark[u.fibre]=`Uni-dir by ${u.owner}${u.toning?", toning now":", on screen"}`;
     });
     (L.tasks||[]).forEach(t=>(t.testing||[]).forEach(f=>{ mark[f]=`${t.kind} Task by ${t.owner} testing now`; }));
+    (L.otdr||[]).forEach(o=>{ mark[o.fibre]=`Live OTDR by ${o.owner}`; });
     FB.now=mark;
     FB.data={...b, fibres:rows, liveT:L.t||0};
   }
@@ -1922,7 +1958,9 @@
     const chips=[...(L.runs||[]).map(r=>`E2E by ${r.owner}, ${Object.keys(r.results||{}).length} done${r.current?", on "+fNum(r.current):""}`),
       ...(L.uni||[]).map(u=>`Uni-dir by ${u.owner}${u.rtu?" from "+short(u.rtu):""}, on ${fNum(u.fibre)}${u.toning?" (toning)":""}`),
       ...(L.tasks||[]).map(t=>`${t.kind} Task by ${t.owner}${endName(t.end)?" from "+endName(t.end):""}, ${t.done} of ${t.total}`)];
-    $("fLive").hidden=!chips.length; $("fLive").innerHTML=chips.map(c=>`<span>${esc(c)}</span>`).join("");
+    const lo=(L.otdr||[]).map(o=>`<span data-loid="${esc(o.id)}" style="cursor:pointer" title="Open the trace">Live OTDR by ${esc(o.owner)} on ${fNum(o.fibre)}${endName(o.end)?" from "+esc(endName(o.end)):""}, ${o.count} trace${o.count===1?"":"s"}</span>`);
+    $("fLive").hidden=!(chips.length||lo.length); $("fLive").innerHTML=chips.map(c=>`<span>${esc(c)}</span>`).join("")+lo.join("");
+    $("fLive").querySelectorAll("[data-loid]").forEach(x=>x.onclick=()=>loOpen(x.dataset.loid));
   }
   let fibT=null;
   async function pollFibres(){
@@ -2008,8 +2046,10 @@
     else h+=`<p class="note">No OTDR on this fibre yet.</p>`;
     h+=`<h4>History</h4><ul class="fhist" id="fHist"><li><span class="note">Reading…</span></li></ul>`;
     h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${ends.map(e=>`<button class="btn" type="button" data-open="${esc(e.rtu)}">Open ${esc(e.short||short(e.rtu))}</button>`).join("")}<button class="btn" type="button" id="fCopy">Copy name</button></div>`;
+    h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
     $("fDet").innerHTML=h;
     $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
+    $("fDet").querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>loStart(d.stem,f,b.dataset.lo));
     $("fCopy").onclick=()=>{ try{ navigator.clipboard.writeText(d.stem+"-"+fNum(f)); toast("Copied "+d.stem+"-"+fNum(f)); }catch(e){} };
     const key=d.stem+"|"+f, had=!!FB.det[key];
     try{ if(!FB.det[key]){ FB.det[key]=await relay("/api/fibre",{stem:d.stem,fibre:f}); if(FB.sel===f && Object.keys(FB.det[key].iolm||{}).length) return showFibre(f); } }
@@ -2038,6 +2078,62 @@
     FB.hits=[hit.f]; paintFibres(); showFibre(hit.f);
     const b=$("fGrid").querySelector(`[data-f="${hit.f}"]`); if(b) b.scrollIntoView({block:"center",behavior:"smooth"});
   };
+
+  // ── v38: Live OTDR. A short OTDR again and again on one fibre; the trace is drawn over the reference ──
+  const LO={id:"", t:null, s:null, zoom:null};
+  async function loStart(stem,f,rtuId){
+    try{ const s=await relay("/api/otdr/live/start",{stem, fibre:f, rtuId}); loOpen(s.id,s); }
+    catch(e){ if(!quiet(e)) toast(e.message); }
+  }
+  function loOpen(id,s){
+    LO.id=id; LO.s=s||null; LO.zoom=null; const d=$("loDlg"); if(!d.open){ if(d.showModal) d.showModal(); else d.setAttribute("open",""); }
+    loPaint(); loPoll();
+  }
+  async function loPoll(){
+    clearTimeout(LO.t); if(!LO.id || !$("loDlg").open) return;
+    try{ LO.s=await relay("/api/otdr/live/status",{id:LO.id}); loPaint(); }
+    catch(e){ if(quiet(e)) return; $("loErr").hidden=false; $("loErr").textContent=e.message; }
+    if(LO.s && LO.s.state==="running") LO.t=setTimeout(loPoll,3000);
+  }
+  $("loClose").onclick=()=>{ clearTimeout(LO.t); const d=$("loDlg"); if(d.close) d.close(); else d.removeAttribute("open"); };
+  $("loStop").onclick=async()=>{ try{ await relay("/api/otdr/live/stop",{id:LO.id}); toast("Live OTDR stopped."); }catch(e){ if(!quiet(e)) toast(e.message); } loPoll(); };
+  $("loRef").onclick=async()=>{ try{ LO.s=await relay("/api/otdr/live/reference",{id:LO.id}); loPaint(); toast("The latest trace is now the reference."); }catch(e){ if(!quiet(e)) toast(e.message); } };
+  $("loWhole").onclick=()=>{ LO.zoom=null; loPaint(); };
+  function loPaint(){
+    const s=LO.s; if(!s){ $("loInfo").textContent="Starting…"; return; }
+    const words={running:"Running",stopped:"Stopped",done:"Finished"};
+    $("loTitle").textContent=`Live OTDR · ${fNum(s.fibre)} from ${short(s.rtuName)}`;
+    $("loState").className="chip "+(s.state==="running"?"running":"stopped"); $("loState").textContent=words[s.state]||s.state;
+    const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60));
+    $("loInfo").textContent=s.state==="running"
+      ? `${s.count} trace${s.count===1?"":"s"} so far · 1550 nm, automatic settings, ${s.shotS} s · a new trace about every 20 to 30 s · stops in ${left} min · started by ${s.owner}`
+      : `${s.count} trace${s.count===1?"":"s"}. ${s.note||""}`;
+    $("loErr").hidden=!s.error; $("loErr").textContent=s.error||"";
+    $("loStop").hidden=s.state!=="running"; $("loRef").disabled=!s.latest;
+    const ref=s.ref&&s.ref.trace, cur=s.latest&&s.latest.trace, svg=$("loChart");
+    if(!ref){ svg.innerHTML=`<text x="550" y="190" text-anchor="middle">Waiting for the first trace (about 20 to 30 s)…</text>`; $("loFind").innerHTML=""; return; }
+    const W=1100,Hh=380,L=56,Rm=16,T=14,B=34;
+    const len=(s.ref.len||s.latest&&s.latest.len||0);
+    const xmax0=ref.x0+ref.dx*(ref.y.length-1);
+    const [xa,xb]=LO.zoom||[ref.x0, xmax0];
+    const pts=tr=>tr.y.map((v,i)=>[tr.x0+i*tr.dx,v]).filter(p=>p[0]>=xa&&p[0]<=xb);
+    const all=[...pts(ref),...(cur?pts(cur):[])].map(p=>p[1]).filter(v=>v>0.05);
+    let ya=Math.min(...all), yb=Math.max(...all); if(!(yb>ya)){ ya-=1; yb+=1; } const pad=(yb-ya)*0.06; ya-=pad; yb+=pad;
+    const X=x=>L+(x-xa)/(xb-xa)*(W-L-Rm), Y=v=>T+(yb-v)/(yb-ya)*(Hh-T-B);
+    const path=tr=>pts(tr).map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("");
+    const nice=(a,b,n)=>{ const r=(b-a)/n, m=Math.pow(10,Math.floor(Math.log10(r))), st=[1,2,5,10].map(k=>k*m).find(k=>k>=r); const out=[]; for(let v=Math.ceil(a/st)*st; v<=b; v+=st) out.push(+v.toFixed(6)); return out; };
+    let g=nice(xa/1000,xb/1000,8).map(k=>`<line class="grid" x1="${X(k*1000)}" x2="${X(k*1000)}" y1="${T}" y2="${Hh-B}"/><text x="${X(k*1000)}" y="${Hh-14}" text-anchor="middle">${k} km</text>`).join("");
+    g+=nice(ya,yb,5).map(v=>`<line class="grid" x1="${L}" x2="${W-Rm}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`).join("");
+    g+=`<text x="${L}" y="${T-2}">dB</text>`;
+    if(len&&len>=xa&&len<=xb) g+=`<line class="grid" x1="${X(len)}" x2="${X(len)}" y1="${T}" y2="${Hh-B}" style="stroke-dasharray:2 4"/><text x="${X(len)-4}" y="${T+12}" text-anchor="end">end ${(len/1000).toFixed(2)} km</text>`;
+    const steps=(s.latest&&s.latest.steps)||[];
+    const marks=steps.filter(b=>b.m>=xa&&b.m<=xb).map(b=>`<line class="bend" x1="${X(b.m)}" x2="${X(b.m)}" y1="${T}" y2="${Hh-B}"/><text class="bendt" x="${X(b.m)+5}" y="${T+28}">${b.db.toFixed(2)} dB</text>`).join("");
+    svg.innerHTML=g+`<path class="ref" d="${path(ref)}"/>`+(cur?`<path class="new" d="${path(cur)}"/>`:"")+marks;
+    const nw=(s.latest&&s.latest.new)||[];
+    $("loFind").innerHTML=steps.length?steps.map(b=>`<button type="button" data-zm="${b.m}">New loss ${b.db.toFixed(2)} dB at ${(b.m/1000).toFixed(2)} km from ${esc(short(s.rtuName))}${nw.some(n=>Math.abs(n.m-b.m)<300)?" (just appeared)":""}</button>`).join("")
+      : `<button type="button" class="ok">${s.count>1?"No new loss since the reference":"Reference trace taken. Now handle the fibre and watch for a red mark."}</button>`;
+    $("loFind").querySelectorAll("[data-zm]").forEach(b=>b.onclick=()=>{ const m=+b.dataset.zm; LO.zoom=[Math.max(ref.x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
+  }
 
   // ── v35: notifications (Web Push from the relay, see push.js) ──
   let watches=[];
