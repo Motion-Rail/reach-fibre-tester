@@ -406,6 +406,7 @@
   .lookrow button{border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
   .pushtxt{text-align:center;font-size:.7rem;color:var(--muted);margin:6px 12px 0;min-height:1em}
   #pushBtn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .lookrow [data-th][aria-pressed=true]{display:none}      /* v37: only the mode you can switch to */
   .lookrow button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
   :root[data-look=glass] .lookrow button[aria-pressed=true]{background:#1F1C3B;color:#fff}
   /* v33: richer glass, more colour mid screen and more see-through cards */
@@ -928,8 +929,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v36";
+const APP_VERSION="v37";
 const APP_VERSIONS=[
+  ["v37","7 Oct 2026","Your Uni-dir progress now shows fibre by fibre on the desktop cable health check as you go. One Light or Dark button. Needs service v31."],
   ["v36","7 Oct 2026","Run history opens on Today, which loads in a second or two; pick 7, 30 or 90 days for more. The last list shows at once while it refreshes."],
   ["v35","7 Oct 2026","Notifications on your phone or browser, even with the app closed: when your E2E run or FMS Task ends, when a busy RTU is free, and when FMS stops answering during your run. Turn on under Alerts on the start screen. On iPhone add the app to the Home Screen first. Needs service v30."],
   ["v34","6 Oct 2026","Light or Dark glass (switch on the start screen). Short RTU names. A No signal banner when the connection drops. Your Uni-dir progress shows on the desktop Live screen. Needs service v29."],
@@ -1139,8 +1141,9 @@ let crosses={};                              // index -> "crossed with ..."
     if(wait>0){ uniLiveT=setTimeout(()=>uniLive(true),wait); return; }
     uniLiveAt=Date.now();
     let done=0,dis=0,cr=0; for(let i=0;i<TOTAL;i++){ if(!inScope(i)) continue; const s=status[i]; if(s==="done")done++; else if(s==="dis")dis++; else if(s==="cross")cr++; }
+    const L=k=>status.map((x,i)=>x===k?i+1:0).filter(Boolean);      // v37: fibre lists for the desktop Fibres screen in real time
     relay("/api/uni/live",{id:uniId, cable:route, rtu:rtuName||"", rtuId:String(rtuId||""), fibre:current+1, toning:!!toning, confirmed:done, dis, cross:cr,
-      inScope:scopeCount(), location:location_||"", started:uniStarted||0, ended:!!ended}).catch(()=>{});
+      inScope:scopeCount(), location:location_||"", started:uniStarted||0, ended:!!ended, doneList:L("done"), disList:L("dis"), crossList:L("cross")}).catch(()=>{});
   }
   window.rftUniLeave=()=>uniLive(true,true);
 
@@ -1286,7 +1289,8 @@ let crosses={};                              // index -> "crossed with ..."
     try{
       await relay("/api/history/add",{id:uniId, cable:route, rtu:rtuName||rtuId, site:rtuSite, location:location_||"",
         scope:scopeLabel(), inScope:scopeCount(), confirmed:done, dis:offs, cross:crs.map(o=>o.f+(o.w?" with "+o.w:"")),
-        issues:nIss, started:uniStarted||Date.now()/1000, ended:Date.now()/1000, appVersion:APP_VERSION});
+        issues:nIss, started:uniStarted||Date.now()/1000, ended:Date.now()/1000, appVersion:APP_VERSION,
+        doneList:status.map((x,i)=>x==="done"?i+1:0).filter(Boolean)});
     }catch(e){}
   }
   function report(){

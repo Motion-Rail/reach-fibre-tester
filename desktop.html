@@ -98,6 +98,12 @@
   .fc.flip,.fc.a1{background:var(--fcfl);color:var(--fcfli)}
   .fc.unres{background:var(--fcun);color:var(--fcuni)}
   .fc.hit{box-shadow:0 0 0 2px var(--brand)}
+  .fc.now{box-shadow:0 0 0 2px var(--live);animation:fnow 1.6s ease-in-out infinite}
+  @keyframes fnow{50%{box-shadow:0 0 0 4px var(--live-tint),0 0 0 2px var(--live)}}
+  @media (prefers-reduced-motion:reduce){.fc.now{animation:none}}
+  .flive{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .flive span{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;background:var(--live-tint);color:var(--live)}
+  .flive span::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 2s ease-in-out infinite}
   .fc .dot2{position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--bad)}
   .fkey{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:12px}
   .fkey i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
@@ -437,7 +443,8 @@
   /* light / dark switch */
   .themesw{display:inline-flex;gap:2px;background:var(--soft);border:var(--edge,1px solid var(--line));border-radius:999px;padding:3px}
   .themesw button{border:0;background:none;color:var(--muted);border-radius:999px;padding:5px 11px;font:inherit;font-weight:600;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
-  .themesw button[aria-pressed=true]{background:var(--soft2);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  .themesw button[aria-pressed=true]{display:none}
+  .themesw button[aria-pressed=false]{background:var(--soft2);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12)}
   .themesw svg{width:13px;height:13px}
   /* v34: Live landing screen */
   .lstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
@@ -857,6 +864,7 @@
           <input id="fFind" type="search" placeholder="Find a fibre: F123, R11 F3, RGAC 123" aria-label="Find a fibre">
         </div>
         <div id="fHits" class="fhits" hidden></div>
+        <div class="flive" id="fLive" hidden></div>
         <p class="note" id="fNote" style="margin:10px 0 0">Latest result for every fibre, from both ends. Click a fibre for its detail and history.</p>
       </section>
       <section class="fstats" id="fStats" style="margin-top:16px"></section>
@@ -893,8 +901,30 @@
     </main>
   </div>
   <dialog class="help" id="help" aria-labelledby="helpTitle">
-    <div class="helphead"><h2 id="helpTitle">Desktop console: quick guide</h2><button class="btn" id="helpClose" type="button">Close</button></div>
-    <div class="helpbody">
+    <div class="helphead"><h2 id="helpTitle">Help</h2>
+      <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
+      <button class="btn" id="helpClose" type="button">Close</button></div>
+    <div class="helpbody" id="helpNotes" hidden>
+      <h3>v37 (7 Oct 2026)</h3>
+      <ul><li>Cable health check (Fibres) shows real results: E2E, Uni-dir, OTDR and iOLM from both ends.</li><li>Real time: fibres under test pulse and fill in as results arrive.</li><li>Uni-dir sends each confirmed fibre, so the health check shows them as you go.</li><li>Release notes in Help. One Light or Dark button.</li></ul>
+      <h3>v36 (7 Oct 2026)</h3>
+      <ul><li>Phone Run history opens on Today and shows the last list at once.</li><li>Header stays on one line on laptops.</li></ul>
+      <h3>v35 (7 Oct 2026)</h3>
+      <ul><li>Notifications on phone or browser: your run or Task ends, a busy RTU is free, FMS down and back.</li><li>Alerts button and Tell me when free.</li></ul>
+      <h3>v34 (6 Oct 2026)</h3>
+      <ul><li>Live landing screen: who is online and everything running.</li><li>Dark mode. Short RTU names. No signal banner on phones.</li></ul>
+      <h3>v33 (6 Oct 2026)</h3>
+      <ul><li>New versions show on the next open. Richer glass look.</li></ul>
+      <h3>v32 (6 Oct 2026)</h3>
+      <ul><li>E2E and Tone built for the desktop. Faster Run history. Purple light while an RTU tones.</li></ul>
+      <h3>v31 (6 Oct 2026)</h3>
+      <ul><li>This Help guide. Start checks with FMS then asks once.</li></ul>
+      <h3>v30 (6 Oct 2026)</h3>
+      <ul><li>RTU lights, Bulk Test builder, desktop Run history, named accounts only.</li></ul>
+      <h3>v29 (6 Oct 2026)</h3>
+      <ul><li>First desktop console: RTU Tasks with cancel.</li></ul>
+    </div>
+    <div class="helpbody" id="helpGuide">
       <h3>What it is</h3>
       <p>The desktop console shows every RTU on the Reach route, what is running on each, and lets you start and cancel bulk tests from one screen. It uses the same sign in and service as the mobile app, and only named accounts can use it. Nothing here changes the mobile app.</p>
 
@@ -928,6 +958,8 @@
       <h3>Live (the first screen)</h3>
       <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
 
+      <h3>Cable health check (Fibres)</h3>
+      <p>The Fibres button opens the cable health check: every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. Click a fibre for its E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Run history</h3>
       <p>Finished work: every E2E run, Uni-dir session and FMS bulk Task, including cancelled ones. (The Tasks tab is different: it shows bulk Tasks running on one RTU now, and lets you cancel them.) It opens on Today, which is quickest; choose 7, 30 or 90 days for more. "App runs only" skips the FMS Tasks and loads fastest. The last list shows at once while it refreshes. Filter by result, type, RTU and person, click a row for detail, or export a CSV.</p>
 
@@ -941,7 +973,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v36";
+  const APP_VERSION="v37";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1012,6 +1044,8 @@
   $("signOut").onclick=async()=>{ try{ await relay("/api/presence/leave",{}); }catch(e){} signedOut(""); };
   $("mobileBtn").onclick=()=>{ location.href="index.html"; };
   $("helpBtn").onclick=()=>{ const d=$("help"); if(d.showModal) d.showModal(); else d.setAttribute("open",""); };
+  document.querySelectorAll("[data-ht]").forEach(b=>b.onclick=()=>{ const n=b.dataset.ht==="notes";
+    $("helpNotes").hidden=!n; $("helpGuide").hidden=n; document.querySelectorAll("[data-ht]").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); });
   $("helpClose").onclick=()=>{ const d=$("help"); if(d.close) d.close(); else d.removeAttribute("open"); };
 
   // ── who is online ──
@@ -1096,7 +1130,7 @@
     document.querySelectorAll("nav button").forEach(b=>{ if(b.dataset.nav===s) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     if(s==="history") loadHistory();
     if(s==="live") openLive();
-    if(s==="fibres") openFibres();
+    if(s==="fibres"){ openFibres(); if(!fibT) pollFibres(); }
   }
   document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
     const n=b.dataset.nav;
@@ -1506,7 +1540,17 @@
   const inScope=i=>{ const f=i+1; return U.scope==="odd"?f%2===1:U.scope==="even"?f%2===0:U.scope==="range"?(f>=U.from&&f<=U.to):true; };
   const scopeLabel=()=>U.scope==="odd"?"Odd fibres":U.scope==="even"?"Even fibres":U.scope==="range"?fname(U.from)+"–"+fname(U.to):"All fibres";
   const busyMs=()=>Math.max(0,U.busyUntil-Date.now());
-  function uSave(){ if(!U.stem) return; const all=jget(UKEY,{}); all[U.stem+"|"+U.rtuId]={status:U.status,crosses:U.crosses,issues:U.issues,current:U.current,scope:U.scope,from:U.from,to:U.to,id:U.id,t0:U.t0}; jset(UKEY,all); }
+  // v37: send progress like the phone does, so the Fibres screen and Live show it as it happens
+  let uLiveAt=0, uLiveT=null;
+  function uLive(ended){
+    clearTimeout(uLiveT); if(!U.stem||!session.id) return;
+    const wait=ended?0:Math.max(0,4000-(Date.now()-uLiveAt)); if(wait>0){ uLiveT=setTimeout(()=>uLive(false),wait); return; }
+    uLiveAt=Date.now(); const L=k=>U.status.map((x,i)=>x===k?i+1:0).filter(Boolean);
+    relay("/api/uni/live",{id:U.id||"", cable:U.stem, rtu:U.rtu||"", rtuId:String(U.rtuId||""), fibre:(U.current||0)+1, toning:busyMs()>0,
+      confirmed:L("done").length, dis:L("dis").length, cross:L("cross").length, location:$("uLoc").value||"", started:U.t0||0, ended:!!ended,
+      doneList:L("done"), disList:L("dis"), crossList:L("cross")}).catch(()=>{});
+  }
+  function uSave(){ if(!U.stem) return; uLive(false); const all=jget(UKEY,{}); all[U.stem+"|"+U.rtuId]={status:U.status,crosses:U.crosses,issues:U.issues,current:U.current,scope:U.scope,from:U.from,to:U.to,id:U.id,t0:U.t0}; jset(UKEY,all); }
   function uNext(from){ for(let i=from+1;i<TOTAL;i++) if(inScope(i)&&U.status[i]!=="done") return i; for(let i=0;i<=from;i++) if(inScope(i)&&U.status[i]!=="done") return i; return -1; }
   function uState(cls,txt){ $("uState").className="statetag "+cls; $("uState").textContent=txt; }
 
@@ -1650,7 +1694,8 @@
       (offs.length?`<br>DIS: ${esc(offs.join(", "))}`:"")+(crs.length?`<br>Crossed: ${esc(crs.join("; "))}`:"");
     $("uCopy").hidden=false;
     try{ const r=await relay("/api/history/add",{id:U.id, cable:U.stem, rtu:U.rtu, site:U.site, location:loc, scope:scopeLabel(), inScope:[...Array(TOTAL).keys()].filter(inScope).length,
-      confirmed:done, dis:offs, cross:crs, issues:iss.length, started:U.t0||Date.now()/1000, ended:Date.now()/1000, appVersion:"desktop "+APP_VERSION});
+      confirmed:done, dis:offs, cross:crs, issues:iss.length, started:U.t0||Date.now()/1000, ended:Date.now()/1000, appVersion:"desktop "+APP_VERSION,
+      doneList:U.status.map((x,i)=>x==="done"?i+1:0).filter(Boolean)});
       $("uSummary").innerHTML+=`<br>${r&&r.ok===false?"Run history is off on the relay, so this was not saved.":"Saved to Run history."}`;
       try{ Object.keys(sessionStorage).filter(k=>k.startsWith("rft.hist.")).forEach(k=>sessionStorage.removeItem(k)); }catch(e){}
     }catch(e){ if(!quiet(e)) $("uSummary").innerHTML+="<br>Not saved to Run history: "+esc(e.message); }
@@ -1828,7 +1873,7 @@
   // Flipped only when at least two different mirror pairs agree in the ribbon; one swapped pair stays Crossed
   function flipConfirmed(rb){
     const d=FB.data; if(!d) return false; FB.flipCache=FB.flipCache||{};
-    const key=d.stem+"|"+(d.updated||"")+"|"+rb; if(key in FB.flipCache) return FB.flipCache[key];
+    const key=d.stem+"|"+(d.updated||"")+"|"+(d.liveT||"")+"|"+rb; if(key in FB.flipCache) return FB.flipCache[key];
     const pairs=new Set();
     d.fibres.slice((rb-1)*12, rb*12).forEach(r=>{ const e=r.e2e, u=r.uni, x=(e&&u)?((e.t||0)>=(u.t||0)?e:u):(e||u);
       if(x&&x.state==="cross"&&mirrorOf(r,x)) pairs.add(Math.min(posOf(r.f),13-posOf(r.f))); });
@@ -1853,9 +1898,50 @@
     const t=lastT(r); if(!t) return ""; const days=(Date.now()/1000-t)/86400; return days<1?"a0":days<7?"a1":"a2";
   }
   async function openFibres(){ $("fCable").value=FB.stem; if(!FB.data||FB.data.stem!==FB.stem) await loadFibres(); else paintFibres(); }
+  // v37 real time: the relay's "right now" part (E2E runs, Uni-dir from phones and desktops, running Tasks) laid over the stored results
+  function applyLive(){
+    const b=FB.base; if(!b) return; const L=FB.live||{}, now=Date.now()/1000, mark={};
+    const rows=b.fibres.map(r=>({...r}));
+    const at=f=>rows[f-1];
+    (L.runs||[]).forEach(run=>{
+      Object.entries(run.results||{}).forEach(([k,v])=>{ const r=at(+k); if(r) r.e2e={state:v.state,found:v.found,t:now,by:run.owner,live:true}; });
+      if(run.current) mark[run.current]=`E2E by ${run.owner} testing now`;
+    });
+    (L.uni||[]).forEach(u=>{
+      (u.doneList||[]).forEach(f=>{ const r=at(f); if(r) r.uni={state:"confirmed",t:now,by:u.owner,location:u.location,live:true}; });
+      (u.disList||[]).forEach(f=>{ const r=at(f); if(r) r.uni={state:"dis",t:now,by:u.owner,location:u.location,live:true}; });
+      (u.crossList||[]).forEach(f=>{ const r=at(f); if(r) r.uni={state:"cross",t:now,by:u.owner,location:u.location,live:true}; });
+      if(u.fibre) mark[u.fibre]=`Uni-dir by ${u.owner}${u.toning?", toning now":", on screen"}`;
+    });
+    (L.tasks||[]).forEach(t=>(t.testing||[]).forEach(f=>{ mark[f]=`${t.kind} Task by ${t.owner} testing now`; }));
+    FB.now=mark;
+    FB.data={...b, fibres:rows, liveT:L.t||0};
+  }
+  function paintLive(){
+    const L=FB.live||{}, ends=(FB.base&&FB.base.ends)||[], endName=e=>e==="a"&&ends[0]?short(ends[0].rtu):e==="b"&&ends[1]?short(ends[1].rtu):"";
+    const chips=[...(L.runs||[]).map(r=>`E2E by ${r.owner}, ${Object.keys(r.results||{}).length} done${r.current?", on "+fNum(r.current):""}`),
+      ...(L.uni||[]).map(u=>`Uni-dir by ${u.owner}${u.rtu?" from "+short(u.rtu):""}, on ${fNum(u.fibre)}${u.toning?" (toning)":""}`),
+      ...(L.tasks||[]).map(t=>`${t.kind} Task by ${t.owner}${endName(t.end)?" from "+endName(t.end):""}, ${t.done} of ${t.total}`)];
+    $("fLive").hidden=!chips.length; $("fLive").innerHTML=chips.map(c=>`<span>${esc(c)}</span>`).join("");
+  }
+  let fibT=null;
+  async function pollFibres(){
+    clearTimeout(fibT);
+    if(screen==="fibres" && !document.hidden && FB.base){
+      try{
+        const full=Date.now()-(FB.fullAt||0)>((FB.base.scan&&FB.base.scan.busy)?10000:60000);
+        if(full){ FB.base=await relay("/api/fibres",{stem:FB.stem}); FB.live=FB.base.live||null; FB.fullAt=Date.now(); }
+        else { const d=await relay("/api/fibres",{stem:FB.stem, live:true}); if(d.stem===FB.base.stem) FB.live=d.live; }
+        const before=JSON.stringify(contOf((FB.data.fibres||[])[FB.sel-1]||{f:0})||null);
+        applyLive(); paintFibres();
+        if(JSON.stringify(contOf(FB.data.fibres[FB.sel-1])||null)!==before) showFibre(FB.sel);
+      }catch(e){ if(quiet(e)) return; }
+    }
+    fibT=setTimeout(pollFibres,4000);
+  }
   async function loadFibres(force){
     $("fGrid").innerHTML="<span class='note'>Reading results…</span>"; $("fStats").innerHTML="";
-    try{ FB.data=await relay("/api/fibres",{stem:FB.stem, refresh:!!force}); }
+    try{ FB.base=await relay("/api/fibres",{stem:FB.stem, refresh:!!force}); FB.live=FB.base.live||null; FB.fullAt=Date.now(); applyLive(); }
     catch(e){ if(quiet(e)) return; $("fGrid").innerHTML=`<div class="warnbox">Could not read the results: ${esc(e.message)}</div>`; return; }
     if(!FB.sel){ const first=FB.data.fibres.find(r=>contOf(r)&&contOf(r).state!=="straight"); FB.sel=first?first.f:1; }
     paintFibres(); showFibre(FB.sel);
@@ -1880,7 +1966,8 @@
       html+=`<span class="rl">R${rb}</span>`+rr.map(r=>{ const c=contOf(r), l=loss1550(r);
         const tip=`${fNum(r.f)} (R${rb} F${posOf(r.f)})`+(c?` · ${c.src} ${c.state}${c.found?" to "+fNum(c.found):""} ${ago(c.t)}`:" · no continuity yet")+(l!=null?` · ${db(l)} dB at 1550`:"");
         const flag=FB.mode!=="cont"&&c&&c.state!=="straight"?'<i class="dot2"></i>':"";
-        return `<button type="button" class="fc ${cellClass(r,med)}${FB.hits.includes(r.f)?" hit":""}" data-f="${r.f}" aria-pressed="${r.f===FB.sel}" title="${esc(tip)}">${posOf(r.f)}${flag}</button>`; }).join("")
+        const nw=(FB.now||{})[r.f];
+        return `<button type="button" class="fc ${cellClass(r,med)}${FB.hits.includes(r.f)?" hit":""}${nw?" now":""}" data-f="${r.f}" aria-pressed="${r.f===FB.sel}" title="${esc(tip+(nw?" · "+nw:""))}">${posOf(r.f)}${flag}</button>`; }).join("")
         +`<span class="rs" title="${esc(cap(sum))}">${esc(cap(sum))}</span>`;
     }
     $("fGrid").innerHTML=html;
@@ -1889,19 +1976,23 @@
     $("fKey").innerHTML=FB.mode==="cont"?k("ok","Straight")+k("flip","Flipped (F1 to F12)")+k("cross","Crossed")+k("dis","Dis.")+k("unres","Not found")+k("","Not tested")
       : FB.mode==="loss"?k("l0","Within 0.5 dB of typical")+k("l1","0.5 to 1.5 dB higher")+k("l2","More than 1.5 dB higher")+k("","No reading")+"<span>Red dot: continuity problem</span>"
       : k("a0","Today")+k("a1","This week")+k("a2","Older")+k("","Never");
+    paintLive();
     $("fNote").textContent=(d.notes&&d.notes.length?d.notes.join(" "):"Latest result for every fibre, from both ends. Click a fibre for its detail and history.")+(d.updated?` Read ${ago(d.updated)==="today"?new Date(d.updated*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):ago(d.updated)}.`:"");
   }
   async function showFibre(f){
     FB.sel=f; const d=FB.data; if(!d) return; const r=d.fibres.find(x=>x.f===f); if(!r) return;
     $("fGrid").querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.f===f)));
-    const ends=d.ends||[], nm=i=>ends[i]?esc(ends[i].short):(i?"B end":"A end"), c=contOf(r);
+    const ends=d.ends||[], nm=i=>ends[i]?esc(ends[i].short||short(ends[i].rtu)):(i?"B end":"A end"), c=contOf(r);
     const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
     let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
     h+=`<h4>Continuity</h4><div style="margin-bottom:6px">${ctag}</div>`;
-    if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
+    if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found&&r.e2e.state!=="straight"?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
     if(r.uni) h+=`<div class="kv"><span>Uni-dir</span><span>${esc(SWORD[r.uni.state]||r.uni.state)}${r.uni.location?" at "+esc(r.uni.location):""} · ${esc(nice(r.uni.by||""))} · ${when(r.uni.t)}</span></div>`;
     if(!r.e2e&&!r.uni) h+=`<p class="note">No E2E or Uni-dir result on this fibre yet.</p>`;
-    const ia=r.iolm&&r.iolm.a, ib=r.iolm&&r.iolm.b;
+    // per wavelength iOLM loss from the FMS results, once the detail has been read
+    const xi=(FB.det[d.stem+"|"+f]||{}).iolm||{}, mi=k=>{ const a=r.iolm&&r.iolm[k], b=xi[k]; if(!a&&!b) return null; if(!b) return a;
+      return {...(a||{}), ...b, loss:{...((a&&a.loss)||{}), ...(b.loss||{})}, len:(b.len||(a&&a.len)), t:Math.max((a&&a.t)||0,b.t||0)}; };
+    const ia=mi("a"), ib=mi("b");
     h+=`<h4>iOLM loss (dB)</h4>`;
     if(ia||ib){
       const wls=["1310","1550","1625"].filter(w=>(ia&&ia.loss&&ia.loss[w]!=null)||(ib&&ib.loss&&ib.loss[w]!=null));
@@ -1916,16 +2007,16 @@
     if(oa||ob) h+=`<table><tr><th>From</th><th>Length</th><th>Loss</th><th>When</th></tr>`+[[oa,0],[ob,1]].map(([x,i])=>`<tr><td>${nm(i)}</td><td>${x?km(x.len):"–"}</td><td>${x?db(x.loss)+(x.wl?` <span class="note">@${x.wl}</span>`:""):"–"}</td><td>${x?when(x.t):"–"}</td></tr>`).join("")+`</table>`;
     else h+=`<p class="note">No OTDR on this fibre yet.</p>`;
     h+=`<h4>History</h4><ul class="fhist" id="fHist"><li><span class="note">Reading…</span></li></ul>`;
-    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${ends.map(e=>`<button class="btn" type="button" data-open="${esc(e.rtu)}">Open ${esc(e.short)}</button>`).join("")}<button class="btn" type="button" id="fCopy">Copy name</button></div>`;
+    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${ends.map(e=>`<button class="btn" type="button" data-open="${esc(e.rtu)}">Open ${esc(e.short||short(e.rtu))}</button>`).join("")}<button class="btn" type="button" id="fCopy">Copy name</button></div>`;
     $("fDet").innerHTML=h;
     $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
     $("fCopy").onclick=()=>{ try{ navigator.clipboard.writeText(d.stem+"-"+fNum(f)); toast("Copied "+d.stem+"-"+fNum(f)); }catch(e){} };
-    const key=d.stem+"|"+f;
-    try{ if(!FB.det[key]) FB.det[key]=await relay("/api/fibre",{stem:d.stem,fibre:f}); }
+    const key=d.stem+"|"+f, had=!!FB.det[key];
+    try{ if(!FB.det[key]){ FB.det[key]=await relay("/api/fibre",{stem:d.stem,fibre:f}); if(FB.sel===f && Object.keys(FB.det[key].iolm||{}).length) return showFibre(f); } }
     catch(e){ if(quiet(e)) return; if(FB.sel===f) $("fHist").innerHTML=`<li><span class="note">History not available: ${esc(e.message)}</span></li>`; return; }
     if(FB.sel!==f) return;
     const hs=FB.det[key].history||[];
-    $("fHist").innerHTML=hs.length?hs.map(x=>`<li><span class="t">${when(x.t)}</span><span><b>${esc(x.type)}</b>${x.end?" from "+esc(x.end):""}: ${esc(x.summary)}${x.by?` <span class="note">${esc(nice(x.by))}</span>`:""}</span></li>`).join(""):`<li><span class="note">Nothing recorded on this fibre.</span></li>`;
+    $("fHist").innerHTML=hs.length?hs.map(x=>`<li><span class="t">${when(x.t)}</span><span><b>${esc(x.type)}</b>${x.end?" from "+esc(short(x.end)):""}: ${esc(x.summary)}${x.by?` <span class="note">${esc(nice(x.by))}</span>`:""}</span></li>`).join(""):`<li><span class="note">Nothing recorded on this fibre.</span></li>`;
   }
   // fibre lookup: F123, 123, R11 F3, RGAC 123, F-RGAC-SNBC-A-R432-F123
   function parseFind(q){

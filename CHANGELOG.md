@@ -443,6 +443,16 @@ in one direction.
 
 ---
 
+## v37 + relay v31 — 7 October 2026 — Fibres screen with real results, in real time
+
+Step 4.3. The desktop Fibres screen (designed with Alkis in v36) now reads real results.
+- **Relay v31 (`relay_fibres.py`):** `POST /api/fibres {stem, live?, refresh?}` and `POST /api/fibre {stem, fibre}`. E2E and Uni-dir results from the run logs (only this cable's files are opened, by file name); OTDR and iOLM from finished FMS bulk Tasks (each route's output: length, loss, time), read once in the background and kept; per wavelength iOLM loss and stored results from the FMS results API when a fibre is opened. Looks back 90 days (`FIBRES_DAYS`), up to 300 Tasks (`FIBRES_MAX_TASKS`). Names, not emails.
+- **Real time:** the screen asks the relay every 4 s for what is happening on the cable now: E2E runs (results as they come), Uni-dir from phones and the desktop (confirmed, Dis. and crossed fibres as they are marked), and running Tasks. Fibres under test pulse; a strip above the grid says who is testing what. The stored results refresh every minute.
+- **Apps:** Uni-dir (phone and desktop) now send the confirmed fibre list with their progress and in the saved session, so the Fibres screen can show them fibre by fibre. The desktop Uni-dir also sends progress like the phone.
+- Fibres button appears once the relay is v31. Help has a "Cable health check (Fibres)" section and a Release notes tab with a short list of what changed in each version (Alkis, 7 Oct).
+- One Light or Dark button: it shows only the mode you can switch to, on the desktop header and the phone start screen (Alkis, 7 Oct).
+- Tests: test_fibres 24 (stand in GitHub log store and FMS results in the mock), ui_fibres 17.
+
 ## v36 — 7 October 2026 — Phone Run history opens on Today, desktop header on one line
 
 App only (relay stays v30). Alkis: the phone Run history started on the last 30 days and took a while to load.
