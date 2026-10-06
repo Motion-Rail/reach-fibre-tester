@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reach Fibre Tester · Desktop</title>
-<!-- v30, 6 Oct 2026: desktop lock (relay DESKTOP_USERS), RTU online lights with key, collapsible cables,
+<!-- v31, 6 Oct 2026: Help guide, Start checks with FMS then one confirm (no separate check button), default comment = RTU and fibres, Bulk Test removed from the header (it is the RTU tab), cables start collapsed.
+     v30, 6 Oct 2026: desktop lock (relay DESKTOP_USERS), RTU online lights with key, collapsible cables,
      working Console / Bulk Test / Run history, Bulk Test builder, desktop Run history, Tasks matched to
      RTUs by RtuId (live FMS gives no RTU name for a Task). Needs relay v27.
      v29: desktop console shell, RTU modules, Tasks with cancel. -->
@@ -131,6 +132,15 @@
   .fchip{min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid #C4C8C0;background:#fff;cursor:pointer}
   .fchip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
 
+  dialog.help{border:0;border-radius:12px;padding:0;width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 48px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  dialog.help::backdrop{background:rgba(21,25,30,.45)}
+  .helphead{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
+  .helphead h2{margin:0;font-size:18px;flex:1}
+  .helpbody{padding:6px 22px 22px;overflow:auto;line-height:1.5}
+  .helpbody h3{font-size:14px;margin:18px 0 6px}
+  .helpbody p,.helpbody li{font-size:14px}
+  .helpbody ul,.helpbody ol{padding-left:20px;margin:6px 0}
+  .helpkey{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;font-size:14px}
   footer{height:34px;display:flex;align-items:center;gap:16px;padding:0 20px;border-top:1px solid var(--line);background:var(--surface);font-size:12px;color:var(--muted)}
   @media (max-width:640px){ header{padding:8px 16px} main{padding:16px} .ribs{grid-template-columns:repeat(9,minmax(0,1fr))} .bside{position:static} }
 </style>
@@ -167,12 +177,12 @@
     <div class="title">Reach Fibre Tester<small>desktop</small></div>
     <nav aria-label="Screens">
       <button data-nav="console">Console</button>
-      <button data-nav="bulk">Bulk Test</button>
       <button data-nav="history">Run history</button>
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
     <span class="who" id="who"></span>
+    <button class="hdrlink" id="helpBtn" aria-haspopup="dialog">Help</button>
     <button class="hdrlink" id="mobileBtn">Mobile view</button>
     <button class="hdrlink" id="signOut">Sign out</button>
   </header>
@@ -264,7 +274,7 @@
             </section>
             <section class="panel">
               <h2>3 · Comment</h2>
-              <label class="f">Shown on the FMS Tasks page<input type="text" id="bComment" maxlength="120" placeholder="e.g. Post remedial R6"></label>
+              <label class="f">Shown on the FMS Tasks page (filled in as the RTU and fibres; type over it to change)<input type="text" id="bComment" maxlength="120"></label>
             </section>
           </div>
           <aside class="bside" aria-live="polite">
@@ -278,7 +288,6 @@
               <div><div class="lbl">Already on this RTU</div><div class="mono" id="bQ">–</div></div>
             </div>
             <div id="bBusy"></div>
-            <button class="btn" id="bPlan" type="button" style="background:#2A3038;border-color:#2A3038;color:#fff">Check with FMS</button>
             <button class="btn primary" id="bStart" type="button" disabled>Start</button>
             <div class="note" style="color:#AEB5BD">You can cancel at any point from the Tasks tab.</div>
           </aside>
@@ -317,13 +326,52 @@
       </div>
     </main>
   </div>
+  <dialog class="help" id="help" aria-labelledby="helpTitle">
+    <div class="helphead"><h2 id="helpTitle">Desktop console: quick guide</h2><button class="btn" id="helpClose" type="button">Close</button></div>
+    <div class="helpbody">
+      <h3>What it is</h3>
+      <p>The desktop console shows every RTU on the Reach route, what is running on each, and lets you start and cancel bulk tests from one screen. It uses the same sign in and service as the mobile app, and only named accounts can use it. Nothing here changes the mobile app.</p>
+
+      <h3>The RTU list (left)</h3>
+      <p>Cables start collapsed. Click a cable to show the RTU at each end, then click an RTU to open it. Collapse all / Expand all is at the top.</p>
+      <div class="helpkey">
+        <span class="dot on"></span><span><b>Available</b>: FMS reports the RTU attached and nothing is running on it.</span>
+        <span class="dot busy"></span><span><b>Testing</b>: an FMS bulk Task, or an E2E run using it at either end.</span>
+        <span class="dot off"></span><span><b>Offline</b>: FMS reports it not attached, or has no routes for it ("not in FMS").</span>
+        <span class="dot idle"></span><span><b>Checking</b>: waiting for FMS, normally a few seconds after opening.</span>
+      </div>
+      <p class="note">Lights refresh every minute, running Tasks every 15 seconds. Tests started with Test On Demand in the FMS screen create no Task, so they cannot be seen.</p>
+
+      <h3>RTU tabs</h3>
+      <ul>
+        <li><b>Tasks</b>: bulk Tasks on this RTU with progress. <b>Cancel…</b> stops one at any point: finished fibres keep their results, the rest never run. Cancelling someone else's Task asks you to confirm whose it is. A cancelled Task drops off the FMS Tasks page but stays in Run history here.</li>
+        <li><b>Bulk Test</b>: pick fibres (ribbon buttons, or type e.g. 61-72, 80), choose OTDR or iOLM and the settings, then <b>Start</b>.</li>
+        <li><b>E2E Continuity</b> and <b>Tone (Uni-dir)</b>: the same checks as the mobile app, preset to this RTU and its cable.</li>
+      </ul>
+
+      <h3>Starting a bulk test</h3>
+      <ol>
+        <li>Pick the RTU on the left, then the Bulk Test tab.</li>
+        <li>Pick fibres. The comment fills in as the RTU and fibres (e.g. RGAC2 F061-F063); type over it if you want.</li>
+        <li>OTDR: wavelengths (each wavelength is a separate FMS Task, because FMS fires one wavelength at a time), duration, and automatic or set pulse and range. iOLM: test limit, acquisition type and wavelengths (all in one shot).</li>
+        <li>Press <b>Start</b>. FMS first confirms every fibre exists on that RTU and nothing is started yet; you then see one summary (fibres, Tasks, time, anything already running) and press OK to start.</li>
+      </ol>
+      <p class="note">Time guide, measured on RGAC2: OTDR about the acquisition time plus 17 s per fibre per wavelength; iOLM Standard about 73 s per fibre. If an RTU is already busy, FMS shares it between Tasks, so both take longer.</p>
+
+      <h3>Run history</h3>
+      <p>Every E2E run, Uni-dir session and FMS bulk Task, including cancelled ones. Filter by result, type, RTU and person, choose 7, 30 or 90 days, click a row for detail, or export a CSV.</p>
+
+      <h3>Who is online</h3>
+      <p>The pill at the top shows who is signed in (mobile or desktop) and what is running. Click it for the list.</p>
+    </div>
+  </dialog>
   <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span id="appv">desktop</span></footer>
 </section>
 
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v30";
+  const APP_VERSION="v31";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -347,7 +395,8 @@
     {name:"Stoke Gifford to Cardiff", pre:"F-0001-SGIC", rtus:[["SGIC2","RTU2-SGIC-2026965"],["0001","RTU2-0001-2026282"]]}
   ];
   let selected=jget("rft.desktop.rtu","RTU2-RGAC2-1991133");
-  let collapsed=jget("rft.desktop.collapsed",{});
+  // every cable starts collapsed when the page opens (Alkis, 6 Oct)
+  let collapsed={}; [["F-0057-RGAC"],["F-RGAC-SNBC"],["F-SGIC-SNBC"],["F-0001-SGIC"]].forEach(([k])=>collapsed[k]=true);
   let tasksData=null, timers=[], rtuState={}, screen="console";
 
   async function relay(path, body){
@@ -392,6 +441,8 @@
   };
   $("signOut").onclick=async()=>{ try{ await relay("/api/presence/leave",{}); }catch(e){} signedOut(""); };
   $("mobileBtn").onclick=()=>{ location.href="index.html"; };
+  $("helpBtn").onclick=()=>{ const d=$("help"); if(d.showModal) d.showModal(); else d.setAttribute("open",""); };
+  $("helpClose").onclick=()=>{ const d=$("help"); if(d.close) d.close(); else d.removeAttribute("open"); };
 
   // ── who is online ──
   let online=null;
@@ -450,12 +501,12 @@
           return `<button class="rtu" type="button" data-rtu="${esc(full)}" aria-pressed="${full===selected}" title="${esc(tip)}"><span class="dot ${L.dot}" aria-label="${L.word}"></span><span class="site">${esc(site)}</span><span class="badge">${L.badge}</span></button>`;
         }).join("")+"</div></div>";
     }).join("");
-    document.querySelectorAll(".cablehead").forEach(b=>b.onclick=()=>{ const k=b.dataset.cable; collapsed[k]=!collapsed[k]; jset("rft.desktop.collapsed",collapsed); renderSide(); });
+    document.querySelectorAll(".cablehead").forEach(b=>b.onclick=()=>{ const k=b.dataset.cable; collapsed[k]=!collapsed[k]; renderSide(); });
     document.querySelectorAll(".rtu").forEach(b=>b.onclick=()=>pickRtu(b.dataset.rtu));
     const all=CABLES.every(c=>collapsed[c.pre]);
     $("toggleAll").textContent=all?"Expand all":"Collapse all";
   }
-  $("toggleAll").onclick=()=>{ const all=CABLES.every(c=>collapsed[c.pre]); CABLES.forEach(c=>collapsed[c.pre]=!all); jset("rft.desktop.collapsed",collapsed); renderSide(); };
+  $("toggleAll").onclick=()=>{ const all=CABLES.every(c=>collapsed[c.pre]); CABLES.forEach(c=>collapsed[c.pre]=!all); renderSide(); };
   function pickRtu(r){
     selected=r; jset("rft.desktop.rtu",selected); confirming=null; planned=null;
     if(screen==="history") setScreen("console");
@@ -469,13 +520,13 @@
   function setScreen(s){
     screen=s;
     $("screen-console").hidden=s==="history"; $("screen-history").hidden=s!=="history";
-    document.querySelectorAll("nav button").forEach(b=>{ const n=b.dataset.nav, cur=(n==="history"&&s==="history")||(n==="bulk"&&s!=="history"&&tab==="bulk")||(n==="console"&&s!=="history"&&tab!=="bulk"); if(cur) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+    document.querySelectorAll("nav button").forEach(b=>{ const n=b.dataset.nav, cur=(n==="history"&&s==="history")||(n==="console"&&s!=="history"); if(cur) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     if(s==="history") loadHistory();
   }
   document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
     const n=b.dataset.nav;
     if(n==="history") return setScreen("history");
-    screen="console"; showTab(n==="bulk"?"bulk":(tab==="bulk"?"tasks":tab));
+    screen="console"; showTab(tab);
   });
   function showTab(t){
     tab=t; jset("rft.desktop.tab",t);
@@ -575,7 +626,10 @@
   $("bPulse").onchange=()=>{ B.pulse=+$("bPulse").value; saveB(); planned=null; renderBulkSide(); };
   $("bRange").oninput=()=>{ B.range=+$("bRange").value; saveB(); planned=null; renderBulkSide(); };
   $("bConfig").onchange=()=>{ B.config=$("bConfig").value; saveB(); planned=null; renderBulkSide(); };
-  ["bSplice","bRefl","bEof","bComment"].forEach(id=>$(id).oninput=()=>{ planned=null; renderBulkSide(); });
+  ["bSplice","bRefl","bEof"].forEach(id=>$(id).oninput=()=>{ renderBulkSide(); });
+  let commentOwn=false;
+  $("bComment").oninput=()=>{ commentOwn=$("bComment").value.trim()!==""&&$("bComment").value!==autoComment(); };
+  function autoComment(){ const site=(cableOf(selected)||{rtus:[]}).rtus.find(r=>r[1]===selected)?.[0]||""; const f=fibreText().split(", ").map(x=>x.split("-").map(n=>"F"+String(n).padStart(3,"0")).join("-")).join(", "); return fibres.size?`${site} ${f}`:site; }
   function stem(){ const st=rtuState[selected]; return st&&st.stem?st.stem:null; }
   function payload(){
     const b={rtu:selected, cable:stem(), fibres:[...fibres].sort((x,y)=>x-y), kind:B.kind, comment:$("bComment").value.trim()};
@@ -599,6 +653,7 @@
     $("bModes").querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ B.mode=b.dataset.mode; saveB(); changed(); });
     document.querySelectorAll("#bRibs [data-r]").forEach(b=>{ const r=+b.dataset.r, all=[...Array(12)].map((_,i)=>(r-1)*12+i+1), n=all.filter(f=>fibres.has(f)).length; b.setAttribute("aria-pressed",String(n===12)); b.classList.toggle("part",n>0&&n<12); });
     if(syncText && document.activeElement!==$("bFibres")) $("bFibres").value=fibreText();
+    if(!commentOwn) $("bComment").value=autoComment();
     $("bFibreSum").textContent=fibres.size?`${fibres.size} fibre${fibres.size>1?"s":""}: ${fibreText()}`:"No fibres chosen.";
     renderBulkSide();
   }
@@ -613,25 +668,26 @@
     let warn="";
     if(L.dot==="off") warn=`<div class="warnbox">${esc(selected)} is ${L.word}. A test cannot run until FMS reports it attached.</div>`;
     else if(ts.length) warn=`<div class="warnbox">This RTU is busy: ${ts.map(t=>esc(nice(t.owner))+"'s "+esc(t.kind)+" ("+t.done+"/"+t.total+")").join(", ")}. FMS will share the RTU between them, so everything takes longer.</div>`;
-    if(planned) warn+=`<div class="note" style="color:#9BD3B6">FMS check passed: ${planned.fibres} fibres found on ${esc(selected)}.</div>`;
     $("bBusy").innerHTML=warn;
-    $("bPlan").disabled=!n||!stem();
-    $("bStart").disabled=!planned;
-    $("bStart").textContent=planned?`Start ${n} fibre${n>1?"s":""}${B.kind==="otdr"&&B.wls.length>1?" × "+B.wls.length+" wavelengths":""}`:"Start (check with FMS first)";
+    $("bStart").disabled=!n||!stem()||L.dot==="off";
+    $("bStart").textContent=n?`Start ${n} fibre${n>1?"s":""}${B.kind==="otdr"&&B.wls.length>1?" × "+B.wls.length+" wavelengths":""}`:"Pick fibres to start";
   }
-  $("bPlan").onclick=async()=>{
-    $("bPlan").disabled=true; $("bPlan").textContent="Checking…";
-    try{ planned=await relay("/api/bulk/plan",payload()); }
-    catch(e){ planned=null; if(!quiet(e)) toast("FMS check failed: "+e.message); }
-    $("bPlan").textContent="Check with FMS"; renderBulkSide();
-  };
+  // Start: FMS checks the fibres exist on this RTU and builds the Task (nothing starts), then one confirm, then start
   $("bStart").onclick=async()=>{
-    if(!planned) return;
-    const n=fibres.size;
-    if(!confirm(`Start ${B.kind.toUpperCase()} on ${n} fibre${n>1?"s":""} from ${selected}?\n\nAbout ${hms(estimate())}. ${planned.tasks} FMS Task${planned.tasks>1?"s":""}.`)) return;
-    $("bStart").disabled=true; $("bStart").textContent="Starting…";
-    try{ const r=await relay("/api/bulk/start",payload()); toast(`Started ${r.ids.length} FMS Task${r.ids.length>1?"s":""}. Follow it in the Tasks tab.`); planned=null; showTab("tasks"); refreshTasks(true); }
-    catch(e){ if(!quiet(e)) toast("Not started: "+e.message); renderBulkSide(); }
+    const n=fibres.size; if(!n) return;
+    $("bStart").disabled=true; $("bStart").textContent="Checking with FMS…";
+    let p=null;
+    try{ p=await relay("/api/bulk/plan",payload()); }
+    catch(e){ if(!quiet(e)) toast("Not started. FMS check failed: "+e.message); renderBulkSide(); return; }
+    const site=(cableOf(selected)||{rtus:[]}).rtus.find(r=>r[1]===selected)?.[0]||selected;
+    const busyTxt=p.busy&&p.busy.length?`\n\nRTU busy: ${p.busy.map(b=>nice(b.owner)+"'s "+b.kind+" ("+b.done+"/"+b.total+")").join(", ")}. FMS will share the RTU, so it will take longer.`:"";
+    const what=B.kind==="otdr"?`OTDR ${B.wls.join(" / ")} nm, ${B.dur} s, ${B.auto?"automatic pulse and range":"pulse "+(PULSES.find(x=>x[0]===B.pulse)||[0,""])[1]+", range "+B.range+" km"}`:`iOLM ${MODES.find(m=>m[0]===B.mode)[1]}, ${B.wls.join(" / ")} nm`;
+    const ok=confirm(`FMS check passed: all ${p.fibres} fibres found on ${site} (${stem()}).\n\n${what}\n${p.tasks} FMS Task${p.tasks>1?"s":""}, about ${hms(p.estimateS)}.${busyTxt}\n\nComment: ${payload().comment}\n\nStart now?`);
+    if(!ok){ renderBulkSide(); return; }
+    $("bStart").textContent="Starting…";
+    try{ const r=await relay("/api/bulk/start",payload()); toast(`Started ${r.ids.length} FMS Task${r.ids.length>1?"s":""}. Follow it in the Tasks tab.`); showTab("tasks"); refreshTasks(true); }
+    catch(e){ if(!quiet(e)) toast("Not started: "+e.message); }
+    renderBulkSide();
   };
 
   // ── Run history ──

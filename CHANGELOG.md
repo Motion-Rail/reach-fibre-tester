@@ -443,6 +443,17 @@ in one direction.
 
 ---
 
+## v31 (app only, relay stays v27) — 6 October 2026 — desktop Help, simpler Start
+
+- **Help** button in the desktop header: quick guide and overview (what it is, RTU list and light key, RTU tabs, starting a bulk test, Run history, who is online).
+- **Start** now does the FMS check itself (every fibre exists on that RTU, Tasks built, nothing started), then shows one summary (fibres, settings, Tasks, time, anything already running, comment) and starts on OK. The separate "Check with FMS" button is gone.
+- **Default comment**: the RTU and fibres under test, e.g. "RGAC2 F061-F063", kept up to date until you type your own.
+- **Header**: Console and Run history only. Bulk Test lives in the RTU tabs (the header button was a duplicate).
+- **Cables start collapsed** every time the page opens.
+- App only: deploying it does not restart the relay or sign anyone out.
+
+---
+
 ## v30 (app) + relay v27 — 6 October 2026 — desktop lock, RTU lights, Bulk Test builder, Run history
 
 ### Relay v27
