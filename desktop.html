@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>try{var lk=localStorage.getItem("rft.desktop.look")||"glass";if(lk==="glass")document.documentElement.setAttribute("data-look","glass");}catch(e){}</script>
+<script>document.documentElement.setAttribute("data-look","glass");try{if(localStorage.getItem("rft.theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
 <title>Reach Fibre Tester · Desktop</title>
 <!-- v32, 6 Oct 2026: native desktop E2E Continuity and Tone (Uni-dir) replace the embedded phone screens; Run history opens on Today, App runs only option, last list shown at once. Needs relay v28. -->
 <!-- v31, 6 Oct 2026: Help guide, Start checks with FMS then one confirm (no separate check button), default comment = RTU and fibres, Bulk Test removed from the header (it is the RTU tab), cables start collapsed.
@@ -320,7 +320,116 @@
   :root[data-look=glass] body::after{opacity:.75;width:560px;height:460px}
   :root[data-look=glass] .bside{background:linear-gradient(160deg,rgba(255,255,255,.62),rgba(255,255,255,.34))}
   :root[data-look=glass] .task{background:rgba(255,255,255,.4)}
-  .signver{margin-top:16px;font-size:12px;color:var(--faint);font-weight:600;letter-spacing:.02em}
+  .signver{margin-top:18px;padding-top:14px;border-top:1px solid var(--line2);text-align:center;font-size:12px;color:var(--faint);font-weight:600;letter-spacing:.02em}
+  /* ── v34 Dark glass (requested by the team, 6 Oct): smoky frosted panels over a deep indigo night with soft aurora light.
+        <html data-theme="dark">. Light stays the default. ── */
+  :root[data-look=glass][data-theme=dark]{
+    --ground:#0C0A1C; --surface:rgba(30,27,56,.52); --soft:rgba(255,255,255,.06); --soft2:rgba(255,255,255,.1);
+    --line:rgba(255,255,255,.1); --line2:rgba(255,255,255,.08);
+    --ink:#EEECFA; --muted:#AEAACB; --faint:#8580A6;
+    --brand:#9C9AFF; --brand-ink:#B3B1FF; --brand-tint:rgba(140,136,255,.16);
+    --ok:#4CD38F; --ok-tint:rgba(76,211,143,.16); --warn:#F2B562; --warn-tint:rgba(242,181,98,.16);
+    --bad:#FF6B76; --bad-tint:rgba(255,107,118,.16); --live:#B57BFF; --live-tint:rgba(181,123,255,.18);
+    --edge:1px solid rgba(255,255,255,.12);
+    --shadow:inset 0 1px 0 rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.3),0 16px 50px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+  :root[data-look=glass][data-theme=dark] body{background:
+      radial-gradient(40% 36% at 50% 42%,rgba(98,64,214,.42),transparent 70%),
+      radial-gradient(30% 30% at 76% 64%,rgba(14,150,150,.32),transparent 70%),
+      radial-gradient(42% 38% at 6% 10%,rgba(120,72,230,.5),transparent 70%),
+      radial-gradient(36% 34% at 94% 6%,rgba(196,70,140,.36),transparent 70%),
+      radial-gradient(40% 40% at 80% 94%,rgba(20,140,120,.42),transparent 70%),
+      radial-gradient(34% 36% at 22% 94%,rgba(44,90,214,.42),transparent 70%),
+      linear-gradient(160deg,#0C0A1C,#120E26 50%,#0A1220);background-attachment:fixed}
+  :root[data-look=glass][data-theme=dark] body::before{background:#3B2A8C;opacity:.45}
+  :root[data-look=glass][data-theme=dark] body::after{background:#0E5C66;opacity:.4}
+  :root[data-look=glass][data-theme=dark] .bside{background:linear-gradient(160deg,rgba(40,36,72,.62),rgba(24,22,46,.4))}
+  :root[data-look=glass][data-theme=dark] .btn{background:rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 8px rgba(0,0,0,.3);color:var(--ink)}
+  :root[data-look=glass][data-theme=dark] .btn:hover{background:rgba(255,255,255,.14)}
+  :root[data-look=glass][data-theme=dark] .btn.cancel{background:rgba(255,107,118,.08);box-shadow:inset 0 0 0 1px rgba(255,107,118,.35);color:var(--bad)}
+  :root[data-look=glass][data-theme=dark] input[type=email],:root[data-look=glass][data-theme=dark] input[type=password],:root[data-look=glass][data-theme=dark] input[type=text],
+  :root[data-look=glass][data-theme=dark] input[type=number],:root[data-look=glass][data-theme=dark] select{background:rgba(255,255,255,.07);color:var(--ink);box-shadow:inset 0 1px 2px rgba(0,0,0,.3)}
+  :root[data-look=glass][data-theme=dark] select option{background:#1C1934;color:var(--ink)}
+  :root[data-look=glass][data-theme=dark] .tabs,:root[data-look=glass][data-theme=dark] .seg{background:rgba(255,255,255,.05)}
+  :root[data-look=glass][data-theme=dark] .tabs button[aria-selected=true],:root[data-look=glass][data-theme=dark] .seg button[aria-pressed=true]{background:rgba(255,255,255,.16);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 16px rgba(0,0,0,.35)}
+  :root[data-look=glass][data-theme=dark] nav button[aria-current=page],:root[data-look=glass][data-theme=dark] .pill{background:rgba(255,255,255,.12);color:var(--ink)}
+  :root[data-look=glass][data-theme=dark] nav button:hover,:root[data-look=glass][data-theme=dark] .rtu:hover,:root[data-look=glass][data-theme=dark] .cablehead:hover{background:rgba(255,255,255,.07)}
+  :root[data-look=glass][data-theme=dark] .rtu[aria-pressed=true]{background:rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 14px rgba(0,0,0,.3)}
+  :root[data-look=glass][data-theme=dark] .task,:root[data-look=glass][data-theme=dark] .end,:root[data-look=glass][data-theme=dark] .hero,
+  :root[data-look=glass][data-theme=dark] .job,:root[data-look=glass][data-theme=dark] pre.log{background:rgba(255,255,255,.05);color:var(--ink)}
+  :root[data-look=glass][data-theme=dark] .hero.toning{background:linear-gradient(135deg,rgba(120,80,230,.3),rgba(200,80,170,.18));box-shadow:inset 0 0 0 1px rgba(181,123,255,.4),0 10px 40px rgba(142,68,201,.3)}
+  :root[data-look=glass][data-theme=dark] .bar,:root[data-look=glass][data-theme=dark] .cd{background:rgba(255,255,255,.1)}
+  :root[data-look=glass][data-theme=dark] .ribs button{background:rgba(255,255,255,.07);color:var(--ink)}
+  :root[data-look=glass][data-theme=dark] table.eg td,:root[data-look=glass][data-theme=dark] .umap td{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:var(--muted)}
+  :root[data-look=glass][data-theme=dark] table.eg td.st,:root[data-look=glass][data-theme=dark] .umap td.done{background:rgba(76,211,143,.24);color:#9BF0C3}
+  :root[data-look=glass][data-theme=dark] table.eg td.cx,:root[data-look=glass][data-theme=dark] .umap td.cross{background:rgba(242,181,98,.26);color:#FFD9A0}
+  :root[data-look=glass][data-theme=dark] table.eg td.nf,:root[data-look=glass][data-theme=dark] .umap td.dis{background:rgba(255,107,118,.26);color:#FFB3B9}
+  :root[data-look=glass][data-theme=dark] table.eg td.now,:root[data-look=glass][data-theme=dark] .umap td.here{background:rgba(181,123,255,.3);color:#fff}
+  :root[data-look=glass][data-theme=dark] .umap .gap{background:none;border:0}
+  :root[data-look=glass][data-theme=dark] .chip,:root[data-look=glass][data-theme=dark] .res,:root[data-look=glass][data-theme=dark] .fchip{border-color:rgba(255,255,255,.1)}
+  :root[data-look=glass][data-theme=dark] .chip.queued,:root[data-look=glass][data-theme=dark] .res.Issues,:root[data-look=glass][data-theme=dark] .chip.paused,
+  :root[data-look=glass][data-theme=dark] .warnbox,:root[data-look=glass][data-theme=dark] .fmsdown{color:#FFD9A0}
+  :root[data-look=glass][data-theme=dark] .fchip{background:rgba(255,255,255,.07);color:var(--muted)}
+  :root[data-look=glass][data-theme=dark] .fchip[aria-pressed=true]{background:#EEECFA;color:#15132B}
+  :root[data-look=glass][data-theme=dark] table.hist tbody tr:hover td{background:rgba(255,255,255,.05)}
+  :root[data-look=glass][data-theme=dark] .swatch{box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  :root[data-look=glass][data-theme=dark] .lg{border-color:rgba(255,255,255,.15)}
+  :root[data-look=glass][data-theme=dark] header .logo,:root[data-look=glass][data-theme=dark] .brandrow img{filter:brightness(0) invert(1) opacity(.92)}
+  :root[data-look=glass][data-theme=dark] .toast{background:rgba(238,236,250,.92);color:#15132B}
+  :root[data-look=glass][data-theme=dark] .dot.off{background:#5D5A78} :root[data-look=glass][data-theme=dark] .dot.idle{border-color:#5D5A78}
+  /* light / dark switch */
+  .themesw{display:inline-flex;gap:2px;background:var(--soft);border:var(--edge,1px solid var(--line));border-radius:999px;padding:3px}
+  .themesw button{border:0;background:none;color:var(--muted);border-radius:999px;padding:5px 11px;font:inherit;font-weight:600;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+  .themesw button[aria-pressed=true]{background:var(--soft2);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  .themesw svg{width:13px;height:13px}
+  /* v34: Live landing screen */
+  .lstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+  .lstat{display:flex;flex-direction:column;gap:4px}
+  .lstat b{font-size:38px;font-weight:200;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .lroute{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:30px}
+  .lroute .rail{position:absolute;left:10%;right:10%;top:15px;height:4px;border-radius:2px;background:var(--line)}
+  .lroute .seg{position:absolute;top:15px;height:4px;border-radius:2px;width:20%;background:linear-gradient(90deg,rgba(142,68,201,.25),rgba(142,68,201,.95),rgba(142,68,201,.25));background-size:200% 100%;animation:lflow 2.4s linear infinite}
+  @keyframes lflow{to{background-position:-200% 0}}
+  .lroute .clbl{position:absolute;top:-24px;transform:translateX(-50%);font-size:11px;color:var(--faint);font-weight:600;white-space:nowrap}
+  .lnode{display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:1;min-width:0}
+  .lpin{width:34px;height:34px;border-radius:50%;background:var(--surface);border:var(--edge,1px solid var(--line));box-shadow:0 4px 14px rgba(60,50,120,.14);display:flex;align-items:center;justify-content:center}
+  .lpin i{width:12px;height:12px;border-radius:50%;background:#C9C6DA}.lpin.busy i{background:#8E44C9}.lpin.on i{background:#2FA36B}
+  .lnode .town{font-weight:600;font-size:15px;text-align:center}
+  .lrtus{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+  .lrtu{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;background:var(--soft);border:var(--edge,1px solid var(--line));font-size:12px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit}
+  .lrtu em{font-style:normal;font-weight:500;color:var(--live)}
+  .lcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .lcard{display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:transform .2s;min-width:0;text-align:left;font:inherit;color:inherit}
+  .lcard:hover{transform:translateY(-2px)}
+  .lchip{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;align-self:flex-start}
+  .lchip.e2e{background:rgba(214,196,255,.7);color:#5B2E94}.lchip.uni{background:rgba(176,232,226,.75);color:#0B6E78}.lchip.task{background:rgba(255,220,180,.75);color:#8A5208}
+  .lwho{display:flex;align-items:center;gap:10px}
+  .lav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;flex:0 0 auto}
+  .ltitle{font-size:19px;font-weight:500;letter-spacing:-.01em}
+  .lbig{font-size:30px;font-weight:200;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .lrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .lcounts{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.lcounts b{font-weight:600}
+  .k-ok{color:var(--ok)}.k-cx{color:var(--warn)}.k-bad{color:var(--bad)}
+  .lribs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+  .lrib{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;padding:6px;border-radius:10px;background:var(--soft)}
+  .lrib small{grid-column:1/-1;font-size:10px;color:var(--faint);font-weight:600;margin-bottom:2px}
+  .lrib i{height:10px;border-radius:2px;background:var(--line)}
+  .lrib i.st{background:#7FCFA5}.lrib i.cx{background:#F2C27E}.lrib i.nf{background:#F4A7AD}.lrib i.now{background:#8E44C9;box-shadow:0 0 8px rgba(142,68,201,.6)}
+  .lfib{display:flex;align-items:center;gap:16px}.lfibno{font-size:44px;font-weight:200;letter-spacing:-.03em;line-height:1}
+  .lempty{padding:28px;text-align:center}
+  .lside{flex:1 1 300px;display:flex;flex-direction:column;gap:16px}
+  .lperson,.ldone{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line2);font-size:13px;color:var(--ink)}
+  .lperson:first-child,.ldone:first-child{border-top:0}
+  .lperson .what,.ldone .what{font-size:12px;color:var(--muted)}
+  .ldone .res{margin-left:auto}
+  :root[data-theme=dark] .lchip.e2e{background:rgba(150,100,255,.22);color:#D2B8FF}
+  :root[data-theme=dark] .lchip.uni{background:rgba(40,200,200,.18);color:#7FE6E6}
+  :root[data-theme=dark] .lchip.task{background:rgba(242,170,90,.18);color:#F6C98A}
+  :root[data-theme=dark] .lpin i{background:#4E4A6C}:root[data-theme=dark] .lpin.busy i{background:#B57BFF}:root[data-theme=dark] .lpin.on i{background:#4CD38F}
+  :root[data-theme=dark] .lrib i.st{background:#2E9C68}:root[data-theme=dark] .lrib i.cx{background:#C98B33}:root[data-theme=dark] .lrib i.nf{background:#C24B57}
+  @media (max-width:900px){ .lstats{grid-template-columns:repeat(2,minmax(0,1fr))} .lroute{grid-template-columns:1fr;gap:16px} .lroute .rail,.lroute .seg,.lroute .clbl{display:none} .lnode{flex-direction:row} .lrtus{justify-content:flex-start} }
+  @media (prefers-reduced-motion:reduce){ .lroute .seg{animation:none} }
 </style>
 </head>
 <body>
@@ -330,7 +439,6 @@
     <div class="brandrow"><img src="logo.png" alt="Motion"><img src="neos-logo.svg" alt="Neos Networks"></div>
     <h1>Reach Fibre Tester</h1>
     <p>Desktop console. Sign in with your FMS account.</p>
-    <div class="signver" id="signVer">desktop v33</div>
     <label class="f" for="user">FMS username (email)<input id="user" type="email" autocomplete="username" required></label>
     <label class="f" for="pass" style="margin-top:12px">Password<input id="pass" type="password" autocomplete="current-password" required></label>
     <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
@@ -338,6 +446,7 @@
       <a class="btn" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">Mobile app</a>
     </div>
     <div class="err" id="loginErr" role="alert"></div>
+    <div class="signver" id="signVer">desktop v33</div>
   </form>
 </section>
 
@@ -355,11 +464,13 @@
     <img class="logo" src="logo.png" alt="Motion">
     <div class="title">Reach Fibre Tester<small>desktop</small></div>
     <nav aria-label="Screens">
+      <button data-nav="live">Live</button>
       <button data-nav="console">Console</button>
       <button data-nav="history">Run history</button>
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
+    <span class="themesw" role="group" aria-label="Appearance"><button type="button" data-th="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button><button type="button" data-th="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Dark</button></span>
     <span class="who" id="who"></span>
     <button class="hdrlink" id="helpBtn" aria-haspopup="dialog">Help</button>
     <button class="hdrlink" id="mobileBtn">Mobile view</button>
@@ -378,9 +489,30 @@
         <span><span class="dot off"></span>Offline</span>
         <span><span class="dot idle"></span>Checking</span>
       </div>
-      <div class="lookpick" role="group" aria-label="Look"><span>Look</span><button type="button" data-lk="glass">Glass</button><button type="button" data-lk="clean">Clean</button></div>
     </aside>
 
+    <main id="screen-live" hidden>
+      <section class="lstats" aria-label="Summary">
+        <div class="lstat panel"><span class="lbl">Running now</span><b id="lsRun">–</b><span class="note" id="lsRunN"></span></div>
+        <div class="lstat panel"><span class="lbl">Online</span><b id="lsOn">–</b><span class="note" id="lsOnN"></span></div>
+        <div class="lstat panel"><span class="lbl">RTUs testing</span><b id="lsRtu">–</b><span class="note" id="lsRtuN"></span></div>
+        <div class="lstat panel"><span class="lbl">Finished today</span><b id="lsDone">–</b><span class="note">runs and Tasks</span></div>
+      </section>
+      <section class="panel lmap" aria-label="Reach route">
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:10px"><h2 style="margin:0">Reach route</h2><span class="note">Purple is testing now. Click an RTU to open it.</span><span class="grow"></span><span class="note" id="lUpdated"></span></div>
+        <div class="lroute" id="lRoute"></div>
+      </section>
+      <div class="bgrid">
+        <div class="bmain">
+          <div style="display:flex;align-items:baseline;gap:10px;padding:0 4px"><h2 style="margin:0;font-size:17px">Running now</h2><span class="note">Everyone's work, updated every few seconds</span></div>
+          <div class="lcards" id="lCards"></div>
+        </div>
+        <aside class="lside">
+          <section class="panel"><h2>Online now</h2><div id="lPeople" class="note">…</div></section>
+          <section class="panel"><h2>Finished today</h2><div id="lDone" class="note">…</div></section>
+        </aside>
+      </div>
+    </main>
     <main id="screen-console">
       <div>
         <div class="crumb" id="crumb"></div>
@@ -702,6 +834,9 @@
       </ol>
       <p class="note">Time guide, measured on RGAC2: OTDR about the acquisition time plus 17 s per fibre per wavelength; iOLM Standard about 73 s per fibre. If an RTU is already busy, FMS shares it between Tasks, so both take longer.</p>
 
+      <h3>Live (the first screen)</h3>
+      <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
+
       <h3>Run history</h3>
       <p>Finished work: every E2E run, Uni-dir session and FMS bulk Task, including cancelled ones. (The Tasks tab is different: it shows bulk Tasks running on one RTU now, and lets you cancel them.) It opens on Today, which is quickest; choose 7, 30 or 90 days for more. "App runs only" skips the FMS Tasks and loads fastest. The last list shows at once while it refreshes. Filter by result, type, RTU and person, click a row for detail, or export a CSV.</p>
 
@@ -715,7 +850,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v33";
+  const APP_VERSION="v34";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -804,9 +939,9 @@
     if(!online) return;
     const p=online.people||[], runs=online.runs||[], fms=(online.fmsTasks||[]).filter(t=>!t.error);
     $("onlinePanel").innerHTML=
-      "<h3>Signed in now</h3>"+(p.map(x=>`<div class="row"><span class="dot on"></span><span style="flex:1"><b>${esc(nice(x.name))}</b>${x.you?" (you)":""}<br><span class="note">${esc(x.screen||"")}${x.rtu?" · "+esc(x.rtu):""}</span></span></div>`).join("")||"<div class='note'>Nobody else</div>")+
+      "<h3>Signed in now</h3>"+(p.map(x=>`<div class="row"><span class="dot on"></span><span style="flex:1"><b>${esc(nice(x.name))}</b>${x.you?" (you)":""}<br><span class="note">${esc(x.screen||"")}${x.rtu?" · "+esc(short(x.rtu)):""}</span></span></div>`).join("")||"<div class='note'>Nobody else</div>")+
       "<h3 style='margin-top:12px'>Running</h3>"+((runs.map(r=>`<div class="row"><span style="flex:1">E2E ${esc(r.cable)} ${esc(r.scope)}<br><span class="note">${esc(r.owner)} · ${esc(r.progress)}</span></span></div>`).join("")+
-        fms.map(t=>`<div class="row"><span style="flex:1">${esc(t.type)} ${esc(t.scope)}<br><span class="note">${esc(t.owner)} · ${esc(rtuLabel(t.rtu))} · ${esc(t.progress||"")}</span></span></div>`).join(""))||"<div class='note'>Nothing running</div>");
+        fms.map(t=>`<div class="row"><span style="flex:1">${esc(t.type)} ${esc(t.scope)}<br><span class="note">${esc(t.owner)} · ${esc(short(rtuLabel(t.rtu)))} · ${esc(t.progress||"")}</span></span></div>`).join(""))||"<div class='note'>Nothing running</div>");
   }
   $("onlineBtn").onclick=()=>{ const open=$("onlinePanel").hidden; $("onlinePanel").hidden=!open; $("onlineBtn").setAttribute("aria-expanded",String(open)); };
   document.addEventListener("click",e=>{ if(!$("onlinePanel").hidden && !$("onlinePanel").contains(e.target) && !$("onlineBtn").contains(e.target)){ $("onlinePanel").hidden=true; $("onlineBtn").setAttribute("aria-expanded","false"); } });
@@ -855,7 +990,7 @@
   $("toggleAll").onclick=()=>{ const all=CABLES.every(c=>collapsed[c.pre]); CABLES.forEach(c=>collapsed[c.pre]=!all); renderSide(); };
   function pickRtu(r){
     selected=r; jset("rft.desktop.rtu",selected); confirming=null; planned=null;
-    if(screen==="history") setScreen("console");
+    if(screen!=="console") setScreen("console");
     renderSide(); renderMain(); refreshTasks(true); heartbeat();
     if(tab==="e2e"||tab==="uni") loadFrame(tab,false);
     if(tab==="bulk") renderBulk();
@@ -865,13 +1000,15 @@
   let tab=jget("rft.desktop.tab","tasks"), frameFor={};
   function setScreen(s){
     screen=s;
-    $("screen-console").hidden=s==="history"; $("screen-history").hidden=s!=="history";
-    document.querySelectorAll("nav button").forEach(b=>{ const n=b.dataset.nav, cur=(n==="history"&&s==="history")||(n==="console"&&s!=="history"); if(cur) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+    $("screen-console").hidden=s!=="console"; $("screen-history").hidden=s!=="history"; $("screen-live").hidden=s!=="live";
+    $("side").hidden=s==="live";       // v34: Live uses the full width; the route map replaces the RTU list
+    document.querySelectorAll("nav button").forEach(b=>{ if(b.dataset.nav===s) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     if(s==="history") loadHistory();
+    if(s==="live") openLive();
   }
   document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
     const n=b.dataset.nav;
-    if(n==="history") return setScreen("history");
+    if(n==="history"||n==="live") return setScreen(n);
     screen="console"; showTab(tab);
   });
   function showTab(t){
@@ -880,7 +1017,7 @@
     ["tasks","bulk","e2e","uni"].forEach(k=>$("pane-"+k).hidden=k!==t);
     if(t==="e2e"||t==="uni") loadFrame(t,false);
     if(t==="bulk") renderBulk();
-    setScreen(screen==="history"?"console":screen);
+    setScreen("console");
   }
   document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
   let moduleFor={};
@@ -895,7 +1032,7 @@
   function renderMain(){
     const cab=cableOf(selected), site=cab?cab.rtus.find(r=>r[1]===selected)[0]:"", L=light(selected), st=rtuState[selected];
     $("crumb").textContent=cab?`${cab.name} · ${cab.pre} · ${site} end`:"";
-    $("rtuName").textContent=selected; $("rtuDot").className="dot "+L.dot; $("rtuDot").setAttribute("aria-label",L.word);
+    $("rtuName").textContent=short(selected); $("rtuName").title=selected; $("rtuDot").className="dot "+L.dot; $("rtuDot").setAttribute("aria-label",L.word);
     $("rtuState").textContent=st?(st.found?nice(L.word):"Not found in FMS"):"Checking FMS…";
     const ts=tasksFor(selected);
     $("taskCount").textContent=ts?ts.length:"…";
@@ -1430,12 +1567,102 @@
     const all=jget(UKEY,{}); delete all[U.stem+"|"+U.rtuId]; jset(UKEY,all); U.id=""; openUni(); };
   function openModule(t){ if(t==="e2e") openE2E(); if(t==="uni") openUni(); }
 
-  // v32: Glass (default) or Clean look, remembered in this browser
-  function setLook(l){ if(l==="glass") document.documentElement.setAttribute("data-look","glass"); else document.documentElement.removeAttribute("data-look");
-    try{ localStorage.setItem("rft.desktop.look",l); }catch(e){}
-    document.querySelectorAll("[data-lk]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lk===l))); }
-  document.querySelectorAll("[data-lk]").forEach(b=>b.onclick=()=>setLook(b.dataset.lk));
-  setLook(document.documentElement.getAttribute("data-look")==="glass"?"glass":"clean");
+  // v34: Glass look in Light or Dark, remembered in this browser
+  function setTheme(t){ if(t==="dark") document.documentElement.setAttribute("data-theme","dark"); else document.documentElement.removeAttribute("data-theme");
+    try{ localStorage.setItem("rft.theme",t); }catch(e){} document.querySelectorAll("[data-th]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.th===t))); }
+  document.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>setTheme(b.dataset.th));
+  setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light");
+
+  // ════════ v34: Live landing screen (everything happening now, all RTUs) ════════
+  // short site name as the team uses it (RGAC2, SGIC2); the CABLES list wins because two RTUs can share a node code
+  const short=n=>{ const c=cableOf(n), r=c&&c.rtus.find(x=>x[1]===n); if(r) return r[0]; const m=String(n||"").match(/^RTU\d*-([^-]+)-/i); return m?m[1]:String(n||""); };
+  const TOWNS=[["Slough",["RTU2-0057-1991132"]],["Reading",["RTU2-RGAC2-1991133","RTU2-RGAC-1991133"]],["Swindon",["RTU2-SNBC-1991132","RTU2-SNBC2-1984400"]],
+               ["Stoke Gifford",["RTU2-SGIC-1984398","RTU2-SGIC-2026965"]],["Cardiff",["RTU2-0001-2026282"]]];
+  const AVC=["#7B6CF6","#0A93A6","#C58BE8","#E07B5F","#3E9C6F","#5B7BE0"];
+  const initials=n=>String(n||"?").split(/\s+/).filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join("");
+  const avc=n=>AVC[[...String(n||"")].reduce((a,c)=>a+c.charCodeAt(0),0)%AVC.length];
+  const hm=t=>t?new Date(t*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"";
+  let LV=null, liveBusy=false;
+  async function refreshLive(){
+    if(liveBusy) return; liveBusy=true;
+    try{ LV=await relay("/api/live",{}); renderLive(); }
+    catch(e){ if(!quiet(e)) $("lUpdated").textContent=e.status===404?"Live needs the newer service (v29).":"Could not update: "+e.message; }
+    liveBusy=false;
+  }
+  function liveBusyRtus(){
+    const b={};
+    const add=(n,w)=>{ if(n) (b[n]=b[n]||[]).push(w); };
+    (LV&&LV.runs||[]).forEach(r=>{ add(r.toneRtu,"E2E"); add(r.testRtu,"E2E"); });
+    (LV&&LV.uni||[]).forEach(u=>add(u.rtu,"tone"));
+    (LV&&LV.tasks||[]).forEach(t=>add(nameForId(t.rtuId)||t.rtuName,"Task"));
+    (LV&&LV.toning||[]).forEach(t=>{ const n=nameForId(t.rtuId); if(n && !(b[n]||[]).includes("tone")) add(n,"tone"); });
+    return b;
+  }
+  function renderLive(){
+    if(!LV) return;
+    const busy=liveBusyRtus(), runs=LV.runs||[], uni=LV.uni||[], tasks=LV.tasks||[], people=LV.people||[];
+    const nRun=runs.length+uni.length+tasks.length;
+    $("lsRun").textContent=nRun;
+    $("lsRunN").textContent=nRun?[runs.length&&`${runs.length} E2E`,uni.length&&`${uni.length} tone`,tasks.length&&`${tasks.length} Task${tasks.length>1?"s":""}`].filter(Boolean).join(", "):"nothing running";
+    const ph=people.filter(p=>p.device==="phone").length;
+    $("lsOn").textContent=people.length; $("lsOnN").textContent=`${ph} on phones, ${people.length-ph} on desktop`;
+    const all=TOWNS.flatMap(t=>t[1]), nb=all.filter(n=>busy[n]).length, off=all.filter(n=>rtuState[n]&&!rtuState[n].online).length;
+    $("lsRtu").textContent=`${nb} / ${all.length}`; $("lsRtuN").textContent=`${all.length-nb-off} available · ${off} offline`;
+    $("lUpdated").textContent="updated "+new Date().toLocaleTimeString("en-GB");
+    // route
+    let h='<div class="rail"></div>';
+    CABLES.forEach((c,i)=>{ const left=10+i*20; h+=`<span class="clbl" style="left:${left+10}%">${esc(c.pre)}</span>`;
+      if(c.rtus.some(r=>busy[r[1]])) h+=`<div class="seg" style="left:${left}%"></div>`; });
+    TOWNS.forEach(([town,rs])=>{
+      const st=rs.some(n=>busy[n])?"busy":rs.some(n=>rtuState[n]&&rtuState[n].online)?"on":"";
+      h+=`<div class="lnode"><div class="lpin ${st}"><i></i></div><div class="town">${esc(town)}</div><div class="lrtus">`+
+        rs.map(n=>{ const L=light(n), w=busy[n]; return `<button type="button" class="lrtu" data-go="${esc(n)}" title="${esc(n)}"><span class="dot ${w?"busy":L.dot}"></span>${esc(short(n))}${w?` <em>${esc([...new Set(w)].join(" + "))}</em>`:""}</button>`; }).join("")+"</div></div>";
+    });
+    $("lRoute").innerHTML=h;
+    // cards
+    const cards=[];
+    runs.forEach(r=>{
+      const res=r.results||{}, n=v=>Object.values(res).filter(x=>x===v).length, pct=r.targets?100*r.done/r.targets:0;
+      let ribs=(r.ribbons||[]).slice(0,6).map(rb=>`<div class="lrib"><small>R${rb}</small>`+[...Array(12)].map((_,p)=>{ const f=(rb-1)*12+p+1, s=res[String(f)]; return `<i class="${f===r.current?"now":s==="straight"?"st":s==="cross"?"cx":s?"nf":""}"></i>`; }).join("")+"</div>").join("");
+      cards.push(`<button type="button" class="panel lcard" data-go="${esc(r.toneRtu)}" data-tab="e2e"><span class="lchip e2e">E2E Continuity${r.state==="paused"?" · paused":""}</span>
+        <div class="ltitle">${esc(cableId(r.stem))} · ${esc(rangeText(r.ribbons))}</div>
+        <div class="lwho"><span class="lav" style="background:${avc(r.owner)}">${esc(initials(r.owner))}</span><div><b>${esc(r.owner||"Someone")}</b><div class="note">Tone ${esc(short(r.toneRtu))} → OTDR ${esc(short(r.testRtu))} · started ${hm(r.started)}</div></div></div>
+        <div class="lrow"><span class="lbig">${r.done} / ${r.targets}</span><span class="note">about ${mins((r.targets-r.done)*13)} left</span></div>
+        <div class="bar"><i style="width:${pct}%"></i></div><div class="lribs">${ribs}</div>
+        <div class="lcounts"><span><b class="k-ok">${n("straight")}</b> straight</span><span><b class="k-cx">${n("cross")}</b> crossed</span><span><b class="k-bad">${n("dis")}</b> DIS</span>${n("unres")?`<span><b class="k-bad">${n("unres")}</b> not found</span>`:""}</div></button>`);
+    });
+    uni.forEach(u=>{
+      const f=u.fibre||1, p=(f-1)%12, col=IEC[p], pct=u.inScope?100*(u.confirmed+u.dis+u.cross)/u.inScope:0;
+      cards.push(`<button type="button" class="panel lcard" data-go="${esc(u.rtu)}" data-tab="tasks"><span class="lchip uni">Tone (Uni-dir)</span>
+        <div class="ltitle">${esc(cableId(u.cable))}</div>
+        <div class="lwho"><span class="lav" style="background:${avc(u.name)}">${esc(initials(u.name))}</span><div><b>${esc(u.name)}</b><div class="note">${u.location?esc(u.location)+" · ":""}tone from ${esc(short(u.rtu))}${u.started?" · started "+hm(u.started):""}</div></div></div>
+        <div class="lfib"><div class="lfibno">${fname(f)}</div><div><div class="note">Ribbon ${Math.ceil(f/12)} · fibre ${p+1} <span class="swatch" style="background:${col[1]};color:${DARKTXT.has(p)?"#000":"#fff"}">${col[0]}</span></div>
+          <div class="note" style="margin-top:4px;font-weight:600;color:${u.toning?"var(--live)":"var(--muted)"}">${u.toning?"Toning now":"Waiting for the next fibre"}</div></div></div>
+        <div class="lrow"><span class="lbig">${u.confirmed} / ${u.inScope}</span><span class="note">confirmed</span></div>
+        <div class="bar"><i style="width:${pct}%;background:linear-gradient(90deg,#3CC3D0,#8E7BF2)"></i></div>
+        <div class="lcounts"><span><b class="k-ok">${u.confirmed}</b> confirmed</span><span><b class="k-bad">${u.dis}</b> DIS</span><span><b class="k-cx">${u.cross}</b> crossed</span></div></button>`);
+    });
+    tasks.forEach(t=>{
+      const n=nameForId(t.rtuId)||t.rtuName, pct=t.total?100*t.done/t.total:0;
+      cards.push(`<button type="button" class="panel lcard" data-go="${esc(n)}" data-tab="tasks"><span class="lchip task">FMS bulk Task${t.testing?"":" · waiting"}</span>
+        <div class="ltitle">${esc(t.kind)} · ${esc(t.setting)}</div>
+        <div class="lwho"><span class="lav" style="background:${avc(t.owner)}">${esc(initials(nice(t.owner)))}</span><div><b>${esc(nice(t.owner))}</b><div class="note">${esc(t.comment||short(n))} · started ${hm(t.started)}</div></div></div>
+        <div class="lrow"><span class="lbig">${t.done} / ${t.total}</span><span class="note">fibres done</span></div>
+        <div class="bar"><i style="width:${pct}%;background:linear-gradient(90deg,#F2B36B,#E58AB8)"></i></div></button>`);
+    });
+    $("lCards").innerHTML=cards.join("")||`<div class="panel lempty note" style="grid-column:1/-1">Nothing is running right now. Pick an RTU on the route to start a test.</div>`;
+    // people
+    const what=p=>{ const d=p.device==="phone"?"Phone":"Desktop", r=short(p.rtu);
+      const s=p.screen==="uni"?(r?`Tone on ${r}`:"Choosing a cable"):p.screen==="e2e"?(p.cable?`E2E ${cableId(p.cable)}`:"Setting up E2E"):p.screen==="history"?"Run history":p.screen==="menu"?"Start screen":p.screen==="desktop"?(p.detail==="live"?"Live":p.detail==="history"?"Run history":r?`Console on ${r}`:"Console"):(p.detail||"");
+      return `${d} · ${s}`; };
+    $("lPeople").innerHTML=people.map(p=>`<div class="lperson"><span class="dot on"></span><div class="grow"><b>${esc(p.name)}</b><div class="what">${esc(what(p))}</div></div></div>`).join("")||"Nobody else is signed in.";
+    let rows=[]; try{ rows=(JSON.parse(sessionStorage.getItem("rft.hist.0.all")||"null")||{}).rows||[]; }catch(e){}
+    const from=new Date().setHours(0,0,0,0)/1000; rows=rows.filter(r=>(r.started||0)>=from && r.result!=="Running");
+    $("lsDone").textContent=rows.length;
+    $("lDone").innerHTML=rows.slice(0,8).map(r=>`<div class="ldone"><div><b>${esc(r.type)} · ${esc(cableId(r.cable)||short(rtuLabel(r.rtu)))}</b><div class="what">${esc(nice(r.owner).split(" ")[0])} · ${hm(r.started)}${r.scope?" · "+esc(r.scope):""}</div></div><span class="res ${esc(String(r.result).split(" ")[0])}">${esc(r.result)}</span></div>`).join("")||"Nothing finished yet today.";
+    document.querySelectorAll("#screen-live [data-go]").forEach(b=>b.onclick=()=>{ const n=b.dataset.go; if(!cableOf(n)) return; const t=b.dataset.tab||"tasks"; pickRtu(n); screen="console"; showTab(t); });
+  }
+  function openLive(){ refreshLive(); try{ relay("/api/history",{days:1,fms:true}).then(d=>{ try{ sessionStorage.setItem("rft.hist.0.all",JSON.stringify({rows:d.rows,notes:d.notes})); }catch(e){} if(screen==="live") renderLive(); }).catch(()=>{}); }catch(e){} }
 
   // ── Run history ──
   let H={rows:[],res:"",sel:null};
@@ -1444,7 +1671,7 @@
   const histKey=()=>"rft.hist."+$("hDays").value+"."+$("hSrc").value;
   function showHist(d,stale){
     const days=+$("hDays").value, from=days?0:new Date().setHours(0,0,0,0)/1000;
-    H.rows=(d.rows||[]).filter(r=>!from||!r.started||r.started>=from).map(r=>Object.assign({},r,{rtu:rtuLabel(r.rtu)}));
+    H.rows=(d.rows||[]).filter(r=>!from||!r.started||r.started>=from).map(r=>Object.assign({},r,{rtu:short(rtuLabel(r.rtu)),cable:cableId(r.cable)}));
     const opts=(id,vals,all)=>{ const cur=$(id).value; $(id).innerHTML=`<option value="">${all}</option>`+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option${v===cur?" selected":""}>${esc(v)}</option>`).join(""); };
     opts("hType",H.rows.map(r=>r.type),"All types"); opts("hRtu",H.rows.map(r=>r.rtu),"All RTUs"); opts("hOwner",H.rows.map(r=>nice(r.owner)),"Everyone");
     $("hNote").textContent=(stale?"Showing the last list, refreshing… ":"")+((d.notes||[]).join(" ")||`${H.rows.length} run${H.rows.length===1?"":"s"}.`);
@@ -1494,9 +1721,11 @@
     $("signin").hidden=true; $("blocked").hidden=true; $("app").hidden=false;
     $("who").textContent=session.user;
     renderSide(); renderMain(); screen="console"; showTab(["tasks","bulk","e2e","uni"].includes(tab)?tab:"tasks");
+    setScreen("live");                 // v34: Live is the landing screen
     health(); heartbeat(); refreshRtus().then(()=>refreshTasks(true));
     setTimeout(()=>{ if(screen!=="history") relay("/api/history",{days:1,fms:true}).then(d=>{ try{ sessionStorage.setItem("rft.hist.0.all",JSON.stringify({rows:d.rows,notes:d.notes})); }catch(e){} }).catch(()=>{}); },4000);   // v32: warm Today's history
-    timers.push(setInterval(heartbeat,30000), setInterval(()=>{ if(!document.hidden || Date.now()-lastTasks>30000) refreshTasks(); },5000), setInterval(health,60000), setInterval(refreshRtus,60000));
+    timers.push(setInterval(heartbeat,30000), setInterval(()=>{ if(!document.hidden || Date.now()-lastTasks>30000) refreshTasks(); },5000), setInterval(health,60000), setInterval(refreshRtus,60000),
+                setInterval(()=>{ if(screen==="live" && !document.hidden) refreshLive(); },5000));
   }
   window.addEventListener("pagehide",()=>{ try{ fetch(RELAY+"/api/presence/leave",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","X-App-Key":KEY,"X-Session":session.id},body:"{}"}); }catch(e){} });
 

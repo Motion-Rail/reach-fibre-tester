@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Reach Fibre Tester</title>
 <!-- v16, 28 Sep 2026: Reach Fibre Tester. Activity log in local time. -->
-<script>(function(){var l="glass";try{l=localStorage.getItem("toneTester.look")||"glass"}catch(e){}if(l==="glass")document.documentElement.setAttribute("data-look","glass");})();</script>
+<script>document.documentElement.setAttribute("data-look","glass");try{if(localStorage.getItem("toneTester.theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
@@ -415,6 +415,52 @@
       radial-gradient(60% 40% at 100% 100%,rgba(166,228,208,.8),transparent 70%),
       radial-gradient(55% 40% at 0% 90%,rgba(182,208,255,.8),transparent 70%),
       linear-gradient(160deg,#F2EEFF,#FBF4F0 50%,#EEF7F5)}
+  /* ── v34 Dark glass on the phone (Light / Dark switch on the start screen) ── */
+  :root[data-look=glass][data-theme=dark]{
+    --bg:rgba(255,255,255,.06); --surface:rgba(30,27,56,.55); --surface2:rgba(255,255,255,.09); --border:rgba(255,255,255,.12);
+    --muted:#AEAACB; --text:#EEECFA;
+    --tone:#3FD0E0; --tone-glow:rgba(63,208,224,.3); --brand:#2BB3C4; --brand-lt:#5FD6E2; --accent:#9C9AFF;
+    --done:#4CD38F; --done-dim:rgba(76,211,143,.2); --pend:rgba(255,255,255,.16);
+    --off:#FF6B76; --off-dim:rgba(255,107,118,.2); --cross:#C79BFF; --cross-dim:rgba(181,123,255,.22);
+    --edge:1px solid rgba(255,255,255,.12);
+    --gshadow:inset 0 1px 0 rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.3),0 12px 36px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+  :root[data-look=glass][data-theme=dark] body{background:
+      radial-gradient(50% 30% at 50% 45%,rgba(98,64,214,.4),transparent 70%),
+      radial-gradient(60% 40% at 0% 0%,rgba(120,72,230,.5),transparent 70%),
+      radial-gradient(55% 35% at 100% 10%,rgba(196,70,140,.36),transparent 70%),
+      radial-gradient(60% 40% at 100% 100%,rgba(20,140,120,.42),transparent 70%),
+      radial-gradient(55% 40% at 0% 90%,rgba(44,90,214,.42),transparent 70%),
+      linear-gradient(160deg,#0C0A1C,#120E26 50%,#0A1220)}
+  :root[data-look=glass][data-theme=dark] header,:root[data-look=glass][data-theme=dark] .params,:root[data-look=glass][data-theme=dark] .rail-wrap,
+  :root[data-look=glass][data-theme=dark] .actions{background:rgba(20,18,40,.55);border-color:rgba(255,255,255,.08)}
+  :root[data-look=glass][data-theme=dark] .sheet{background:rgba(26,23,50,.9)}
+  :root[data-look=glass][data-theme=dark] .fin{background:rgba(12,10,28,.9)}
+  :root[data-look=glass][data-theme=dark] .hero.toning{background:linear-gradient(135deg,rgba(40,170,190,.3),rgba(120,80,230,.25));border-color:rgba(63,208,224,.5)}
+  :root[data-look=glass][data-theme=dark] .act,:root[data-look=glass][data-theme=dark] .finish,:root[data-look=glass][data-theme=dark] .btn-wide,
+  :root[data-look=glass][data-theme=dark] .icon-btn,:root[data-look=glass][data-theme=dark] .sel-btn,:root[data-look=glass][data-theme=dark] .online-chip,
+  :root[data-look=glass][data-theme=dark] .ct-swap,:root[data-look=glass][data-theme=dark] .ct-quick button{background:rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 8px rgba(0,0,0,.3);color:var(--text)}
+  :root[data-look=glass][data-theme=dark] .cell,:root[data-look=glass][data-theme=dark] .param,:root[data-look=glass][data-theme=dark] .ct-end,
+  :root[data-look=glass][data-theme=dark] .ct-stat,:root[data-look=glass][data-theme=dark] .ct-job,:root[data-look=glass][data-theme=dark] .scope-opt,
+  :root[data-look=glass][data-theme=dark] .locbar,:root[data-look=glass][data-theme=dark] .ct-chip,:root[data-look=glass][data-theme=dark] .ct-entry{background:rgba(255,255,255,.06)}
+  :root[data-look=glass][data-theme=dark] .cell.done{background:var(--done-dim)} :root[data-look=glass][data-theme=dark] .cell.dis{background:var(--off-dim)} :root[data-look=glass][data-theme=dark] .cell.cross{background:var(--cross-dim)}
+  :root[data-look=glass][data-theme=dark] table.ct-g td{background:rgba(255,255,255,.07)}
+  :root[data-look=glass][data-theme=dark] .ct-log,:root[data-look=glass][data-theme=dark] textarea,:root[data-look=glass][data-theme=dark] input[type=text],
+  :root[data-look=glass][data-theme=dark] input[type=password],:root[data-look=glass][data-theme=dark] input[type=email],:root[data-look=glass][data-theme=dark] .ct-row select,
+  :root[data-look=glass][data-theme=dark] .ct-row input,:root[data-look=glass][data-theme=dark] .hist-filters select{background:rgba(255,255,255,.07);color:var(--text)}
+  :root[data-look=glass][data-theme=dark] #modeUni .mode-ico{background:rgba(255,255,255,.1)}
+  :root[data-look=glass][data-theme=dark] .bar,:root[data-look=glass][data-theme=dark] .countdown{background:rgba(255,255,255,.1)}
+  :root[data-look=glass][data-theme=dark] .scope-opt.sel,:root[data-look=glass][data-theme=dark] .ct-chip.sel,:root[data-look=glass][data-theme=dark] .ct-pill.running{background:rgba(63,208,224,.16)}
+  :root[data-look=glass][data-theme=dark] .ct-pill.paused{background:rgba(242,181,98,.2);color:#FFD9A0}
+  :root[data-look=glass][data-theme=dark] .lookrow button[aria-pressed=true]{background:#EEECFA;color:#15132B}
+  :root[data-look=glass][data-theme=dark] .brandlogo,:root[data-look=glass][data-theme=dark] .hdrlogo{filter:brightness(0) invert(1) opacity(.92)}
+  /* v34: no signal banner */
+  .netbar{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 8px);z-index:50;display:none;align-items:center;gap:10px;
+          padding:11px 14px;border-radius:14px;background:rgba(31,28,59,.92);color:#fff;font-size:.82rem;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .netbar.show{display:flex}
+  .netbar i{width:9px;height:9px;border-radius:50%;background:#F2B562;flex:0 0 auto;animation:pulse 1.4s infinite}
+  .netbar small{display:block;font-weight:400;opacity:.8}
 </style>
 </head>
 <body>
@@ -468,7 +514,7 @@
     <div style="text-align:center; margin-top:14px;">
       <button class="linkbtn" id="modeSignOut">Sign out</button>
     </div>
-    <div class="lookrow" role="group" aria-label="Look"><span>Look</span><button type="button" data-look="glass">Glass</button><button type="button" data-look="dark">Dark</button></div>
+    <div class="lookrow" role="group" aria-label="Appearance"><span>Look</span><button type="button" data-th="light">Light</button><button type="button" data-th="dark">Dark</button></div>
     <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
 
   </div></div>
@@ -862,10 +908,25 @@
   window.RFT_RELAY=(r||"https://relay-njqb.onrender.com").replace(/\/$/,"");
   window.RFT_EMBED=q.get("embed")==="1"?{mode:q.get("mode")||"",cable:(q.get("cable")||"").toUpperCase(),rtu:q.get("rtu")||""}:null;
   if(window.RFT_EMBED) document.documentElement.classList.add("embed");
+  // v34: short RTU names as the team says them (RGAC2, SGIC2)
+  const ALIAS={"RTU2-SGIC-2026965":"SGIC2"};
+  window.rftShort=n=>{ n=String(n||""); if(ALIAS[n]) return ALIAS[n]; const m=n.match(/^RTU\d*-([^-]+)-/i); return m?m[1]:n; };
+  // v34: "No signal" banner. Any call to the service that cannot get through shows it; the next one that works hides it.
+  const realFetch=window.fetch.bind(window); let netDown=false;
+  function netShow(on){ if(on===netDown) return; netDown=on; let b=document.getElementById("netbar");
+    if(!b){ b=document.createElement("div"); b.id="netbar"; b.className="netbar"; b.setAttribute("role","status");
+      b.innerHTML='<i></i><span>No signal. Waiting to reconnect…<small>Keep going when it is back. Nothing you have done is lost.</small></span>'; document.body.appendChild(b); }
+    b.classList.toggle("show",on); }
+  window.fetch=function(url,opt){ const u=String(url&&url.url||url);
+    const svc=u.startsWith(window.RFT_RELAY||"~");
+    return realFetch(url,opt).then(r=>{ if(svc) netShow(false); return r; },e=>{ if(svc || !navigator.onLine) netShow(true); throw e; }); };
+  window.addEventListener("offline",()=>netShow(true));
+  window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v33";
+const APP_VERSION="v34";
 const APP_VERSIONS=[
+  ["v34","6 Oct 2026","Light or Dark glass (switch on the start screen). Short RTU names. A No signal banner when the connection drops. Your Uni-dir progress shows on the desktop Live screen. Needs service v29."],
   ["v33","6 Oct 2026","New versions show on the next open (no more stale screens). Glass look a little richer. Desktop shows its version on the sign in page."],
   ["v32","6 Oct 2026","New Glass look on the phone (switch back to Dark on the start screen). Desktop: E2E and Tone rebuilt, faster Run history, Glass look. Needs service v28."],
   ["v31","6 Oct 2026","Desktop console only: Help guide, simpler Start, automatic comment, cables start collapsed. Nothing changes on the phone. Service stays v27."],
@@ -1018,7 +1079,7 @@ let crosses={};                              // index -> "crossed with ..."
     cdTimer=setInterval(()=>{
       const el=Date.now()-t0, frac=Math.max(0,1-el/total);
       $("cdBar").style.width=(frac*100)+"%";
-      if(el>=total){ clearInterval(cdTimer); toning=false; $("hero").classList.remove("toning");
+      if(el>=total){ clearInterval(cdTimer); toning=false; $("hero").classList.remove("toning"); uniLive(true);
         const st=status[current];
         setState(st==="dis"?"offT":st==="cross"?"crossT":st==="done"?"doneT":"idle",
                  st==="dis"?"Marked DIS":st==="cross"?("CROSSED"+(crosses[current]?" with "+crosses[current]:"")):st==="done"?"Confirmed":"Tone ended — Repeat if needed"); }
@@ -1044,7 +1105,7 @@ let crosses={};                              // index -> "crossed with ..."
       lockUI();
       const sim = !!(r && r.simulated);
       $("simBanner").classList.toggle("show", sim);
-      startCountdown(sim);
+      startCountdown(sim); uniLive(true);
       setLink("ok",(sim?"Simulated ":"Toning ")+fibName(current));
     }
     catch(e){
@@ -1061,6 +1122,20 @@ let crosses={};                              // index -> "crossed with ..."
       }
     }
   }
+
+  // v34: tell the desktop Live screen where this Uni-dir session is (every few seconds, and at once when a tone starts or ends)
+  let uniLiveAt=0, uniLiveT=null;
+  function uniLive(now, ended){
+    clearTimeout(uniLiveT);
+    if(!route || !session.id) return;
+    const wait=now||ended?0:Math.max(0,4000-(Date.now()-uniLiveAt));
+    if(wait>0){ uniLiveT=setTimeout(()=>uniLive(true),wait); return; }
+    uniLiveAt=Date.now();
+    let done=0,dis=0,cr=0; for(let i=0;i<TOTAL;i++){ if(!inScope(i)) continue; const s=status[i]; if(s==="done")done++; else if(s==="dis")dis++; else if(s==="cross")cr++; }
+    relay("/api/uni/live",{id:uniId, cable:route, rtu:rtuName||"", rtuId:String(rtuId||""), fibre:current+1, toning:!!toning, confirmed:done, dis, cross:cr,
+      inScope:scopeCount(), location:location_||"", started:uniStarted||0, ended:!!ended}).catch(()=>{});
+  }
+  window.rftUniLeave=()=>uniLive(true,true);
 
   // ── navigation ──
   function setCurrent(i, fire){
@@ -1177,10 +1252,12 @@ let crosses={};                              // index -> "crossed with ..."
     $("cDone").textContent=done; $("cOff").textContent=dis; $("cCross").textContent=cr;
     $("cScopeTot").textContent=tot; $("cLeft").textContent=tot-done-dis-cr;
     $("bar").style.width=(done/TOTAL*100)+"%";
-    $("hRoute").textContent=route;
-    $("hUser").textContent=((rtuName||rtuId)?("Tone from "+(rtuName||rtuId)+(rtuSite?" · "+rtuSite:"")):"")
+    $("hRoute").textContent=String(route).replace(/-R\d+$/i,"");
+    $("hUser").dataset.rtu=rtuName||"";
+    $("hUser").textContent=((rtuName||rtuId)?("Tone from "+window.rftShort(rtuName||rtuId)):"")
       + (scopeMode!=="all"?("  ·  "+scopeLabel()):"");
     const badge=$("testModeBadge"); badge.className="badge live"; badge.textContent="Live";
+    uniLive(false);
   }
 
   // ── finish / summary ──
@@ -1194,7 +1271,7 @@ let crosses={};                              // index -> "crossed with ..."
     $("finCross").innerHTML=crs.length?crs.map(o=>'<div class="line"><span class="fn" style="color:var(--cross)">'+o.f+'</span>'+(o.w?' \u2715 with '+o.w.replace(/</g,"&lt;"):'')+'</div>').join(""):'<div class="line">None</div>';
     $("finIssues").innerHTML=iss.length?iss.map(o=>'<div class="line"><span class="fn">'+o.f+'</span> — '+o.n.replace(/</g,"&lt;")+'</div>').join(""):'<div class="line">None</div>';
     $("fin").classList.add("show");
-    logUni(done, offs, crs, iss.length);
+    logUni(done, offs, crs, iss.length); uniLive(true,true);
   }
   // v28: save this Uni-dir session to the run history (same id each time, so FINISH twice updates it)
   async function logUni(done, offs, crs, nIss){
@@ -1474,7 +1551,7 @@ let crosses={};                              // index -> "crossed with ..."
   $("inSearch").addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault();doSearch();} });
 
   // Back to the cable picker from the test screen (progress is saved per route)
-  $("backToCable").onclick=()=>{ clearInterval(cdTimer); toning=false; $("hero").classList.remove("toning"); saveRun(); gotoRoute(); };
+  $("backToCable").onclick=()=>{ clearInterval(cdTimer); toning=false; $("hero").classList.remove("toning"); saveRun(); uniLive(true,true); gotoRoute(); };
 
 
   async function doSearch(){
@@ -1492,7 +1569,7 @@ let crosses={};                              // index -> "crossed with ..."
           '<div class="cinfo">'+
             '<div class="cs mono">'+String(c.stem).replace(/-R\d+$/i,"")+'</div>'+
             '<div class="crtu"><span class="rtu-dot '+(on?'on':'off')+'"></span>'+
-              '<b>'+(c.rtuName||c.rtuId||"?")+'</b>'+(c.site?' \u00b7 '+c.site:'')+
+              '<b>'+window.rftShort(c.rtuName||c.rtuId||"?")+'</b>'+
               ' <span class="rtu-tag '+(on?'on':'off')+'">'+tag+'</span></div>'+
           '</div>'+
           '<span class="cf mono">'+c.fibres+'</span>'+
@@ -1704,7 +1781,7 @@ let crosses={};                              // index -> "crossed with ..."
       $("ctCables").innerHTML=stems.map((s,i)=>{
         const rs=by[s];
         return '<div class="cable-row" data-i="'+i+'"><div class="cinfo"><div class="cs mono">'+esc(cableId(s))+'</div>'+
-          '<div class="crtu">'+rs.map(c=>'<span class="rtu-dot '+(c.online?'on':'off')+'"></span><b>'+esc(c.rtuName||c.rtuId)+'</b>').join(' &nbsp; ')+'</div></div>'+
+          '<div class="crtu">'+rs.map(c=>'<span class="rtu-dot '+(c.online?'on':'off')+'"></span><b>'+esc(window.rftShort(c.rtuName||c.rtuId))+'</b>').join(' &nbsp; ')+'</div></div>'+
           '<span class="cf mono">'+rs[0].fibres+'</span></div>';}).join("");
       $("ctCables").querySelectorAll("[data-i]").forEach(el=>el.onclick=()=>pick(stems[+el.dataset.i], by[stems[+el.dataset.i]]));
       if(stems.length===1) pick(stems[0], by[stems[0]]);
@@ -2141,8 +2218,7 @@ let crosses={};                              // index -> "crossed with ..."
     const on=document.querySelector(".screen.on"), id=on?on.id:"";
     const txt=i=>{ const e=$(i); return e?e.textContent.trim():""; };
     if(id==="screen-test"){
-      const u=txt("hUser").match(/Tone from ([^·]+)/);
-      return {screen:"uni", cable:txt("hRoute"), rtu:u?u[1].trim():"", detail:"Uni-dir, "+txt("fibNo")};
+      return {screen:"uni", cable:txt("hRoute"), rtu:($("hUser")&&$("hUser").dataset.rtu)||"", detail:"Uni-dir, "+txt("fibNo")};
     }
     if(id==="screen-cont"){
       const running=$("ctRun") && $("ctRun").style.display!=="none";
@@ -2177,13 +2253,13 @@ let crosses={};                              // index -> "crossed with ..."
     const d=last;
     if(!d){ $("onPeople").innerHTML='<div class="on-empty">Not connected. Sign in to see who is online.</div>'; $("onRuns").innerHTML=""; return; }
     $("onPeople").innerHTML=(d.people||[]).map(p=>'<div class="on-row"><div class="av">'+esc(initials(p.name))+'</div><div><div class="who">'+esc(p.name)+(p.you?' (you)':'')+'</div>'
-      +'<div class="what">'+esc(p.detail||p.screen)+(p.cable?' · '+esc(p.cable):'')+(p.rtu?' · '+esc(node(p.rtu)):'')+'</div></div>'
+      +'<div class="what">'+esc(p.detail||p.screen)+(p.cable?' · '+esc(p.cable):'')+(p.rtu?' · '+esc(window.rftShort(p.rtu)):'')+'</div></div>'
       +'<span class="tag">'+esc(ago(p.seen))+'</span></div>').join("")||'<div class="on-empty">Nobody else is signed in.</div>';
     const runs=(d.runs||[]).map(r=>'<div class="on-row"><div class="av">E2E</div><div><div class="who">'+esc(r.cable)+' '+esc(r.scope)+'</div>'
       +'<div class="what">'+esc(r.rtu)+' · '+esc(r.owner||"?")+' · '+esc(r.progress)+' fibres · started '+esc(ago(r.started))+'</div></div><span class="tag run">'+esc(r.state)+'</span></div>');
     const tasks=(d.fmsTasks||[]).map(t=>t.error?'<div class="on-empty">'+esc(t.error)+'</div>'
       :'<div class="on-row"><div class="av">'+esc(t.type.replace("FMS ",""))+'</div><div><div class="who">'+esc(t.cable)+' '+esc(t.scope)+'</div>'
-      +'<div class="what">'+esc(t.type)+' on '+esc(node(t.rtu))+' · '+esc(t.owner||"?")+' · '+esc(t.progress||"")+' done · started '+esc(ago(t.started))+'</div></div><span class="tag run">running</span></div>');
+      +'<div class="what">'+esc(t.type)+' on '+esc(window.rftShort(node(t.rtu)))+' · '+esc(t.owner||"?")+' · '+esc(t.progress||"")+' done · started '+esc(ago(t.started))+'</div></div><span class="tag run">running</span></div>');
     $("onRuns").innerHTML=runs.concat(tasks).join("")||'<div class="on-empty">No tests running on the RTUs.</div>';
     $("onHint").textContent="Updated "+new Date(d.now*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
       +". Single tests started straight from the FMS screen do not show here.";
@@ -2278,13 +2354,18 @@ let crosses={};                              // index -> "crossed with ..."
   function apply(l){
     if(l==="glass") document.documentElement.setAttribute("data-look","glass"); else document.documentElement.removeAttribute("data-look");
     try{ localStorage.setItem("toneTester.look",l); }catch(e){}
-    document.querySelectorAll("img.brandlogo,img.hdrlogo").forEach(function(im){ im.src = l==="glass" ? "logo.png" : "logo-light.png"; });
+    document.querySelectorAll("img.brandlogo,img.hdrlogo").forEach(function(im){ im.src = "logo.png"; });
     document.querySelectorAll(".lookrow [data-look]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.look===l)); });
     var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", l==="glass" ? "#F3EFFC" : "#016976");
   }
-  var cur="glass"; try{ cur=localStorage.getItem("toneTester.look")||"glass"; }catch(e){}
-  document.querySelectorAll(".lookrow [data-look]").forEach(function(b){ b.onclick=function(){ apply(b.dataset.look); }; });
-  apply(cur);
+  apply("glass");
+  // v34: Light or Dark glass, remembered on this phone
+  function theme(t){ if(t==="dark") document.documentElement.setAttribute("data-theme","dark"); else document.documentElement.removeAttribute("data-theme");
+    try{ localStorage.setItem("toneTester.theme",t); }catch(e){}
+    document.querySelectorAll(".lookrow [data-th]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.th===t)); });
+    var mt=document.querySelector('meta[name="theme-color"]'); if(mt) mt.setAttribute("content", t==="dark" ? "#120E26" : "#F3EFFC"); }
+  document.querySelectorAll(".lookrow [data-th]").forEach(function(b){ b.onclick=function(){ theme(b.dataset.th); }; });
+  theme(document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light");
 })();
 </script>
 </body>

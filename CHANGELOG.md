@@ -443,6 +443,17 @@ in one direction.
 
 ---
 
+## v34 + relay v29 — 6 October 2026 — Live screen, Dark glass, short names, No signal banner
+
+- **Live** is the desktop's first screen: the Reach route with every RTU light (the cable pulses purple while something runs on it), a card for each E2E run (live ribbon grid), Uni-dir tone (the fibre the tester is on, toning or waiting, confirmed / DIS / crossed) and bulk Task, who is online (e.g. "Phone · Tone on SNBC2") and what finished today. Click a card or an RTU to open it in the console. Updates every 5 seconds.
+- **Light or Dark glass** on the phone (start screen) and desktop (header), remembered per device. Dark is smoky frosted glass over a deep indigo background with soft coloured light.
+- **Short names**: RTUs show as the team says them (RGAC2, SGIC2), the full name on hover; cables drop the "-R432".
+- **Phone: No signal banner** when the connection drops ("No signal. Waiting to reconnect… Nothing you have done is lost."), gone as soon as the service answers.
+- **Phone sends its Uni-dir progress** every few seconds (and at once when a tone starts or ends) for the Live screen; leaving the cable or finishing clears it.
+- Relay v29: `POST /api/uni/live` (phone progress) and `POST /api/live` (people, E2E runs with their grid, Uni-dir sessions, bulk Tasks, toning RTUs). Relay deploy signs everyone out.
+
+---
+
 ## v33 (app only, relay stays v28) — 6 October 2026 — updates show straight away, richer Glass
 
 - **No more stale screens**: the app pages now come from the network first (the offline copy is only used with no signal), and a new version takes over and reloads once by itself. On 6 Oct phones kept showing v31 after v32 went live because the old offline copy was served first. The desktop page now checks for updates the same way.
