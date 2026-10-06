@@ -443,6 +443,24 @@ in one direction.
 
 ---
 
+## v32 + relay v28 — 6 October 2026 — native desktop E2E and Tone, faster Run history
+
+- **E2E Continuity on the desktop** is now built for the desktop instead of the phone screen inside a frame. Ends card (tone from the picked RTU, OTDR from the far end, Swap), ribbon picker, pace under Advanced, time estimate and a busy warning. The run view shows a live results grid (green straight, amber crossed with the fibre it lands on, red DIS or not found, purple outline testing now), counts, findings, activity log, Pause, Stop with a confirm, Resume from here, and a CSV export. A run already going on the cable opens straight away. Same relay calls as the phone (`/api/continuity/start|status|control|jobs`).
+- **Tone (Uni-dir) on the desktop**: big current fibre with its colour, countdown, START / NEXT / Back / Repeat, DIS, Crossed and Note, keyboard keys, the whole 432 fibre map (click a fibre to tone it), scope All / Odd / Even / Range, tone settings, location, Finish saves to Run history (`/api/history/add`), copy report. Progress kept per cable and RTU end in this browser.
+- **Run history** opens on **Today**, has "App runs only" for the quickest load and a Refresh button, and shows the last list at once while it refreshes. Today's list is fetched in the background after sign in.
+- **Relay v28**: Run history no longer reads the detail of FMS Tasks older than the period asked for (the search is newest first, so it stops there), and asks FMS for fewer Tasks for short periods (20 for a day, 40 for a week, 60 beyond).
+- **New look for the whole desktop console** (Alkis asked for a cleaner, Tesla style): white header, grey background, white cards without borders, one blue for actions, large light numbers, segmented tabs, Manrope font. Light colours unchanged (green available, purple testing, grey offline).
+- **Glass look** (Alkis's pick): frosted see-through panels over soft pastel light, on the desktop and the phone, and it is the default. Desktop: Look switch under the light key (Glass or Clean). Phone: Look switch on the start screen (Glass or the original Dark), remembered per phone. Light colours unchanged.
+- Phone fix: the current fibre card no longer gets squashed on a short phone when a banner shows.
+- **Uni-dir tones only on START, NEXT or Repeat** (phone and desktop). Opening a cable, picking a ribbon, tapping a fibre or Back just moves there and the button reads START (Alkis, 6 Oct: it was toning the first fibre of a ribbon as soon as the ribbon was picked).
+- **Simpler wording** (Alkis, 6 Oct): Tasks read e.g. "iOLM · Fast F1 · 1550 nm" or "OTDR · 1550 nm · 5 s" (no FMS test limit number, no "auto"), progress reads "20 of 30 fibres done", the RTU line shows only its state, and pace, version and run id detail are gone from the E2E, Tone and history screens.
+- Desktop Tone buttons lock the moment NEXT is pressed, so a double press cannot skip a fibre.
+- Desktop: Tasks and lights refresh every 5 seconds while the page is open (was 15 s), and an RTU sending a Uni-dir tone shows purple "tone" (relay v28 marks it, from the phone or the desktop).
+- **Desktop users without a restart** (relay v28): add emails to `config/desktop-users.json` in the run log repo (`Motion-Rail/relay-logs`), as `{"users": ["name@motionrail.co.uk"]}`. The relay rereads it every minute. The `DESKTOP_USERS` setting still works.
+- Relay deploy signs everyone out, so deploy when nobody is testing.
+
+---
+
 ## v31 (app only, relay stays v27) — 6 October 2026 — desktop Help, simpler Start
 
 - **Help** button in the desktop header: quick guide and overview (what it is, RTU list and light key, RTU tabs, starting a bulk test, Run history, who is online).

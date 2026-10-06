@@ -11,6 +11,8 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Reach Fibre Tester</title>
 <!-- v16, 28 Sep 2026: Reach Fibre Tester. Activity log in local time. -->
+<script>(function(){var l="glass";try{l=localStorage.getItem("toneTester.look")||"glass"}catch(e){}if(l==="glass")document.documentElement.setAttribute("data-look","glass");})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   :root {
@@ -134,6 +136,7 @@
   .dot.hascross{background:var(--cross); opacity:.9;} .dot.here{outline:2px solid var(--text); outline-offset:1px; opacity:1;}
 
   main{flex:1 1 auto; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:12px;}
+  main>*{flex-shrink:0;}   /* v32: the fibre card no longer squashes when a banner shows on a short phone */
   .hero{position:relative; border-radius:16px; padding:16px; background:var(--surface); border:2px solid var(--border); display:flex; align-items:center; gap:16px; overflow:hidden; transition:border-color .15s, background .15s;}
   /* Toning: unmissable — border, glow and background all change, plus a moving sweep bar */
   .hero.toning{border-color:var(--tone); background:#0d2b30; animation:heroPulse 1.2s ease-in-out infinite;}
@@ -345,6 +348,64 @@
   .hist-sub{color:var(--muted); font-size:.74rem; margin-top:3px; line-height:1.45;}
   .hist-more{display:none; font-size:.76rem; line-height:1.5; margin-top:6px; color:var(--text);}
   .hist-row.open .hist-more{display:block;}
+  /* ── v32 Glass look (Alkis, 6 Oct): frosted panels over soft pastel light. On by default; Look: Dark brings back the original. ── */
+  :root[data-look=glass]{
+    --bg:rgba(255,255,255,.6); --surface:rgba(255,255,255,.58); --surface2:rgba(255,255,255,.78); --border:rgba(110,100,170,.18);
+    --muted:#5E5A7D; --text:#1F1C3B;
+    --tone:#0A93A6; --tone-glow:rgba(10,147,166,.28); --brand:#0A8494; --brand-lt:#59C2CE; --accent:#5B5BE6;
+    --done:#1C9658; --done-dim:rgba(168,226,196,.55); --pend:rgba(110,100,170,.24);
+    --off:#D3343F; --off-dim:rgba(255,190,196,.55); --cross:#8A47CF; --cross-dim:rgba(218,196,255,.6);
+    --edge:1px solid rgba(255,255,255,.75); --frost:blur(20px) saturate(170%);
+    --gshadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 3px rgba(60,50,120,.05),0 10px 30px rgba(60,50,120,.08);
+  }
+  :root[data-look=glass] body{font-family:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:
+      radial-gradient(60% 40% at 0% 0%,rgba(203,188,255,.8),transparent 70%),
+      radial-gradient(55% 35% at 100% 10%,rgba(255,206,184,.75),transparent 70%),
+      radial-gradient(60% 40% at 100% 100%,rgba(176,232,214,.75),transparent 70%),
+      radial-gradient(55% 40% at 0% 90%,rgba(190,214,255,.75),transparent 70%),
+      linear-gradient(160deg,#F7F5FF,#FBF7F4 50%,#F2F8F7)}
+  :root[data-look=glass] header,:root[data-look=glass] .params,:root[data-look=glass] .rail-wrap,:root[data-look=glass] .actions{
+    background:rgba(255,255,255,.5);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost);border-color:rgba(255,255,255,.6)}
+  :root[data-look=glass] .hero,:root[data-look=glass] .ct-panel,:root[data-look=glass] .mode-opt,:root[data-look=glass] .cable-row,
+  :root[data-look=glass] .fin .block,:root[data-look=glass] .sheet{
+    background:var(--surface);-webkit-backdrop-filter:var(--frost);backdrop-filter:var(--frost);border:var(--edge);box-shadow:var(--gshadow)}
+  :root[data-look=glass] .hero{border-radius:22px}
+  :root[data-look=glass] .ct-panel,:root[data-look=glass] .mode-opt,:root[data-look=glass] .cable-row{border-radius:18px}
+  :root[data-look=glass] .sheet{border-radius:24px 24px 0 0;background:rgba(255,255,255,.82)}
+  :root[data-look=glass] .sheet-bg{background:rgba(31,28,59,.22);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  :root[data-look=glass] .fin{background:rgba(247,245,255,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+  :root[data-look=glass] .hero.toning{background:linear-gradient(135deg,rgba(190,236,242,.75),rgba(214,200,255,.55));border-color:rgba(255,255,255,.85)}
+  :root[data-look=glass] .fib-no{font-weight:300;letter-spacing:-.02em}
+  :root[data-look=glass] .ct-stat b{font-weight:400}
+  :root[data-look=glass] .primary{background:linear-gradient(135deg,#7B7BF6,#A07CF4 60%,#C58BE8);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 20px rgba(124,108,240,.3)}
+  :root[data-look=glass] .primary.ghost{background:var(--surface2);color:var(--text);border:var(--edge);box-shadow:var(--gshadow)}
+  :root[data-look=glass] .next{background:linear-gradient(135deg,#2DBA74,#1C9658);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px rgba(28,150,88,.3)}
+  :root[data-look=glass] .next.finished,:root[data-look=glass] .next.locked{background:linear-gradient(135deg,#9F8CF2,#7B6BE0)}
+  :root[data-look=glass] .act,:root[data-look=glass] .finish,:root[data-look=glass] .btn-wide,:root[data-look=glass] .icon-btn,:root[data-look=glass] .sel-btn,
+  :root[data-look=glass] .online-chip,:root[data-look=glass] .ct-swap,:root[data-look=glass] .ct-quick button{background:rgba(255,255,255,.72);border:var(--edge);box-shadow:inset 0 1px 0 #fff,0 1px 3px rgba(60,50,120,.07)}
+  :root[data-look=glass] .cell,:root[data-look=glass] .param,:root[data-look=glass] .ct-end,:root[data-look=glass] .ct-stat,:root[data-look=glass] .ct-job,
+  :root[data-look=glass] .scope-opt,:root[data-look=glass] .locbar{background:rgba(255,255,255,.55);border:var(--edge)}
+  :root[data-look=glass] .cell{border-radius:14px}
+  :root[data-look=glass] .cell.done{background:var(--done-dim)} :root[data-look=glass] .cell.dis{background:var(--off-dim)} :root[data-look=glass] .cell.cross{background:var(--cross-dim)}
+  :root[data-look=glass] .cell.here{outline:2px solid var(--tone);box-shadow:0 0 18px rgba(10,147,166,.3)}
+  :root[data-look=glass] .scope-opt.sel,:root[data-look=glass] .ct-chip.sel,:root[data-look=glass] .ct-pill.running,:root[data-look=glass] .res.Running{background:rgba(10,147,166,.14);border-color:var(--tone);color:var(--tone)}
+  :root[data-look=glass] .ct-chip{background:rgba(255,255,255,.55);border:var(--edge)}
+  :root[data-look=glass] .ct-entry{background:rgba(255,255,255,.55);border:var(--edge)}
+  :root[data-look=glass] .ct-pill.paused{background:rgba(255,214,160,.6);color:#8A5208}
+  :root[data-look=glass] .online-chip.busy i{background:#D68A12}
+  :root[data-look=glass] table.ct-g td{background:rgba(110,100,180,.08)}
+  :root[data-look=glass] .ct-log,:root[data-look=glass] textarea,:root[data-look=glass] input[type=text],:root[data-look=glass] input[type=password],
+  :root[data-look=glass] input[type=email],:root[data-look=glass] .ct-row select,:root[data-look=glass] .ct-row input,:root[data-look=glass] .hist-filters select{background:rgba(255,255,255,.65);border:var(--edge);box-shadow:inset 0 1px 2px rgba(60,50,120,.06)}
+  :root[data-look=glass] .mode-ico{background:linear-gradient(135deg,#7B7BF6,#A07CF4);box-shadow:0 4px 14px rgba(124,108,240,.3)}
+  :root[data-look=glass] #modeUni .mode-ico{background:rgba(255,255,255,.8);border:var(--edge);color:var(--tone)}
+  :root[data-look=glass] .dot{opacity:.8} :root[data-look=glass] .dot.here{outline-color:var(--text)}
+  :root[data-look=glass] .bar,:root[data-look=glass] .countdown{background:rgba(110,100,170,.15)}
+  :root[data-look=glass] .simbanner,:root[data-look=glass] .locbar.unset{background:var(--off-dim)}
+  :root[data-look=glass] .cell .cband,:root[data-look=glass] .swatch{border-color:rgba(0,0,0,.12)}
+  .lookrow{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:10px;font-size:.72rem;color:var(--muted)}
+  .lookrow button{border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
+  .lookrow button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+  :root[data-look=glass] .lookrow button[aria-pressed=true]{background:#1F1C3B;color:#fff}
 </style>
 </head>
 <body>
@@ -398,6 +459,7 @@
     <div style="text-align:center; margin-top:14px;">
       <button class="linkbtn" id="modeSignOut">Sign out</button>
     </div>
+    <div class="lookrow" role="group" aria-label="Look"><span>Look</span><button type="button" data-look="glass">Glass</button><button type="button" data-look="dark">Dark</button></div>
     <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
 
   </div></div>
@@ -793,8 +855,9 @@
   if(window.RFT_EMBED) document.documentElement.classList.add("embed");
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v31";
+const APP_VERSION="v32";
 const APP_VERSIONS=[
+  ["v32","6 Oct 2026","New Glass look on the phone (switch back to Dark on the start screen). Desktop: E2E and Tone rebuilt, faster Run history, Glass look. Needs service v28."],
   ["v31","6 Oct 2026","Desktop console only: Help guide, simpler Start, automatic comment, cables start collapsed. Nothing changes on the phone. Service stays v27."],
   ["v30","6 Oct 2026","Desktop console (for named accounts only): RTU status lights, Bulk Test builder, Run history. Nothing changes on the phone. Needs service v27."],
   ["v29","6 Oct 2026","Desktop console (desktop.html): pick an RTU to see its bulk Tasks with progress, queue and cancel, and open E2E or Uni-dir for that RTU. On a phone nothing changes. Needs service v26."],
@@ -990,9 +1053,12 @@ let crosses={};                              // index -> "crossed with ..."
   }
 
   // ── navigation ──
-  function setCurrent(i){
+  function setCurrent(i, fire){
     if(isBusy()) return nudge();
-    current=i; viewRib=ribOf(i); render(); saveRun(); toneCurrent();
+    current=i; viewRib=ribOf(i);
+    if(fire){ render(); saveRun(); toneCurrent(); return; }
+    // v32: picking a fibre or ribbon, or Back, only moves there. START, NEXT and Repeat send the tone (Alkis, 6 Oct).
+    started=false; toneOk=false; render(); saveRun(); setState("idle","Ready. Press START to tone "+label(current));
   }
   function next(){
     if(isBusy()) return nudge();
@@ -1004,7 +1070,7 @@ let crosses={};                              // index -> "crossed with ..."
     }
     const nx=findNext(current);
     if(nx===-1){ status[current]="done"; render(); saveRun(); finish(); return; }
-    setCurrent(nx);
+    setCurrent(nx, true);
   }
   function back(){ if(isBusy()) return nudge(); if(current>0) setCurrent(current-1); }
   function repeat(){ if(isBusy()) return nudge(); toneCurrent(); }
@@ -1797,7 +1863,7 @@ let crosses={};                              // index -> "crossed with ..."
   
       : (s.state==="error"||s.state==="lost") ? "Stopped with an error: "+esc(s.error) : "";
     $("ctPause").textContent=s.state==="paused"?"Resume":"Pause";
-    $("ctPace").textContent = s.pace ? "Tone "+s.pace.toneS+" s, lead "+s.pace.leadS+" s"+(s.pace.auto?", auto pacing on":"")+"  ·  app "+(s.appVersion||"?")+", relay "+(s.relayVersion||"?") : "";
+    $("ctPace").textContent = "";   // v32: pace and version detail removed from the run screen (still in the debug report)
     const live=s.state==="running"||s.state==="paused";
     $("ctPause").style.display=live?"":"none"; $("ctStop").style.display=live?"":"none"; $("ctNew").style.display=live?"none":"";
     $("ctFbPanel").style.display=live?"none":"";
@@ -2192,6 +2258,21 @@ let crosses={};                              // index -> "crossed with ..."
   $("hiBack").onclick=()=>{ if(window.gotoMode) window.gotoMode(); };
 })();
 
+</script>
+<script>
+/* v32: Glass (default) or Dark look, remembered on this phone */
+(function(){
+  function apply(l){
+    if(l==="glass") document.documentElement.setAttribute("data-look","glass"); else document.documentElement.removeAttribute("data-look");
+    try{ localStorage.setItem("toneTester.look",l); }catch(e){}
+    document.querySelectorAll("img.brandlogo,img.hdrlogo").forEach(function(im){ im.src = l==="glass" ? "logo.png" : "logo-light.png"; });
+    document.querySelectorAll(".lookrow [data-look]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.look===l)); });
+    var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", l==="glass" ? "#F3EFFC" : "#016976");
+  }
+  var cur="glass"; try{ cur=localStorage.getItem("toneTester.look")||"glass"; }catch(e){}
+  document.querySelectorAll(".lookrow [data-look]").forEach(function(b){ b.onclick=function(){ apply(b.dataset.look); }; });
+  apply(cur);
+})();
 </script>
 </body>
 </html>
