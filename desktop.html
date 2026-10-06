@@ -68,6 +68,60 @@
   .online{position:absolute;right:24px;top:68px;width:360px;max-width:calc(100vw - 32px);background:var(--surface);color:var(--ink);border-radius:var(--r);box-shadow:0 12px 40px rgba(23,26,32,.14);padding:16px;z-index:5}
   #alertBtn.on{color:var(--ok,#2FA36B)}
   .linkbtn{border:0;background:none;color:var(--accent,#4B3FD0);font:inherit;font-weight:600;cursor:pointer;padding:0}
+
+  /* v36: Fibres screen, every fibre of a cable with its latest results from both ends */
+  .fbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .fbar select,.fbar input{min-height:38px;border-radius:10px;border:var(--edge,1px solid var(--line));background:var(--surface);padding:6px 12px}
+  .fbar input{min-width:260px}
+  .seg{display:inline-flex;background:var(--soft);border-radius:999px;padding:3px;gap:2px}
+  .seg button{border:0;background:none;border-radius:999px;padding:6px 12px;font-weight:600;font-size:12px;color:var(--muted);cursor:pointer}
+  .seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .fstats{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px}
+  .fstats .lstat b{font-size:30px}
+  .fwrap{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:start}
+  .fgrid{display:grid;grid-template-columns:44px repeat(12,minmax(0,1fr)) 92px;gap:4px;align-items:center}
+  .fgrid .rl{font-size:11px;color:var(--faint);font-weight:700;text-align:right;padding-right:4px}
+  .fgrid .rs{font-size:11px;color:var(--muted);padding-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fgrid .hd{font-size:10px;color:var(--faint);text-align:center;font-weight:700}
+  /* grid fills: deeper in light so the numbers stand out; dark keeps the soft glass tints */
+  :root{--fc0:#D6D4E3;--fc0i:#4A4860;--fcok:#9FDBBA;--fcoki:#08492A;--fccx:#F1BE73;--fccxi:#573202;--fcbad:#F09CA4;--fcbadi:#7E0D17;
+        --fcfl:#A6BCF4;--fcfli:#152E7C;--fcun:#CBA8EC;--fcuni:#4C1A7A}
+  :root[data-look=glass][data-theme=dark]{--fc0:rgba(255,255,255,.12);--fc0i:#C4C0E0;--fcok:#1F9A5F;--fcoki:#FFFFFF;--fccx:#D2861F;--fccxi:#FFFFFF;
+        --fcbad:#D63C4E;--fcbadi:#FFFFFF;--fcfl:#4F5BE0;--fcfli:#FFFFFF;--fcun:#8E4BD6;--fcuni:#FFFFFF}
+  .fc{height:26px;border-radius:6px;border:0;cursor:pointer;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;
+      background:var(--fc0);color:var(--fc0i);position:relative;padding:0}
+  .fc:hover{outline:2px solid var(--brand);outline-offset:1px}
+  .fc[aria-pressed=true]{outline:2px solid var(--ink);outline-offset:1px}
+  .fc.ok,.fc.l0,.fc.a0{background:var(--fcok);color:var(--fcoki)}
+  .fc.cross,.fc.l1,.fc.a2{background:var(--fccx);color:var(--fccxi)}
+  .fc.dis,.fc.fail,.fc.l2{background:var(--fcbad);color:var(--fcbadi)}
+  .fc.flip,.fc.a1{background:var(--fcfl);color:var(--fcfli)}
+  .fc.unres{background:var(--fcun);color:var(--fcuni)}
+  .fc.hit{box-shadow:0 0 0 2px var(--brand)}
+  .fc .dot2{position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--bad)}
+  .fkey{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:12px}
+  .fkey i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+  .fdet h3{margin:0;font-size:24px;font-weight:300}
+  .fdet h4{margin:18px 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+  .fdet .kv{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--line2);font-size:13px}
+  .fdet .kv span:first-child{color:var(--muted);min-width:96px}
+  .fdet table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  .fdet th{font-size:11px;color:var(--faint);text-align:right;font-weight:700;padding:4px 6px}
+  .fdet td{text-align:right;padding:5px 6px;border-top:1px solid var(--line2)}
+  .fdet th:first-child,.fdet td:first-child{text-align:left}
+  .fdet tr.avg td{font-weight:700}
+  .fhist{list-style:none;margin:0;padding:0}
+  .fhist li{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line2);font-size:13px}
+  .fhist li .t{color:var(--faint);min-width:86px;font-size:12px}
+  .tag{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;background:var(--soft2);color:var(--ink)}
+  .tag.flip{background:var(--fcfl);color:var(--fcfli)}
+  .tag.ok{background:var(--ok-tint);color:var(--ok)}.tag.bad{background:var(--bad-tint);color:var(--bad)}.tag.warn{background:var(--warn-tint);color:var(--warn)}
+  .fhits{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .fhits button{text-align:left;border:0;background:var(--soft);border-radius:10px;padding:8px 12px;cursor:pointer}
+  /* v36: keep the header on one line on laptop screens (it wrapped once Alerts was added) */
+  @media (max-width:1600px){ header{gap:12px} .who{display:none} header .title small{display:none} .themesw button{font-size:0;gap:0;padding:6px 9px} nav button{padding:8px 11px} }
+  @media (max-width:1280px){ #onlineText{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} #alertText{display:none} }
+  @media (max-width:1100px){ .fwrap{grid-template-columns:1fr} .fstats{grid-template-columns:repeat(4,minmax(0,1fr))} }
   .online h3{margin:4px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
   .online .row{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line2);font-size:13px}
 
@@ -468,6 +522,7 @@
     <nav aria-label="Screens">
       <button data-nav="live">Live</button>
       <button data-nav="console">Console</button>
+      <button data-nav="fibres" hidden>Fibres</button>
       <button data-nav="history">Run history</button>
     </nav>
     <span class="grow"></span>
@@ -788,6 +843,31 @@
       </section>
     </main>
 
+    <main id="screen-fibres" hidden>
+      <section class="panel">
+        <div class="fbar">
+          <h2 style="margin:0">Fibres</h2>
+          <select id="fCable" aria-label="Cable"></select>
+          <span class="seg" role="group" aria-label="Colour by">
+            <button type="button" data-fm="cont" aria-pressed="true">Continuity</button>
+            <button type="button" data-fm="loss" aria-pressed="false">Loss 1550</button>
+            <button type="button" data-fm="age" aria-pressed="false">Last tested</button>
+          </span>
+          <span class="grow"></span>
+          <input id="fFind" type="search" placeholder="Find a fibre: F123, R11 F3, RGAC 123" aria-label="Find a fibre">
+        </div>
+        <div id="fHits" class="fhits" hidden></div>
+        <p class="note" id="fNote" style="margin:10px 0 0">Latest result for every fibre, from both ends. Click a fibre for its detail and history.</p>
+      </section>
+      <section class="fstats" id="fStats" style="margin-top:16px"></section>
+      <div class="fwrap" style="margin-top:16px">
+        <section class="panel">
+          <div class="fgrid" id="fGrid"></div>
+          <div class="fkey" id="fKey"></div>
+        </section>
+        <aside class="panel fdet" id="fDet"><p class="note">Pick a fibre.</p></aside>
+      </div>
+    </main>
     <main id="screen-history" hidden>
       <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px">
         <h1 style="margin:0;font-size:24px" class="grow">Run history</h1>
@@ -861,7 +941,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v35";
+  const APP_VERSION="v36";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1011,15 +1091,16 @@
   let tab=jget("rft.desktop.tab","tasks"), frameFor={};
   function setScreen(s){
     screen=s;
-    $("screen-console").hidden=s!=="console"; $("screen-history").hidden=s!=="history"; $("screen-live").hidden=s!=="live";
-    $("side").hidden=s==="live";       // v34: Live uses the full width; the route map replaces the RTU list
+    $("screen-console").hidden=s!=="console"; $("screen-history").hidden=s!=="history"; $("screen-live").hidden=s!=="live"; $("screen-fibres").hidden=s!=="fibres";
+    $("side").hidden=s==="live"||s==="fibres";       // v34: Live uses the full width; the route map replaces the RTU list
     document.querySelectorAll("nav button").forEach(b=>{ if(b.dataset.nav===s) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     if(s==="history") loadHistory();
     if(s==="live") openLive();
+    if(s==="fibres") openFibres();
   }
   document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
     const n=b.dataset.nav;
-    if(n==="history"||n==="live") return setScreen(n);
+    if(n==="history"||n==="live"||n==="fibres") return setScreen(n);
     screen="console"; showTab(tab);
   });
   function showTab(t){
@@ -1727,9 +1808,145 @@
   };
 
   async function health(){
-    try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=`relay ${h.version} · ${RELAY===LIVE_RELAY?"live":"local: "+RELAY}`; $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+    try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=`relay ${h.version} · ${RELAY===LIVE_RELAY?"live":"local: "+RELAY}`;
+      const fb=document.querySelector('nav [data-nav="fibres"]'); if(fb) fb.hidden=!(parseInt(String(h.version||"").replace(/\D/g,""))>=31);   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
+
+  // ── v36: Fibres. Every fibre of a cable with its latest continuity, OTDR and iOLM results from both ends ──
+  const FB={stem:jget("rft.fib.stem","F-RGAC-SNBC-A-R432"), mode:jget("rft.fib.mode","cont"), data:null, sel:0, hits:[], det:{}};
+  const STEMS=[["F-0057-RGAC-A-R432","Slough to Reading"],["F-RGAC-SNBC-A-R432","Reading to Swindon"],["F-SGIC-SNBC-A-R432","Swindon to Stoke Gifford"],["F-0001-SGIC-A-R432","Stoke Gifford to Cardiff"]];
+  $("fCable").innerHTML=STEMS.map(([k,n])=>`<option value="${k}">${esc(n)} · ${esc(k.replace(/-R\d+$/,""))}</option>`).join("");
+  $("fCable").value=FB.stem;
+  $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; loadFibres(true); };
+  document.querySelectorAll("[data-fm]").forEach(b=>b.onclick=()=>{ FB.mode=b.dataset.fm; jset("rft.fib.mode",FB.mode); paintFibres(); });
+  const fNum=f=>"F"+String(f).padStart(3,"0"), ribOf=f=>Math.ceil(f/12), posOf=f=>(f-1)%12+1;
+  const ago=t=>{ if(!t) return ""; const d=(Date.now()/1000-t)/86400; return d<1?"today":d<2?"yesterday":Math.round(d)+" days ago"; };
+  const km=m=>m==null?"–":(m/1000).toFixed(m>=10000?2:3)+" km", db=x=>x==null?"–":Number(x).toFixed(2);
+  // a fibre that lands on its mirror in the same ribbon (F1 to F12, F2 to F11 …)
+  const mirrorOf=(r,x)=>x&&x.found&&Math.ceil(x.found/12)===ribOf(r.f)&&posOf(x.found)===13-posOf(r.f);
+  // Flipped only when at least two different mirror pairs agree in the ribbon; one swapped pair stays Crossed
+  function flipConfirmed(rb){
+    const d=FB.data; if(!d) return false; FB.flipCache=FB.flipCache||{};
+    const key=d.stem+"|"+(d.updated||"")+"|"+rb; if(key in FB.flipCache) return FB.flipCache[key];
+    const pairs=new Set();
+    d.fibres.slice((rb-1)*12, rb*12).forEach(r=>{ const e=r.e2e, u=r.uni, x=(e&&u)?((e.t||0)>=(u.t||0)?e:u):(e||u);
+      if(x&&x.state==="cross"&&mirrorOf(r,x)) pairs.add(Math.min(posOf(r.f),13-posOf(r.f))); });
+    return FB.flipCache[key]=pairs.size>=2;
+  }
+  function contOf(r){            // the latest continuity answer for a fibre, from E2E or Uni-dir
+    const e=r.e2e, u=r.uni, pick=(e&&u)?((e.t||0)>=(u.t||0)?e:u):(e||u);
+    if(!pick) return null;
+    let st=pick.state==="confirmed"?"straight":pick.state;
+    if(st==="cross" && mirrorOf(r, pick) && flipConfirmed(ribOf(r.f))) st="flip";   // F1 to F12 backed up by F2 to F11
+    return {...pick, state:st, src:pick===e?"E2E":"Uni-dir"};
+  }
+  function loss1550(r){ const xs=[]; ["a","b"].forEach(k=>{ const i=r.iolm&&r.iolm[k], o=r.otdr&&r.otdr[k];
+      if(i&&i.loss&&i.loss["1550"]!=null) xs.push(+i.loss["1550"]); else if(o&&o.loss!=null) xs.push(+o.loss); });
+    return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null; }
+  function lastT(r){ return Math.max(0,...["e2e","uni"].map(k=>(r[k]&&r[k].t)||0),...["a","b"].map(k=>Math.max((r.otdr&&r.otdr[k]&&r.otdr[k].t)||0,(r.iolm&&r.iolm[k]&&r.iolm[k].t)||0))); }
+  const SWORD={straight:"Straight",confirmed:"Confirmed",cross:"Crossed",flip:"Flipped",dis:"Dis.",unres:"Not found"};
+  const median=xs=>{ const v=xs.filter(x=>x!=null).sort((a,b)=>a-b); return v.length?v[(v.length-1)>>1]:null; };
+  function cellClass(r, med){
+    if(FB.mode==="cont"){ const c=contOf(r); return c?({straight:"ok",cross:"cross",flip:"flip",dis:"dis",unres:"unres"}[c.state]||""):""; }
+    if(FB.mode==="loss"){ const l=loss1550(r); if(l==null||med==null) return ""; const d=l-med; return d>1.5?"l2":d>0.5?"l1":"l0"; }
+    const t=lastT(r); if(!t) return ""; const days=(Date.now()/1000-t)/86400; return days<1?"a0":days<7?"a1":"a2";
+  }
+  async function openFibres(){ $("fCable").value=FB.stem; if(!FB.data||FB.data.stem!==FB.stem) await loadFibres(); else paintFibres(); }
+  async function loadFibres(force){
+    $("fGrid").innerHTML="<span class='note'>Reading results…</span>"; $("fStats").innerHTML="";
+    try{ FB.data=await relay("/api/fibres",{stem:FB.stem, refresh:!!force}); }
+    catch(e){ if(quiet(e)) return; $("fGrid").innerHTML=`<div class="warnbox">Could not read the results: ${esc(e.message)}</div>`; return; }
+    if(!FB.sel){ const first=FB.data.fibres.find(r=>contOf(r)&&contOf(r).state!=="straight"); FB.sel=first?first.f:1; }
+    paintFibres(); showFibre(FB.sel);
+  }
+  function paintFibres(){
+    const d=FB.data; if(!d) return;
+    document.querySelectorAll("[data-fm]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.fm===FB.mode)));
+    const rows=d.fibres, med=median(rows.map(loss1550)), cont=rows.map(contOf);
+    const n=k=>cont.filter(c=>c&&c.state===k).length, tested=cont.filter(Boolean).length;
+    const lens=[]; rows.forEach(r=>["a","b"].forEach(k=>{ const x=(r.iolm&&r.iolm[k]&&r.iolm[k].len)||(r.otdr&&r.otdr[k]&&r.otdr[k].len); if(x) lens.push(+x); }));
+    const cap=t=>t?t[0].toUpperCase()+t.slice(1):t;
+    const stat=(lbl,v,sub)=>`<div class="lstat panel"><span class="lbl">${lbl}</span><b>${v}</b><span class="note">${cap(sub||"")}</span></div>`;
+    $("fStats").innerHTML=stat("Continuity tested",tested,`of ${rows.length} fibres`)+stat("Straight",n("straight"),"latest E2E or Uni-dir")+stat("Flipped",n("flip"),n("flip")?"F1 to F12, F12 to F1":"none")+stat("Crossed",n("cross"),n("cross")?"see the amber fibres":"none")
+      +stat("Dis.",n("dis"),n("dis")?"see the red fibres":"none")+stat("Typical length",lens.length?km(median(lens)):"–",lens.length?lens.length+" OTDR / iOLM readings":"no OTDR or iOLM yet")
+      +stat("Typical loss 1550",med==null?"–":db(med)+" dB",med==null?"":"iOLM, or OTDR where no iOLM");
+    const head=`<span></span>${[...Array(12)].map((_,i)=>`<span class="hd">${i+1}</span>`).join("")}<span></span>`;
+    let html=head;
+    for(let rb=1; rb<=Math.ceil(rows.length/12); rb++){
+      const rr=rows.slice((rb-1)*12, rb*12), cs=rr.map(contOf);
+      const bad=cs.filter(c=>c&&c.state!=="straight").length, ok=cs.filter(c=>c&&c.state==="straight").length, fl=cs.filter(c=>c&&c.state==="flip").length;
+      const sum=fl===rr.length?"ribbon flipped":bad?`${bad} to check`:ok===rr.length?"all straight":ok?`${ok} straight`:"not tested";
+      html+=`<span class="rl">R${rb}</span>`+rr.map(r=>{ const c=contOf(r), l=loss1550(r);
+        const tip=`${fNum(r.f)} (R${rb} F${posOf(r.f)})`+(c?` · ${c.src} ${c.state}${c.found?" to "+fNum(c.found):""} ${ago(c.t)}`:" · no continuity yet")+(l!=null?` · ${db(l)} dB at 1550`:"");
+        const flag=FB.mode!=="cont"&&c&&c.state!=="straight"?'<i class="dot2"></i>':"";
+        return `<button type="button" class="fc ${cellClass(r,med)}${FB.hits.includes(r.f)?" hit":""}" data-f="${r.f}" aria-pressed="${r.f===FB.sel}" title="${esc(tip)}">${posOf(r.f)}${flag}</button>`; }).join("")
+        +`<span class="rs" title="${esc(cap(sum))}">${esc(cap(sum))}</span>`;
+    }
+    $("fGrid").innerHTML=html;
+    $("fGrid").querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>showFibre(+b.dataset.f));
+    const k=(c,t)=>`<span><i class="fc ${c}" style="display:inline-block;height:12px"></i>${t}</span>`;
+    $("fKey").innerHTML=FB.mode==="cont"?k("ok","Straight")+k("flip","Flipped (F1 to F12)")+k("cross","Crossed")+k("dis","Dis.")+k("unres","Not found")+k("","Not tested")
+      : FB.mode==="loss"?k("l0","Within 0.5 dB of typical")+k("l1","0.5 to 1.5 dB higher")+k("l2","More than 1.5 dB higher")+k("","No reading")+"<span>Red dot: continuity problem</span>"
+      : k("a0","Today")+k("a1","This week")+k("a2","Older")+k("","Never");
+    $("fNote").textContent=(d.notes&&d.notes.length?d.notes.join(" "):"Latest result for every fibre, from both ends. Click a fibre for its detail and history.")+(d.updated?` Read ${ago(d.updated)==="today"?new Date(d.updated*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):ago(d.updated)}.`:"");
+  }
+  async function showFibre(f){
+    FB.sel=f; const d=FB.data; if(!d) return; const r=d.fibres.find(x=>x.f===f); if(!r) return;
+    $("fGrid").querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.f===f)));
+    const ends=d.ends||[], nm=i=>ends[i]?esc(ends[i].short):(i?"B end":"A end"), c=contOf(r);
+    const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
+    let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
+    h+=`<h4>Continuity</h4><div style="margin-bottom:6px">${ctag}</div>`;
+    if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
+    if(r.uni) h+=`<div class="kv"><span>Uni-dir</span><span>${esc(SWORD[r.uni.state]||r.uni.state)}${r.uni.location?" at "+esc(r.uni.location):""} · ${esc(nice(r.uni.by||""))} · ${when(r.uni.t)}</span></div>`;
+    if(!r.e2e&&!r.uni) h+=`<p class="note">No E2E or Uni-dir result on this fibre yet.</p>`;
+    const ia=r.iolm&&r.iolm.a, ib=r.iolm&&r.iolm.b;
+    h+=`<h4>iOLM loss (dB)</h4>`;
+    if(ia||ib){
+      const wls=["1310","1550","1625"].filter(w=>(ia&&ia.loss&&ia.loss[w]!=null)||(ib&&ib.loss&&ib.loss[w]!=null));
+      const cell=(x,w)=>x&&x.loss&&x.loss[w]!=null?db(x.loss[w]):"–";
+      h+=`<table><tr><th>From</th>${wls.map(w=>`<th>${w}</th>`).join("")}<th>Length</th></tr>`
+        +[[ia,0],[ib,1]].map(([x,i])=>`<tr><td>${nm(i)}${x&&x.verdict?` <span class="tag ${x.verdict==="Pass"?"ok":"bad"}">${esc(x.verdict)}</span>`:""}</td>${wls.map(w=>`<td>${cell(x,w)}</td>`).join("")}<td>${x?km(x.len):"–"}</td></tr>`).join("")
+        +(ia&&ib?`<tr class="avg"><td>Both ways</td>${wls.map(w=>{ const a=ia.loss&&ia.loss[w], b=ib.loss&&ib.loss[w]; return `<td>${a!=null&&b!=null?db((+a + +b)/2):"–"}</td>`; }).join("")}<td></td></tr>`:"")+`</table>`
+        +`<p class="note" style="margin:6px 0 0">${[ia&&`${nm(0)} ${when(ia.t)}`,ib&&`${nm(1)} ${when(ib.t)}`].filter(Boolean).join(" · ")}${ia&&ib?". Both ways is the average of the two ends, which cancels the one way splice errors.":". Test from the other end too for a both ways figure."}</p>`;
+    } else h+=`<p class="note">No iOLM on this fibre yet.</p>`;
+    const oa=r.otdr&&r.otdr.a, ob=r.otdr&&r.otdr.b;
+    h+=`<h4>OTDR</h4>`;
+    if(oa||ob) h+=`<table><tr><th>From</th><th>Length</th><th>Loss</th><th>When</th></tr>`+[[oa,0],[ob,1]].map(([x,i])=>`<tr><td>${nm(i)}</td><td>${x?km(x.len):"–"}</td><td>${x?db(x.loss)+(x.wl?` <span class="note">@${x.wl}</span>`:""):"–"}</td><td>${x?when(x.t):"–"}</td></tr>`).join("")+`</table>`;
+    else h+=`<p class="note">No OTDR on this fibre yet.</p>`;
+    h+=`<h4>History</h4><ul class="fhist" id="fHist"><li><span class="note">Reading…</span></li></ul>`;
+    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${ends.map(e=>`<button class="btn" type="button" data-open="${esc(e.rtu)}">Open ${esc(e.short)}</button>`).join("")}<button class="btn" type="button" id="fCopy">Copy name</button></div>`;
+    $("fDet").innerHTML=h;
+    $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
+    $("fCopy").onclick=()=>{ try{ navigator.clipboard.writeText(d.stem+"-"+fNum(f)); toast("Copied "+d.stem+"-"+fNum(f)); }catch(e){} };
+    const key=d.stem+"|"+f;
+    try{ if(!FB.det[key]) FB.det[key]=await relay("/api/fibre",{stem:d.stem,fibre:f}); }
+    catch(e){ if(quiet(e)) return; if(FB.sel===f) $("fHist").innerHTML=`<li><span class="note">History not available: ${esc(e.message)}</span></li>`; return; }
+    if(FB.sel!==f) return;
+    const hs=FB.det[key].history||[];
+    $("fHist").innerHTML=hs.length?hs.map(x=>`<li><span class="t">${when(x.t)}</span><span><b>${esc(x.type)}</b>${x.end?" from "+esc(x.end):""}: ${esc(x.summary)}${x.by?` <span class="note">${esc(nice(x.by))}</span>`:""}</span></li>`).join(""):`<li><span class="note">Nothing recorded on this fibre.</span></li>`;
+  }
+  // fibre lookup: F123, 123, R11 F3, RGAC 123, F-RGAC-SNBC-A-R432-F123
+  function parseFind(q){
+    q=String(q||"").toUpperCase().trim(); if(!q) return null;
+    let stem=null; const full=q.match(/(F-[A-Z0-9]+-[A-Z0-9]+-[A-Z])(-R\d+)?-F(\d{1,3})$/);
+    if(full){ stem=STEMS.map(x=>x[0]).find(k=>k.startsWith(full[1])); return stem?{stem, f:+full[3]}:null; }
+    const rf=q.match(/R\s*(\d{1,2})\D+(\d{1,2})$/); let f=null;
+    if(rf) f=(+rf[1]-1)*12 + +rf[2]; else { const m=q.match(/(\d{1,3})\s*$/); if(m) f=+m[1]; }
+    if(!f||f<1||f>432) return null;
+    const node=q.match(/\b([A-Z]{3,4}|\d{4})\b/);
+    if(node){ const k=STEMS.map(x=>x[0]).find(k=>k.split("-").slice(1,3).includes(node[1].replace(/\d$/,""))||k.split("-").slice(1,3).includes(node[1])); if(k) stem=k; }
+    return {stem:stem||FB.stem, f};
+  }
+  $("fFind").onkeydown=async e=>{
+    if(e.key!=="Enter") return;
+    const hit=parseFind($("fFind").value);
+    if(!hit){ toast("Type a fibre number, for example F123, R11 F3 or RGAC 123."); return; }
+    if(hit.stem!==FB.stem){ FB.stem=hit.stem; $("fCable").value=hit.stem; jset("rft.fib.stem",hit.stem); FB.sel=hit.f; await loadFibres(); }
+    FB.hits=[hit.f]; paintFibres(); showFibre(hit.f);
+    const b=$("fGrid").querySelector(`[data-f="${hit.f}"]`); if(b) b.scrollIntoView({block:"center",behavior:"smooth"});
+  };
 
   // ── v35: notifications (Web Push from the relay, see push.js) ──
   let watches=[];
@@ -1776,7 +1993,7 @@
     try{ const a=await relay("/api/desktop/access",{}); if(!a.allowed){ showBlocked(); return; } }
     catch(e){ if(quiet(e)) return; if(e.status===404){ showBlocked("This service is too old for the desktop console (needs v27)."); return; } }
     $("signin").hidden=true; $("blocked").hidden=true; $("app").hidden=false;
-    $("who").textContent=session.user;
+    $("who").textContent=session.user; $("signOut").title="Sign out "+session.user;
     if(window.RFTPush) RFTPush.resync().then(paintAlerts);
     renderSide(); renderMain(); screen="console"; showTab(["tasks","bulk","e2e","uni"].includes(tab)?tab:"tasks");
     setScreen("live");                 // v34: Live is the landing screen

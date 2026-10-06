@@ -787,7 +787,7 @@
       </div>
       <div class="row2" style="margin-top:10px;">
         <select id="hiDays" style="flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px; font-size:.82rem;">
-          <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option>
+          <option value="0" selected>Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option>
         </select>
         <button class="btn-wide" id="hiReload" style="flex:0 0 auto; padding:8px 14px;">Refresh</button>
         <button class="btn-wide" id="hiCsv" style="flex:0 0 auto; padding:8px 14px;">CSV</button>
@@ -928,8 +928,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v35";
+const APP_VERSION="v36";
 const APP_VERSIONS=[
+  ["v36","7 Oct 2026","Run history opens on Today, which loads in a second or two; pick 7, 30 or 90 days for more. The last list shows at once while it refreshes."],
   ["v35","7 Oct 2026","Notifications on your phone or browser, even with the app closed: when your E2E run or FMS Task ends, when a busy RTU is free, and when FMS stops answering during your run. Turn on under Alerts on the start screen. On iPhone add the app to the Home Screen first. Needs service v30."],
   ["v34","6 Oct 2026","Light or Dark glass (switch on the start screen). Short RTU names. A No signal banner when the connection drops. Your Uni-dir progress shows on the desktop Live screen. Needs service v29."],
   ["v33","6 Oct 2026","New versions show on the next open (no more stale screens). Glass look a little richer. Desktop shows its version on the sign in page."],
@@ -2344,7 +2345,7 @@ let crosses={};                              // index -> "crossed with ..."
   }
   function paint(){
     const f=filtered();
-    $("hiSub").textContent=f.length+" of "+rows.length+" in the last "+$("hiDays").value+" days";
+    $("hiSub").textContent=f.length+" of "+rows.length+(+$("hiDays").value?" in the last "+$("hiDays").value+" days":" today");
     $("hiList").innerHTML=f.map((r,i)=>'<div class="hist-row" data-i="'+i+'">'
       +'<div class="hist-top"><span class="ty">'+esc(r.type)+'</span><b class="mono">'+esc(r.cable)+'</b><span class="mono">'+esc(r.scope)+'</span>'
       +'<span class="res '+esc(String(r.result).split(" ")[0])+'">'+esc(r.result)+'</span></div>'
@@ -2354,12 +2355,20 @@ let crosses={};                              // index -> "crossed with ..."
       +(r.source==="fms"?'<br>FMS Task '+esc(r.id):'')+'</div></div>').join("")||'<div class="on-empty">No runs match these filters.</div>';
     $("hiList").querySelectorAll(".hist-row").forEach(el=>el.onclick=()=>el.classList.toggle("open"));
   }
+  // v36: opens on Today like the desktop (quickest), shows the last list at once, then refreshes
+  const hiKey=()=>"rft.mhist."+$("hiDays").value;
+  const hiKeep=d=>{ const days=+$("hiDays").value, from=days?0:new Date().setHours(0,0,0,0)/1000;
+    return (d.rows||[]).filter(r=>!from||!r.started||r.started>=from); };
   async function load(){
     if(loading) return; loading=true;
-    $("hiNote").textContent="Loading runs from the log store and FMS…"; $("hiReload").disabled=true;
+    let cached=null; try{ cached=JSON.parse(sessionStorage.getItem(hiKey())||"null"); }catch(e){}
+    if(cached){ rows=hiKeep(cached); fill(); paint(); $("hiNote").textContent="Showing the last list, refreshing…"; }
+    else $("hiNote").textContent="Loading runs from the log store and FMS…";
+    $("hiReload").disabled=true;
     try{
-      const d=await relay("/api/history",{days:+$("hiDays").value, fms:true});
-      rows=d.rows||[]; fill(); paint();
+      const d=await relay("/api/history",{days:+$("hiDays").value||1, fms:true});
+      try{ sessionStorage.setItem(hiKey(),JSON.stringify({rows:d.rows,notes:d.notes})); }catch(e){}
+      rows=hiKeep(d); fill(); paint();
       $("hiNote").textContent=(d.notes||[]).join(" ");
     }catch(e){ $("hiNote").textContent="Could not load the history: "+e.message; if(e.status===401) $("hiNote").textContent+=" Sign in again."; }
     finally{ loading=false; $("hiReload").disabled=false; }
@@ -2379,6 +2388,8 @@ let crosses={};                              // index -> "crossed with ..."
   };
   ["hiType","hiRtu","hiOwner","hiRes"].forEach(id=>$(id).onchange=paint);
   $("hiDays").onchange=()=>{ rows=[]; load(); };
+  // v36: fetch Today in the background soon after the app opens, so Run history shows at once
+  setTimeout(()=>{ try{ if(ses().id && !sessionStorage.getItem("rft.mhist.0")) relay("/api/history",{days:1,fms:true}).then(d=>{ try{ sessionStorage.setItem("rft.mhist.0",JSON.stringify({rows:d.rows,notes:d.notes})); }catch(e){} }).catch(()=>{}); }catch(e){} },6000);
   $("hiReload").onclick=load; $("hiCsv").onclick=csv;
   $("hiBack").onclick=()=>{ if(window.gotoMode) window.gotoMode(); };
 })();

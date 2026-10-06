@@ -443,6 +443,14 @@ in one direction.
 
 ---
 
+## v36 — 7 October 2026 — Phone Run history opens on Today, desktop header on one line
+
+App only (relay stays v30). Alkis: the phone Run history started on the last 30 days and took a while to load.
+- Desktop: the header stays on one line on laptop screens (it wrapped once Alerts was added in v35). The new Fibres screen (step 4.3) is in the page but its button stays hidden until the relay serves it (relay v31).
+- Opens on Today (relay asked for 1 day, rows from before midnight dropped), like the desktop since v32. 7, 30 and 90 days still in the list.
+- The last list shows at once on the next open while it refreshes (sessionStorage `rft.mhist.<days>`), and Today is fetched in the background about 6 s after the app opens.
+- Tests: ui_v36m 7.
+
 ## v35 + relay v30 — 7 October 2026 — Notifications on the phone and the browser
 
 Step 4.2. Not Teams: a notification on the device, even with the app closed.
