@@ -793,8 +793,9 @@
   if(window.RFT_EMBED) document.documentElement.classList.add("embed");
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v29";
+const APP_VERSION="v30";
 const APP_VERSIONS=[
+  ["v30","6 Oct 2026","Desktop console (for named accounts only): RTU status lights, Bulk Test builder, Run history. Nothing changes on the phone. Needs service v27."],
   ["v29","6 Oct 2026","Desktop console (desktop.html): pick an RTU to see its bulk Tasks with progress, queue and cancel, and open E2E or Uni-dir for that RTU. On a phone nothing changes. Needs service v26."],
   ["v28","3 Oct 2026","Who is online: a button in the header shows who is signed in, what each is testing, and any test running on an RTU (including FMS bulk tests started by anyone), and E2E warns before starting on a busy RTU. Run history: every E2E run, Uni-dir session and FMS bulk test, filtered by test type, RTU, owner and result, with CSV export. A sound as well as the notification when an E2E run ends. Needs service v25."],
   ["v27","1 Oct 2026","Neos Networks logo on the sign in screen. OTDR checks now use the FMS ad hoc test, so they no longer add a Task per fibre in FMS (needs service v24)."],

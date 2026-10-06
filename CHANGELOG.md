@@ -443,7 +443,26 @@ in one direction.
 
 ---
 
-## v29 (app) + relay v26 — 6 October 2026 — desktop console: RTU modules, Tasks with cancel, bulk start (in progress, not deployed)
+## v30 (app) + relay v27 — 6 October 2026 — desktop lock, RTU lights, Bulk Test builder, Run history
+
+### Relay v27
+- **Desktop lock:** `DESKTOP_USERS` (comma separated emails, default Alkis only; `*` = everyone). `/api/tasks`, `/api/tasks/cancel`, `/api/bulk/plan`, `/api/bulk/start` and `/api/rtus` answer 403 "Desktop console not enabled for your account" to anyone else. `POST /api/desktop/access` says whether the signed in user may use it. The mobile app is not affected.
+- `POST /api/rtus {names:[...]}`: each RTU's FMS attach state (online, attachStatus, site, model), its RtuId and cable stem, from one route of that RTU, cached 60 s.
+- Run history: a cancelled FMS Task (TERMINATED) now reads "Cancelled after X of N" instead of Failed or Pass.
+
+### Desktop
+- **Fix:** live FMS gives a Task only its RtuId (the relay showed "RTU 25179"), so running Tasks never matched an RTU and the lights and Tasks tab stayed empty. Tasks are now matched by RtuId from `/api/rtus`.
+- RTU lights (Alkis's colours): green available, purple testing (FMS bulk Tasks or an E2E run using that RTU at either end), grey offline or not in FMS, hollow grey ring while checking; key below the list; FMS state in the tooltip and next to the RTU name; a note above the list when FMS or the service is not responding.
+- Cables expand and collapse (remembered), with Collapse all / Expand all; a collapsed cable still shows both RTU lights.
+- Header buttons work: Console (RTU tabs), Bulk Test (builder), Run history.
+- **Bulk Test builder:** ribbons, typed ranges (61-72, 80), All / Odd / Even / Clear; OTDR or iOLM; wavelengths 1310 / 1550 / 1625; OTDR duration, automatic or set pulse and range, analysis thresholds; iOLM test limit and Standard / Fast F1 / RTU Connection; comment; time estimate; busy and offline warnings; Check with FMS then Start.
+- FMS was seen running two Tasks on one RTU together, so the Tasks tab shows each as Running or Waiting rather than a strict queue.
+- **Run history:** E2E, Uni-dir and FMS bulk runs (incl. cancelled), filters by result, type, RTU and person, 7 / 30 / 90 days, detail panel, CSV.
+- Shown only to accounts on `DESKTOP_USERS`; others see "Desktop console not enabled" and a link to the mobile app.
+
+---
+
+## v29 (app) + relay v26 — 6 October 2026 — desktop console: RTU modules, Tasks with cancel, bulk start (deployed 6 Oct 2026, app 685f9c7, relay 3e3d062)
 
 ### Relay v26 (`relay_bulk.py`, new)
 - `POST /api/tasks`: every FMS bulk Task RUNNING (from anyone), grouped by RTU (`rtuId`, `rtuName`), in start order with queue position, state (testing / queued / starting), done / testing / waiting and each fibre's state; recent finished Tasks; the relay's cancel records.

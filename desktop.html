@@ -4,108 +4,161 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reach Fibre Tester · Desktop</title>
-<!-- v29, 6 Oct 2026: desktop console, step 1.4 (shell: sign in, header, cables and RTUs, who is online). -->
+<!-- v30, 6 Oct 2026: desktop lock (relay DESKTOP_USERS), RTU online lights with key, collapsible cables,
+     working Console / Bulk Test / Run history, Bulk Test builder, desktop Run history, Tasks matched to
+     RTUs by RtuId (live FMS gives no RTU name for a Task). Needs relay v27.
+     v29: desktop console shell, RTU modules, Tasks with cancel. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ground:#F3F4F1; --surface:#FFFFFF; --line:#D9DCD5; --line2:#E6E8E3;
+    --ground:#F3F4F1; --surface:#FFFFFF; --line:#D9DCD5; --line2:#E6E8E3; --soft:#F6F7F4;
     --ink:#15191E; --muted:#545B63; --head:#15191E; --head2:#2A3038; --headtext:#C9CED4;
     --brand:#016976; --brand-tint:#E3F1F2;
-    --ok:#2E7D5B; --warn:#B86E0A; --warn-tint:#FBEBD0; --bad:#A61E1E; --bad-tint:#FBEDEC;
+    --ok:#2E7D5B; --ok-tint:#E3F2EA; --warn:#B86E0A; --warn-tint:#FBEBD0; --bad:#A61E1E; --bad-tint:#FBEDEC;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:14px}
   .mono{font-family:"IBM Plex Mono",monospace}
-  button,input{font:inherit}
+  button,input,select,textarea{font:inherit;color:inherit}
   a{color:var(--brand)}
   [hidden]{display:none!important}
-
-  /* sign in */
-  #signin{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:28px;width:100%;max-width:400px}
-  .card h1{margin:12px 0 4px;font-size:22px}
-  .card p{margin:0 0 18px;color:var(--muted)}
-  label{display:block;font-size:13px;font-weight:500;margin:14px 0 6px}
-  input[type=email],input[type=password],input[type=text]{width:100%;min-height:44px;border:1px solid #C4C8C0;border-radius:8px;padding:0 12px;background:#fff;color:var(--ink)}
-  .btn{min-height:44px;padding:10px 18px;border-radius:8px;border:1px solid #C4C8C0;background:#fff;color:var(--ink);cursor:pointer;font-weight:500}
+  .grow{flex:1 1 0}
+  .note{color:var(--muted);font-size:13px}
+  .btn{min-height:40px;padding:8px 16px;border-radius:8px;border:1px solid #C4C8C0;background:#fff;color:var(--ink);cursor:pointer;font-weight:500}
   .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
-  .btn:disabled{opacity:.6;cursor:default}
+  .btn.danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:600}
+  .btn.cancel{color:var(--bad);border-color:#E3B4B0;align-self:flex-start;min-height:36px;padding:6px 14px}
+  .btn:disabled{opacity:.55;cursor:default}
+  label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500}
+  input[type=email],input[type=password],input[type=text],input[type=number],select,textarea{min-height:40px;border:1px solid #C4C8C0;border-radius:8px;padding:0 10px;background:#fff}
   .err{color:var(--bad);min-height:20px;margin-top:10px;font-size:13px}
-  .brandrow{display:flex;align-items:center;gap:10px}
-  .brandrow img{height:30px}
 
-  /* app */
-  header{background:var(--head);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:20px;padding:0 20px;min-height:56px}
+  .center{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:28px;width:100%;max-width:420px}
+  .card h1{margin:12px 0 4px;font-size:22px}
+  .card p{margin:0 0 14px;color:var(--muted)}
+  .brandrow{display:flex;align-items:center;gap:10px}.brandrow img{height:30px}
+
+  header{background:var(--head);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:18px;padding:0 20px;min-height:56px}
   header .logo{height:26px}
   header .title{font-weight:600;font-size:16px}
   header .title small{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:12px;color:var(--headtext);margin-left:6px}
   nav{display:flex;gap:4px;flex-wrap:wrap}
   nav button{background:none;border:0;color:var(--headtext);padding:8px 12px;border-radius:6px;cursor:pointer;min-height:36px}
   nav button[aria-current=page]{background:var(--head2);color:#fff}
-  nav button:disabled{opacity:.45;cursor:default}
-  .grow{flex:1 1 0}
   .pill{display:flex;align-items:center;gap:8px;background:var(--head2);color:#fff;border:0;border-radius:999px;padding:8px 14px;min-height:36px;cursor:pointer}
-  .dot{width:8px;height:8px;border-radius:50%;background:#4FC28B;flex:0 0 auto}
-  .dot.idle{background:#9AA19A}.dot.busy{background:#E3A23B}.dot.off{background:#E5484D}
   .hdrlink{color:var(--headtext);font-size:13px;background:none;border:0;cursor:pointer;text-decoration:underline;padding:6px}
   .who{color:var(--headtext)}
   .online{position:absolute;right:20px;top:60px;width:360px;max-width:calc(100vw - 32px);background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:14px;z-index:5}
   .online h3{margin:4px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
   .online .row{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--line2);font-size:13px}
 
+  .dot{width:10px;height:10px;border-radius:50%;background:#9AA19A;flex:0 0 auto;display:inline-block}
+  /* v30: green available, purple testing, grey offline, hollow ring while checking */
+  .dot.on{background:#2FA36B;box-shadow:0 0 0 3px rgba(47,163,107,.18)}
+  .dot.busy{background:#8E44C9;box-shadow:0 0 0 3px rgba(142,68,201,.2)}
+  .dot.off{background:#8A9088}
+  .dot.idle{background:transparent;border:2px solid #8A9088;width:10px;height:10px}
+  .fmsdown{background:var(--warn-tint);color:#6B3F05;border-radius:8px;padding:8px 10px;font-size:12px}
+  .pill .dot{width:8px;height:8px;box-shadow:none;background:#4FC28B}
+
   .layout{display:flex;flex-wrap:wrap;align-items:stretch;min-height:calc(100vh - 56px - 34px)}
-  aside.side{flex:1 1 250px;max-width:100%;background:var(--surface);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:16px}
-  .sect{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-  .cable{margin-bottom:6px}
-  .cable .name{font-weight:600}
-  .cable .pre{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);margin:2px 0 6px}
-  .rtu{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 10px;margin-top:4px;border-radius:8px;border:1px solid transparent;background:#F6F7F4;cursor:pointer;text-align:left;color:var(--ink)}
+  aside.side{flex:1 1 250px;max-width:100%;background:var(--surface);border-right:1px solid var(--line);padding:16px 14px;display:flex;flex-direction:column;gap:10px}
+  .sect{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .sect button{margin-left:auto;font-size:12px;background:none;border:0;color:var(--brand);cursor:pointer;text-transform:none;letter-spacing:0;padding:4px}
+  .cable{border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+  .cablehead{display:flex;align-items:center;gap:8px;width:100%;background:var(--soft);border:0;padding:10px 12px;cursor:pointer;text-align:left;min-height:48px}
+  .cablehead .chev{transition:transform .15s;color:var(--muted);flex:0 0 auto}
+  .cablehead[aria-expanded=false] .chev{transform:rotate(-90deg)}
+  .cablehead .nm{font-weight:600}
+  .cablehead .pre{display:block;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);font-weight:400}
+  .cablehead .sum{margin-left:auto;display:flex;gap:5px}
+  .rtus{padding:6px}
+  .rtu{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 10px;margin-top:2px;border-radius:8px;border:1px solid transparent;background:none;cursor:pointer;text-align:left}
+  .rtu:hover{background:var(--soft)}
   .rtu[aria-pressed=true]{border-color:var(--brand);background:var(--brand-tint)}
   .rtu .site{flex:1 1 0;font-family:"IBM Plex Mono",monospace;font-size:13px}
   .rtu .badge{font-size:12px;color:var(--muted)}
-  main{flex:999 1 560px;min-width:0;padding:24px;display:flex;flex-direction:column;gap:16px}
+  .key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--line2);padding-top:10px;margin-top:4px}
+  .key span{display:flex;align-items:center;gap:6px}
+  main{flex:999 1 560px;min-width:0;padding:22px 24px;display:flex;flex-direction:column;gap:14px}
   .crumb{font-size:12px;color:var(--muted)}
-  h1.rtuname{margin:2px 0 0;font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:600}
+  h1.rtuname{margin:2px 0 0;font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:600;display:flex;align-items:center;gap:10px}
   .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
   .panel h2{margin:0 0 10px;font-size:15px}
-  .task{border:1px solid var(--line2);border-radius:10px;padding:12px 14px;margin-top:10px;display:flex;flex-direction:column;gap:6px}
-  .chip{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;align-self:flex-start}
-  .chip.testing{background:var(--ok);color:#fff}.chip.queued,.chip.starting{background:var(--warn-tint);color:#6B3F05}
-  .bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden}.bar i{display:block;height:6px;background:var(--brand)}
-  .note{color:var(--muted);font-size:13px}
   .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;min-height:44px;cursor:pointer;color:var(--muted);font-weight:500}
   .tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--brand)}
   .tabs .count{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--line2);border-radius:999px;padding:1px 7px;margin-left:6px;color:var(--ink)}
+  .task{border:1px solid var(--line2);border-radius:10px;padding:12px 14px;margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .chip{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;align-self:flex-start;white-space:nowrap}
+  .chip.testing{background:var(--ok);color:#fff}.chip.queued,.chip.starting{background:var(--warn-tint);color:#6B3F05}
+  .bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden}.bar i{display:block;height:6px;background:var(--brand)}
   .confirm{background:var(--bad-tint);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
-  .btn.danger{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:600}
-  .btn.cancel{color:var(--bad);border-color:#E3B4B0;align-self:flex-start;min-height:38px;padding:6px 14px}
   .embedwrap{background:#0c0f14;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
   .embedwrap iframe{display:block;width:100%;height:860px;border:0}
   .embedhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-  .toast{position:fixed;bottom:48px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:9}
+  .toast{position:fixed;bottom:48px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:9;max-width:90vw}
+
+  .bgrid{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+  .bmain{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:14px}
+  .bside{flex:1 1 280px;background:var(--head);color:#fff;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px;position:sticky;top:12px}
+  .bside .big{font-family:"IBM Plex Mono",monospace;font-size:32px}
+  .bside .lbl{color:#AEB5BD;font-size:12px}
+  .ribs{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:4px}
+  .ribs button{min-height:34px;border:1px solid #C4C8C0;border-radius:6px;background:#fff;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:12px;padding:0}
+  .ribs button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+  .ribs button.part{background:var(--brand-tint);border-color:var(--brand)}
+  .seg{display:inline-flex;background:var(--line2);border-radius:8px;padding:3px;flex-wrap:wrap}
+  .seg button{border:0;background:none;border-radius:6px;padding:7px 14px;min-height:34px;cursor:pointer;font-weight:500}
+  .seg button[aria-pressed=true]{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+  .row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+  .chk{display:flex;align-items:center;gap:8px;min-height:40px;cursor:pointer}
+  .chk input{width:18px;height:18px}
+  .warnbox{background:#3A2E17;color:#F6D7A0;border-radius:8px;padding:10px 12px;font-size:13px}
+
+  table.hist{width:100%;border-collapse:collapse;min-width:900px}
+  table.hist th{text-align:left;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:10px 12px;border-bottom:1px solid var(--line);font-weight:600}
+  table.hist td{padding:10px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+  table.hist tr.sel td{background:var(--brand-tint)}
+  table.hist button.lnk{background:none;border:0;padding:0;color:var(--brand);text-decoration:underline;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:13px;text-align:left}
+  .res{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .res.Pass{background:var(--ok-tint);color:#1E5E43}.res.Issues{background:var(--warn-tint);color:#7A4A06}
+  .res.Running{background:#E4ECF9;color:#163F8A}.res.Failed{background:var(--bad-tint);color:#8A1717}
+  .res.Stopped,.res.Cancelled,.res.Part{background:#ECEDEA;color:#3B4148}
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+  .fchip{min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid #C4C8C0;background:#fff;cursor:pointer}
+  .fchip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+
   footer{height:34px;display:flex;align-items:center;gap:16px;padding:0 20px;border-top:1px solid var(--line);background:var(--surface);font-size:12px;color:var(--muted)}
-  @media (max-width:640px){ header{padding:8px 16px} main{padding:16px} .online{right:16px} }
+  @media (max-width:640px){ header{padding:8px 16px} main{padding:16px} .ribs{grid-template-columns:repeat(9,minmax(0,1fr))} .bside{position:static} }
 </style>
 </head>
 <body>
 
-<section id="signin" hidden>
+<section id="signin" class="center" hidden>
   <form class="card" id="loginForm" autocomplete="on">
     <div class="brandrow"><img src="logo.png" alt="Motion"><img src="neos-logo.svg" alt="Neos Networks"></div>
     <h1>Reach Fibre Tester</h1>
     <p>Desktop console. Sign in with your FMS account.</p>
-    <label for="user">FMS username (email)</label>
-    <input id="user" type="email" autocomplete="username" required>
-    <label for="pass">Password</label>
-    <input id="pass" type="password" autocomplete="current-password" required>
+    <label class="f" for="user">FMS username (email)<input id="user" type="email" autocomplete="username" required></label>
+    <label class="f" for="pass" style="margin-top:12px">Password<input id="pass" type="password" autocomplete="current-password" required></label>
     <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
       <button class="btn primary" id="loginBtn" type="submit">Sign in</button>
-      <a class="btn" href="index.html?view=mobile" style="text-decoration:none;display:inline-flex;align-items:center">Mobile app</a>
+      <a class="btn" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">Mobile app</a>
     </div>
     <div class="err" id="loginErr" role="alert"></div>
   </form>
+</section>
+
+<section id="blocked" class="center" hidden>
+  <div class="card">
+    <div class="brandrow"><img src="logo.png" alt="Motion"></div>
+    <h1>Desktop console not enabled</h1>
+    <p id="blockedMsg">The desktop console is not enabled for your account. Use the mobile app.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn primary" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">Open the mobile app</a><button class="btn" id="blockedOut">Sign out</button></div>
+  </div>
 </section>
 
 <section id="app" hidden>
@@ -113,12 +166,12 @@
     <img class="logo" src="logo-light.png" alt="Motion">
     <div class="title">Reach Fibre Tester<small>desktop</small></div>
     <nav aria-label="Screens">
-      <button aria-current="page">Console</button>
-      <button disabled title="Step 1.6">Bulk Test</button>
-      <button disabled title="Step 1.7">Run history</button>
+      <button data-nav="console">Console</button>
+      <button data-nav="bulk">Bulk Test</button>
+      <button data-nav="history">Run history</button>
     </nav>
     <span class="grow"></span>
-    <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot" id="onlineDot"></span><span id="onlineText">connecting…</span></button>
+    <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
     <span class="who" id="who"></span>
     <button class="hdrlink" id="mobileBtn">Mobile view</button>
     <button class="hdrlink" id="signOut">Sign out</button>
@@ -126,14 +179,23 @@
   <div class="online" id="onlinePanel" hidden></div>
 
   <div class="layout">
-    <aside class="side" aria-label="Cables and RTUs">
-      <div class="sect">Cables and RTUs</div>
-      <div id="cables"></div>
+    <aside class="side" id="side" aria-label="Cables and RTUs">
+      <div class="sect">Cables and RTUs <button id="toggleAll" type="button">Collapse all</button></div>
+      <div class="fmsdown" id="fmsDown" role="status" hidden>FMS is not responding, so these lights may be out of date.</div>
+      <div id="cables" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div class="key" aria-label="Key">
+        <span><span class="dot on"></span>Available</span>
+        <span><span class="dot busy"></span>Testing</span>
+        <span><span class="dot off"></span>Offline</span>
+        <span><span class="dot idle"></span>Checking</span>
+      </div>
     </aside>
-    <main>
+
+    <main id="screen-console">
       <div>
         <div class="crumb" id="crumb"></div>
-        <h1 class="rtuname" id="rtuName"></h1>
+        <h1 class="rtuname"><span class="dot" id="rtuDot"></span><span id="rtuName"></span></h1>
+        <div class="note" id="rtuState"></div>
       </div>
       <div class="tabs" role="tablist" aria-label="Modules for this RTU">
         <button role="tab" id="tab-tasks" aria-controls="pane-tasks" data-tab="tasks">Tasks<span class="count" id="taskCount">0</span></button>
@@ -141,16 +203,88 @@
         <button role="tab" id="tab-e2e" aria-controls="pane-e2e" data-tab="e2e">E2E Continuity</button>
         <button role="tab" id="tab-uni" aria-controls="pane-uni" data-tab="uni">Tone (Uni-dir)</button>
       </div>
+
       <section class="panel" role="tabpanel" id="pane-tasks" aria-labelledby="tab-tasks" aria-live="polite">
         <h2>Bulk Tasks on this RTU</h2>
         <div id="tasks" class="note">Loading…</div>
-        <p class="note" style="margin:12px 0 0">Tests started with Test On Demand in FMS create no Task and cannot be seen here. A cancelled Task drops off the FMS Tasks page; the relay keeps a record.</p>
+        <p class="note" style="margin:12px 0 0">Tests started with Test On Demand in FMS create no Task and cannot be seen here. A cancelled Task drops off the FMS Tasks page; it stays in Run history here.</p>
         <div id="cancelledList"></div>
       </section>
-      <section class="panel" role="tabpanel" id="pane-bulk" aria-labelledby="tab-bulk" hidden>
-        <h2>Bulk Test</h2>
-        <div class="note">The Bulk Test builder for this RTU arrives in the next step (fibre pickers, OTDR and iOLM settings, time estimate, start).</div>
+
+      <section role="tabpanel" id="pane-bulk" aria-labelledby="tab-bulk" hidden>
+        <div class="bgrid">
+          <div class="bmain">
+            <section class="panel">
+              <h2>1 · Fibres on <span class="mono" id="bStem">…</span></h2>
+              <div class="row" style="margin-bottom:10px">
+                <div class="seg" role="group" aria-label="Quick picks">
+                  <button type="button" data-q="all">All 432</button><button type="button" data-q="odd">Odd</button><button type="button" data-q="even">Even</button><button type="button" data-q="clear">Clear</button>
+                </div>
+                <label class="f grow" style="min-width:220px">Fibres (e.g. 61-72, 80)<input type="text" id="bFibres" placeholder="61-72"></label>
+              </div>
+              <div class="note" style="margin-bottom:6px">Ribbons (click to add or remove all 12 fibres)</div>
+              <div class="ribs" id="bRibs"></div>
+              <div class="note" id="bFibreSum" style="margin-top:8px"></div>
+            </section>
+            <section class="panel">
+              <h2>2 · Test</h2>
+              <div class="row">
+                <div class="seg" role="group" aria-label="Test type"><button type="button" data-kind="otdr">OTDR</button><button type="button" data-kind="iolm">iOLM</button></div>
+                <div><div class="note" style="margin-bottom:6px">Wavelengths</div><div class="seg" role="group" aria-label="Wavelengths" id="bWls"></div></div>
+              </div>
+              <p class="note" id="bWlNote" style="margin:8px 0 0"></p>
+              <div id="bOtdr" style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+                <div class="row">
+                  <label class="f">Duration (s)<input type="number" id="bDur" min="1" max="600" value="5" style="width:110px"></label>
+                  <label class="chk"><input type="checkbox" id="bAuto" checked> Automatic pulse and range</label>
+                </div>
+                <div class="row" id="bManual" hidden>
+                  <label class="f">Pulse<select id="bPulse"></select></label>
+                  <label class="f">Range (km)<input type="number" id="bRange" min="0.1" max="400" step="0.1" style="width:120px"></label>
+                  <span class="note">About 1.5 to 2 times the fibre length (Reading to Swindon is about 68 km).</span>
+                </div>
+                <details><summary style="cursor:pointer;min-height:32px">Analysis settings</summary>
+                  <div class="row" style="margin-top:10px">
+                    <label class="f">Splice loss (dB)<input type="number" id="bSplice" step="0.01" value="0.02" style="width:110px"></label>
+                    <label class="f">Reflectance (dB)<input type="number" id="bRefl" step="1" value="-72" style="width:110px"></label>
+                    <label class="f">End of fibre (dB)<input type="number" id="bEof" step="0.5" value="4" style="width:110px"></label>
+                  </div>
+                </details>
+              </div>
+              <div id="bIolm" style="margin-top:12px" hidden>
+                <div class="row">
+                  <label class="f">Test limit<select id="bConfig">
+                    <option value="28898">iOLM Motion NRS-304</option><option value="21246">iOLM Motion NRS-303</option>
+                    <option value="1">AdHoc iOLM</option><option value="11122">AdHoc iOLM_copy</option>
+                    <option value="28839">AdHoc iOLM_IOR HCOMM 1 - Connector Loss</option><option value="11123">AdHoc iOLM_IOR HCOMM 2</option>
+                    <option value="21297">AdHoc iOLM_Telent</option></select></label>
+                  <div><div class="note" style="margin-bottom:6px">Acquisition</div><div class="seg" role="group" aria-label="iOLM acquisition" id="bModes"></div></div>
+                </div>
+              </div>
+            </section>
+            <section class="panel">
+              <h2>3 · Comment</h2>
+              <label class="f">Shown on the FMS Tasks page<input type="text" id="bComment" maxlength="120" placeholder="e.g. Post remedial R6"></label>
+            </section>
+          </div>
+          <aside class="bside" aria-live="polite">
+            <div class="lbl">PREVIEW</div>
+            <div class="big" id="bEst">–</div>
+            <div class="note" style="color:#C9CED4" id="bEstNote"></div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;font-size:13px">
+              <div><div class="lbl">Fibres</div><div class="mono" id="bN">0</div></div>
+              <div><div class="lbl">FMS Tasks</div><div class="mono" id="bT">0</div></div>
+              <div><div class="lbl">RTU</div><div class="mono" id="bRtu">–</div></div>
+              <div><div class="lbl">Already on this RTU</div><div class="mono" id="bQ">–</div></div>
+            </div>
+            <div id="bBusy"></div>
+            <button class="btn" id="bPlan" type="button" style="background:#2A3038;border-color:#2A3038;color:#fff">Check with FMS</button>
+            <button class="btn primary" id="bStart" type="button" disabled>Start</button>
+            <div class="note" style="color:#AEB5BD">You can cancel at any point from the Tasks tab.</div>
+          </aside>
+        </div>
       </section>
+
       <section role="tabpanel" id="pane-e2e" aria-labelledby="tab-e2e" hidden>
         <div class="embedhead"><span class="note" id="e2eNote"></span><button class="btn" data-reload="e2e">Reload</button></div>
         <div class="embedwrap" style="margin-top:10px"><iframe id="frame-e2e" title="E2E Continuity for this RTU"></iframe></div>
@@ -160,16 +294,36 @@
         <div class="embedwrap" style="margin-top:10px"><iframe id="frame-uni" title="Tone (Uni-dir) for this RTU"></iframe></div>
       </section>
     </main>
+
+    <main id="screen-history" hidden>
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px">
+        <h1 style="margin:0;font-size:24px" class="grow">Run history</h1>
+        <label class="f">Period<select id="hDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label>
+        <button class="btn" id="hCsv">Export CSV</button>
+      </div>
+      <div class="filters">
+        <div role="group" aria-label="Result" id="hResults" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        <span class="grow"></span>
+        <label class="f">Type<select id="hType"><option value="">All types</option></select></label>
+        <label class="f">RTU<select id="hRtu"><option value="">All RTUs</option></select></label>
+        <label class="f">Who<select id="hOwner"><option value="">Everyone</option></select></label>
+      </div>
+      <div class="bgrid">
+        <section class="panel" style="flex:999 1 640px;min-width:0;padding:0;overflow-x:auto">
+          <table class="hist"><thead><tr><th>Started</th><th>Type</th><th>RTU</th><th>Cable</th><th>Scope</th><th>Who</th><th>Result</th><th>Time</th></tr></thead><tbody id="hRows"></tbody></table>
+          <div class="note" id="hNote" style="padding:14px"></div>
+        </section>
+        <section class="panel" style="flex:1 1 300px" id="hDetail"><h2>Run detail</h2><div class="note">Pick a run.</div></section>
+      </div>
+    </main>
   </div>
-  <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span>desktop v29</span></footer>
+  <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span id="appv">desktop</span></footer>
 </section>
 
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v29";
-  // Relay: the live one by default. For a local check open desktop.html?relay=http://127.0.0.1:8770
-  // (remembered for this browser tab only).
+  const APP_VERSION="v30";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -179,13 +333,13 @@
   const $=id=>document.getElementById(id);
   const nice=n=>String(n||"").split(/\s+/).map(w=>w?w[0].toUpperCase()+w.slice(1):w).join(" ");
   const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-  const SES="toneTester.session";               // shared with the mobile app: one sign in for both
+  const SES="toneTester.session";
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
   let session=jget(SES,{id:"",user:""})||{id:"",user:""};
   const DEFAULT_USER="alkis.kardasopoulos@motionrail.co.uk";
+  $("appv").textContent="desktop "+APP_VERSION;
 
-  // Cables and the RTU at each end (rtu-cable-topology.md, 20 Aug 2026)
   const CABLES=[
     {name:"Slough to Reading", pre:"F-0057-RGAC", rtus:[["0057","RTU2-0057-1991132"],["RGAC","RTU2-RGAC-1991133"]]},
     {name:"Reading to Swindon", pre:"F-RGAC-SNBC", rtus:[["RGAC2","RTU2-RGAC2-1991133"],["SNBC","RTU2-SNBC-1991132"]]},
@@ -193,7 +347,8 @@
     {name:"Stoke Gifford to Cardiff", pre:"F-0001-SGIC", rtus:[["SGIC2","RTU2-SGIC-2026965"],["0001","RTU2-0001-2026282"]]}
   ];
   let selected=jget("rft.desktop.rtu","RTU2-RGAC2-1991133");
-  let tasksData=null, timers=[];
+  let collapsed=jget("rft.desktop.collapsed",{});
+  let tasksData=null, timers=[], rtuState={}, screen="console";
 
   async function relay(path, body){
     const h={"Content-Type":"application/json","X-App-Key":KEY};
@@ -201,18 +356,28 @@
     const r=await fetch(RELAY+path,{method:"POST",headers:h,body:JSON.stringify(body||{})});
     let d={}; try{d=await r.json();}catch(e){}
     if(r.status===401){ signedOut("Your session ended. Sign in again."); throw new Error("signed out"); }
-    if(!r.ok) throw new Error(d.detail||("HTTP "+r.status));
+    if(r.status===403 && /Desktop console/.test(d.detail||"")){ showBlocked(d.detail); throw new Error("blocked"); }
+    if(!r.ok){ const e=new Error(d.detail||("HTTP "+r.status)); e.status=r.status; throw e; }
     return d;
   }
+  const quiet=e=>e && (e.message==="signed out"||e.message==="blocked");
+  function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),5000); }
 
-  // ── sign in ──
+  // ── sign in, lock ──
+  function stopTimers(){ timers.forEach(clearInterval); timers=[]; }
   function signedOut(msg){
-    timers.forEach(clearInterval); timers=[];
+    stopTimers();
     session={id:"",user:""}; jset(SES,session);
-    $("app").hidden=true; $("signin").hidden=false;
+    $("app").hidden=true; $("blocked").hidden=true; $("signin").hidden=false;
     $("loginErr").textContent=msg||"";
     $("user").value=jget("rft.lastUser",DEFAULT_USER); $("pass").value=""; $("pass").focus();
   }
+  function showBlocked(msg){
+    stopTimers();
+    $("app").hidden=true; $("signin").hidden=true; $("blocked").hidden=false;
+    $("blockedMsg").textContent=(msg||"The desktop console is not enabled for your account.")+" Use the mobile app.";
+  }
+  $("blockedOut").onclick=()=>signedOut("");
   $("loginForm").onsubmit=async e=>{
     e.preventDefault();
     $("loginBtn").disabled=true; $("loginErr").textContent="";
@@ -222,69 +387,140 @@
       session={id:d.session_id||"",user}; jset(SES,session); jset("rft.lastUser",user);
       $("pass").value="";
       start();
-    }catch(err){ $("loginErr").textContent=err.message==="signed out"?"Sign in failed.":"Sign in failed: "+err.message; }
+    }catch(err){ if(!quiet(err)) $("loginErr").textContent="Sign in failed: "+err.message; }
     finally{ $("loginBtn").disabled=false; }
   };
   $("signOut").onclick=async()=>{ try{ await relay("/api/presence/leave",{}); }catch(e){} signedOut(""); };
-  $("mobileBtn").onclick=()=>{ location.href="index.html?view=mobile"; };
+  $("mobileBtn").onclick=()=>{ location.href="index.html"; };
 
   // ── who is online ──
   let online=null;
   async function heartbeat(){
     try{
-      const rtu=selected, cab=CABLES.find(c=>c.rtus.some(r=>r[1]===rtu));
-      online=await relay("/api/presence",{screen:"desktop",cable:cab?cab.pre:"",rtu,detail:"Console",appVersion:APP_VERSION});
+      const cab=cableOf(selected);
+      online=await relay("/api/presence",{screen:"desktop",cable:cab?cab.pre:"",rtu:selected,detail:screen,appVersion:APP_VERSION});
       const people=online.people||[], running=(online.runs||[]).length+(online.fmsTasks||[]).filter(t=>!t.error).length;
       $("onlineText").textContent=people.length+" online · "+running+" running";
-      $("onlineDot").className="dot"+(running?" busy":"");
       const me=people.find(p=>p.you); if(me) $("who").textContent=nice(me.name);
-      renderOnline();
-    }catch(e){ if(e.message!=="signed out"){ $("onlineText").textContent="relay unreachable"; $("onlineDot").className="dot off"; } }
+      renderOnline(); renderSide(); renderMain();
+    }catch(e){ if(!quiet(e)) $("onlineText").textContent="relay unreachable"; }
   }
   function renderOnline(){
     if(!online) return;
     const p=online.people||[], runs=online.runs||[], fms=(online.fmsTasks||[]).filter(t=>!t.error);
     $("onlinePanel").innerHTML=
-      "<h3>Signed in now</h3>"+(p.map(x=>`<div class="row"><span class="dot"></span><span style="flex:1"><b>${esc(nice(x.name))}</b>${x.you?" (you)":""}<br><span class="note">${esc(x.screen||"")}${x.rtu?" · "+esc(x.rtu):""}</span></span></div>`).join("")||"<div class='note'>Nobody else</div>")+
+      "<h3>Signed in now</h3>"+(p.map(x=>`<div class="row"><span class="dot on"></span><span style="flex:1"><b>${esc(nice(x.name))}</b>${x.you?" (you)":""}<br><span class="note">${esc(x.screen||"")}${x.rtu?" · "+esc(x.rtu):""}</span></span></div>`).join("")||"<div class='note'>Nobody else</div>")+
       "<h3 style='margin-top:12px'>Running</h3>"+((runs.map(r=>`<div class="row"><span style="flex:1">E2E ${esc(r.cable)} ${esc(r.scope)}<br><span class="note">${esc(r.owner)} · ${esc(r.progress)}</span></span></div>`).join("")+
-        fms.map(t=>`<div class="row"><span style="flex:1">${esc(t.type)} ${esc(t.scope)}<br><span class="note">${esc(t.owner)} · ${esc(t.rtu)} · ${esc(t.progress||"")}</span></span></div>`).join(""))||"<div class='note'>Nothing running</div>");
+        fms.map(t=>`<div class="row"><span style="flex:1">${esc(t.type)} ${esc(t.scope)}<br><span class="note">${esc(t.owner)} · ${esc(rtuLabel(t.rtu))} · ${esc(t.progress||"")}</span></span></div>`).join(""))||"<div class='note'>Nothing running</div>");
   }
   $("onlineBtn").onclick=()=>{ const open=$("onlinePanel").hidden; $("onlinePanel").hidden=!open; $("onlineBtn").setAttribute("aria-expanded",String(open)); };
   document.addEventListener("click",e=>{ if(!$("onlinePanel").hidden && !$("onlinePanel").contains(e.target) && !$("onlineBtn").contains(e.target)){ $("onlinePanel").hidden=true; $("onlineBtn").setAttribute("aria-expanded","false"); } });
 
-  // ── cables, RTUs and their Tasks ──
+  // ── RTUs: ids, lights, collapse ──
+  const cableOf=rtu=>CABLES.find(c=>c.rtus.some(r=>r[1]===rtu));
+  const idOf=name=>{ const st=rtuState[name]; return st&&st.rtuId?String(st.rtuId):""; };
+  // FMS gives a Task only an RtuId; map it to our RTU names with the ids from /api/rtus
+  function nameForId(id){ id=String(id||""); return Object.keys(rtuState).find(n=>idOf(n)===id)||""; }
+  function rtuLabel(x){ const m=String(x||"").match(/^RTU (\d+)$/); return m?(nameForId(m[1])||x):x; }
   function tasksFor(rtuName){
     if(!tasksData) return null;
-    return (tasksData.running||[]).filter(t=>t.rtuName===rtuName).sort((a,b)=>a.position-b.position);
+    const id=idOf(rtuName);
+    return (tasksData.running||[]).filter(t=>(id && String(t.rtuId)===id) || t.rtuName===rtuName).sort((a,b)=>a.started-b.started);
+  }
+  // E2E runs on the relay use both ends of a cable: tone from one RTU, OTDR from the other
+  function e2eOn(full){ return ((online&&online.runs)||[]).filter(r=>(r.rtus||[]).includes(full)); }
+  function light(full){
+    const st=rtuState[full], ts=tasksFor(full), n=ts?ts.length:0, e=e2eOn(full).length;
+    if(!st) return {dot:"idle",word:"checking",badge:""};
+    if(!st.online) return {dot:"off",word:"offline",badge:st.found?"offline":"not in FMS"};
+    if(n||e){ const bits=[]; if(n) bits.push(n+" Task"+(n>1?"s":"")); if(e) bits.push("E2E"); return {dot:"busy",word:"testing",badge:bits.join(" + ")+" running"}; }
+    return {dot:"on",word:"available",badge:"available"};
   }
   function renderSide(){
-    $("cables").innerHTML=CABLES.map(c=>`<div class="cable"><div class="name">${esc(c.name)}</div><div class="pre">${esc(c.pre)}</div>`+
-      c.rtus.map(([site,full])=>{
-        const ts=tasksFor(full), n=ts?ts.length:0;
-        const badge=ts==null?"":n?(n>1?`1 running · ${n-1} queued`:"1 running"):"idle";
-        return `<button class="rtu" data-rtu="${esc(full)}" aria-pressed="${full===selected}"><span class="dot ${n?"busy":"idle"}"></span><span class="site">${esc(site)}</span><span class="badge">${badge}</span></button>`;
-      }).join("")+"</div>").join("");
-    document.querySelectorAll(".rtu").forEach(b=>b.onclick=()=>{ selected=b.dataset.rtu; jset("rft.desktop.rtu",selected); confirming=null; renderSide(); renderMain(); refreshTasks(true); heartbeat(); if(tab==="e2e"||tab==="uni") loadFrame(tab,false); });
+    $("cables").innerHTML=CABLES.map((c,ci)=>{
+      const open=!collapsed[c.pre];
+      const sum=c.rtus.map(([s,f])=>`<span class="dot ${light(f).dot}" title="${esc(s)}: ${light(f).word}"></span>`).join("");
+      return `<div class="cable"><button class="cablehead" type="button" aria-expanded="${open}" aria-controls="rt-${ci}" data-cable="${esc(c.pre)}">
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        <span><span class="nm">${esc(c.name)}</span><span class="pre">${esc(c.pre)}</span></span><span class="sum" aria-hidden="true">${sum}</span></button>
+        <div class="rtus" id="rt-${ci}" ${open?"":"hidden"}>`+
+        c.rtus.map(([site,full])=>{
+          const L=light(full), st=rtuState[full];
+          const tip=!st?"Checking FMS…":(st.found?`FMS: ${st.attachStatus||"unknown"}${st.site?" · "+st.site:""}${st.model?" · "+st.model:""}`:"No routes found for this RTU in FMS");
+          return `<button class="rtu" type="button" data-rtu="${esc(full)}" aria-pressed="${full===selected}" title="${esc(tip)}"><span class="dot ${L.dot}" aria-label="${L.word}"></span><span class="site">${esc(site)}</span><span class="badge">${L.badge}</span></button>`;
+        }).join("")+"</div></div>";
+    }).join("");
+    document.querySelectorAll(".cablehead").forEach(b=>b.onclick=()=>{ const k=b.dataset.cable; collapsed[k]=!collapsed[k]; jset("rft.desktop.collapsed",collapsed); renderSide(); });
+    document.querySelectorAll(".rtu").forEach(b=>b.onclick=()=>pickRtu(b.dataset.rtu));
+    const all=CABLES.every(c=>collapsed[c.pre]);
+    $("toggleAll").textContent=all?"Expand all":"Collapse all";
   }
+  $("toggleAll").onclick=()=>{ const all=CABLES.every(c=>collapsed[c.pre]); CABLES.forEach(c=>collapsed[c.pre]=!all); jset("rft.desktop.collapsed",collapsed); renderSide(); };
+  function pickRtu(r){
+    selected=r; jset("rft.desktop.rtu",selected); confirming=null; planned=null;
+    if(screen==="history") setScreen("console");
+    renderSide(); renderMain(); refreshTasks(true); heartbeat();
+    if(tab==="e2e"||tab==="uni") loadFrame(tab,false);
+    if(tab==="bulk") renderBulk();
+  }
+
+  // ── screens and tabs ──
+  let tab=jget("rft.desktop.tab","tasks"), frameFor={};
+  function setScreen(s){
+    screen=s;
+    $("screen-console").hidden=s==="history"; $("screen-history").hidden=s!=="history";
+    document.querySelectorAll("nav button").forEach(b=>{ const n=b.dataset.nav, cur=(n==="history"&&s==="history")||(n==="bulk"&&s!=="history"&&tab==="bulk")||(n==="console"&&s!=="history"&&tab!=="bulk"); if(cur) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+    if(s==="history") loadHistory();
+  }
+  document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+    const n=b.dataset.nav;
+    if(n==="history") return setScreen("history");
+    screen="console"; showTab(n==="bulk"?"bulk":(tab==="bulk"?"tasks":tab));
+  });
+  function showTab(t){
+    tab=t; jset("rft.desktop.tab",t);
+    document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
+    ["tasks","bulk","e2e","uni"].forEach(k=>$("pane-"+k).hidden=k!==t);
+    if(t==="e2e"||t==="uni") loadFrame(t,false);
+    if(t==="bulk") renderBulk();
+    setScreen(screen==="history"?"console":screen);
+  }
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+  function loadFrame(kind, force){
+    const cab=cableOf(selected); if(!cab) return;
+    const key=selected+"|"+kind;
+    if(frameFor[kind]===key && !force) return;
+    frameFor[kind]=key;
+    const site=cab.rtus.find(r=>r[1]===selected)[0], other=cab.rtus.find(r=>r[1]!==selected)[0];
+    $(kind+"Note").textContent= kind==="e2e" ? `${cab.name}: tone from ${site}, OTDR from ${other}. Swap ends inside if needed.` : `${cab.name}: tone from ${site}. Someone at the far end confirms each fibre.`;
+    const u=new URLSearchParams({embed:"1",mode:kind,cable:cab.pre,rtu:selected});
+    if(RELAY!==LIVE_RELAY) u.set("relay",RELAY);
+    $("frame-"+kind).src="index.html?"+u.toString();
+  }
+  document.querySelectorAll("[data-reload]").forEach(b=>b.onclick=()=>loadFrame(b.dataset.reload,true));
+
+  // ── console: Tasks ──
+  let confirming=null;
   function renderMain(){
-    const cab=CABLES.find(c=>c.rtus.some(r=>r[1]===selected));
-    const site=cab?cab.rtus.find(r=>r[1]===selected)[0]:"";
+    const cab=cableOf(selected), site=cab?cab.rtus.find(r=>r[1]===selected)[0]:"", L=light(selected), st=rtuState[selected];
     $("crumb").textContent=cab?`${cab.name} · ${cab.pre} · ${site} end`:"";
-    $("rtuName").textContent=selected;
+    $("rtuName").textContent=selected; $("rtuDot").className="dot "+L.dot; $("rtuDot").setAttribute("aria-label",L.word);
+    $("rtuState").textContent=st?(st.found?`${nice(L.word)} · FMS ${st.attachStatus||"?"}${st.model?" · "+st.model:""}`:"Not found in FMS"):"Checking FMS…";
     const ts=tasksFor(selected);
     $("taskCount").textContent=ts?ts.length:"…";
-    const mineRtu=(tasksData&&tasksData.cancelled||[]).filter(c=>c.rtuName===selected).slice(0,5);
-    $("cancelledList").innerHTML=mineRtu.length?"<h2 style='margin:16px 0 6px;font-size:14px'>Cancelled recently</h2>"+mineRtu.map(c=>`<div class="note">${new Date(c.cancelled*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})} · ${esc(c.taskKind)} · ${esc(nice(c.owner))}'s Task cancelled by ${esc(nice(c.by))} · ${c.doneBefore} of ${c.total} done</div>`).join(""):"";
+    const id=idOf(selected);
+    const cx=(tasksData&&tasksData.cancelled||[]).filter(c=>(id&&String(c.rtuId)===id)||c.rtuName===selected).slice(0,5);
+    $("cancelledList").innerHTML=cx.length?"<h2 style='margin:16px 0 6px;font-size:14px'>Cancelled recently</h2>"+cx.map(c=>`<div class="note">${new Date(c.cancelled*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})} · ${esc(c.taskKind)} · ${esc(nice(c.owner))}'s Task cancelled by ${esc(nice(c.by))} · ${c.doneBefore} of ${c.total} done</div>`).join(""):"";
     if(ts==null){ $("tasks").innerHTML="<span class='note'>Loading…</span>"; return; }
     if(!ts.length){ $("tasks").innerHTML="<div class='note'>Idle. No bulk Tasks running or queued on this RTU.</div>"; return; }
-    $("tasks").innerHTML=ts.map(t=>{
-      const pct=t.total?Math.round(100*t.done/t.total):0;
-      const left=t.total-t.done, who=nice(t.owner);
+    $("tasks").innerHTML=(ts.length>1?`<div class="note">${ts.length} Tasks on this RTU. FMS works through them together, a fibre at a time between them.</div>`:"")+ts.map(t=>{
+      const pct=t.total?Math.round(100*t.done/t.total):0, left=t.total-t.done, who=nice(t.owner);
+      const chip=t.testing?"Running":"Waiting";
       const ask=confirming===t.id
         ? `<div class="confirm"><div>Cancel ${esc(who)}'s Task? ${t.done?t.done+" finished fibre"+(t.done>1?"s keep their":" keeps its")+" results; ":""}${left} fibre${left>1?"s":""} will not run. It will drop off the FMS Tasks page.</div>
              <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger" data-do="${esc(t.id)}">Cancel Task</button><button class="btn" data-keep="1">Keep running</button></div></div>`
         : `<button class="btn cancel" data-ask="${esc(t.id)}">Cancel…</button>`;
-      return `<div class="task"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="chip ${esc(t.state)}">${t.state==="testing"?"Running":t.state==="queued"?"Queued #"+t.position:"Starting"}</span><span class="note">${esc(t.kind)} · ${esc(t.setting)}</span><span class="grow"></span><span class="note">started ${new Date(t.started*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span></div>
+      return `<div class="task"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="chip ${t.testing?"testing":"queued"}">${chip}</span><span class="note">${esc(t.kind)} · ${esc(t.setting)}</span><span class="grow"></span><span class="note">started ${new Date(t.started*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span></div>
         <b>${esc(who)}</b><span class="note">${esc(t.comment)}</span>
         <div class="bar"><i style="width:${pct}%"></i></div>
         <span class="mono note">${t.done} of ${t.total} done · ${t.testing} testing · ${t.waiting} waiting</span>${ask}</div>`;
@@ -293,66 +529,160 @@
     $("tasks").querySelectorAll("[data-keep]").forEach(b=>b.onclick=()=>{ confirming=null; renderMain(); });
     $("tasks").querySelectorAll("[data-do]").forEach(b=>b.onclick=()=>{ b.disabled=true; b.textContent="Cancelling…"; const t=ts.find(x=>x.id===b.dataset.do); if(t) doCancel(t); });
   }
+  async function doCancel(t){
+    const mine=tasksData && tasksData.me && nice(t.creator).toLowerCase()===nice(tasksData.me.name).toLowerCase();
+    try{ const r=await relay("/api/tasks/cancel",{id:t.id, confirmOwner:mine?"":t.creator}); toast(`Cancelled. ${r.doneBefore} of ${r.total} fibres had finished; the rest will not run.`); }
+    catch(e){ if(!quiet(e)) toast("Not cancelled: "+e.message); }
+    confirming=null; refreshTasks(true);
+  }
   let busy=false;
   async function refreshTasks(force){
     if(busy && !force) return; busy=true;
-    try{
-      tasksData=await relay("/api/tasks",{recent:0});
-      $("updated").textContent="updated "+new Date().toLocaleTimeString("en-GB");
-    }catch(e){ if(e.message!=="signed out") $("updated").textContent="Tasks could not be read: "+e.message; }
-    busy=false; renderSide(); renderMain();
+    try{ tasksData=await relay("/api/tasks",{recent:0}); $("updated").textContent="updated "+new Date().toLocaleTimeString("en-GB"); }
+    catch(e){ if(!quiet(e)) $("updated").textContent="Tasks could not be read: "+e.message; }
+    busy=false; renderSide(); renderMain(); if(tab==="bulk") renderBulkSide();
+  }
+  async function refreshRtus(){
+    try{ const d=await relay("/api/rtus",{names:CABLES.flatMap(c=>c.rtus.map(r=>r[1]))}); rtuState=d.rtus||{}; renderSide(); renderMain(); if(tab==="bulk") renderBulk(); renderOnline(); }
+    catch(e){}
   }
 
-  // ── RTU modules (tabs) ──
-  let tab=jget("rft.desktop.tab","tasks"), frameFor={};
-  function cableOf(rtu){ return CABLES.find(c=>c.rtus.some(r=>r[1]===rtu)); }
-  function showTab(t){
-    tab=t; jset("rft.desktop.tab",t);
-    document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
-    ["tasks","bulk","e2e","uni"].forEach(k=>$("pane-"+k).hidden=k!==t);
-    if(t==="e2e"||t==="uni") loadFrame(t,false);
+  // ── Bulk Test builder ──
+  const PULSES=[[5,"5 ns"],[10,"10 ns"],[30,"30 ns"],[50,"50 ns"],[100,"100 ns"],[275,"275 ns"],[500,"500 ns"],[1000,"1 µs"],[2500,"2.5 µs"],[5000,"5 µs"],[10000,"10 µs"],[20000,"20 µs"]];
+  const MODES=[["standard","Standard iOLM"],["fast","Fast F1 (27dB)"],["rtu","RTU Connection"]];
+  let B=Object.assign({kind:"otdr",wls:[1550],dur:5,auto:true,pulse:1000,range:120,mode:"standard",config:"28898"},jget("rft.desktop.bulk",{}));
+  let fibres=new Set(), planned=null;
+  $("bPulse").innerHTML=PULSES.map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
+  $("bRibs").innerHTML=Array.from({length:36},(_,i)=>`<button type="button" data-r="${i+1}" aria-pressed="false" aria-label="Ribbon ${i+1}">${i+1}</button>`).join("");
+  const saveB=()=>jset("rft.desktop.bulk",B);
+  function fibreText(){
+    const a=[...fibres].sort((x,y)=>x-y), out=[]; let i=0;
+    while(i<a.length){ let j=i; while(j+1<a.length&&a[j+1]===a[j]+1) j++; out.push(i===j?String(a[i]):a[i]+"-"+a[j]); i=j+1; }
+    return out.join(", ");
   }
-  function loadFrame(kind, force){
-    const cab=cableOf(selected); if(!cab) return;
-    const key=selected+"|"+kind;
-    if(frameFor[kind]===key && !force) return;
-    frameFor[kind]=key;
-    const site=cab.rtus.find(r=>r[1]===selected)[0], other=cab.rtus.find(r=>r[1]!==selected)[0];
-    $(kind+"Note").textContent= kind==="e2e"
-      ? `${cab.name}: tone from ${site}, OTDR from ${other}. Swap ends inside if needed.`
-      : `${cab.name}: tone from ${site}. Someone at the far end confirms each fibre.`;
-    const u=new URLSearchParams({embed:"1",mode:kind,cable:cab.pre,rtu:selected});
-    if(RELAY!==LIVE_RELAY) u.set("relay",RELAY);
-    $("frame-"+kind).src="index.html?"+u.toString();
+  function parseFibres(t){
+    const s=new Set();
+    String(t).split(/[,\s]+/).filter(Boolean).forEach(p=>{ const m=p.match(/^F?(\d+)(?:-F?(\d+))?$/i); if(!m) return; let a=+m[1], b=m[2]?+m[2]:a; if(a>b) [a,b]=[b,a]; for(let f=Math.max(1,a);f<=Math.min(432,b);f++) s.add(f); });
+    return s;
   }
-  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
-  document.querySelectorAll("[data-reload]").forEach(b=>b.onclick=()=>loadFrame(b.dataset.reload,true));
+  function changed(){ planned=null; renderBulk(); }
+  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ const k=b.dataset.q; fibres=new Set(); if(k!=="clear") for(let f=1;f<=432;f++) if(k==="all"||(k==="odd"&&f%2)||(k==="even"&&!(f%2))) fibres.add(f); $("bFibres").value=fibreText(); changed(); });
+  $("bRibs").onclick=e=>{ const b=e.target.closest("[data-r]"); if(!b) return; const r=+b.dataset.r, all=[...Array(12)].map((_,i)=>(r-1)*12+i+1), on=all.every(f=>fibres.has(f)); all.forEach(f=>on?fibres.delete(f):fibres.add(f)); $("bFibres").value=fibreText(); changed(); };
+  $("bFibres").oninput=()=>{ fibres=parseFibres($("bFibres").value); planned=null; renderBulk(false); };
+  document.querySelectorAll("[data-kind]").forEach(b=>b.onclick=()=>{ B.kind=b.dataset.kind; saveB(); changed(); });
+  $("bDur").oninput=()=>{ B.dur=Math.max(1,Math.min(600,+$("bDur").value||5)); saveB(); planned=null; renderBulkSide(); };
+  $("bAuto").onchange=()=>{ B.auto=$("bAuto").checked; saveB(); changed(); };
+  $("bPulse").onchange=()=>{ B.pulse=+$("bPulse").value; saveB(); planned=null; renderBulkSide(); };
+  $("bRange").oninput=()=>{ B.range=+$("bRange").value; saveB(); planned=null; renderBulkSide(); };
+  $("bConfig").onchange=()=>{ B.config=$("bConfig").value; saveB(); planned=null; renderBulkSide(); };
+  ["bSplice","bRefl","bEof","bComment"].forEach(id=>$(id).oninput=()=>{ planned=null; renderBulkSide(); });
+  function stem(){ const st=rtuState[selected]; return st&&st.stem?st.stem:null; }
+  function payload(){
+    const b={rtu:selected, cable:stem(), fibres:[...fibres].sort((x,y)=>x-y), kind:B.kind, comment:$("bComment").value.trim()};
+    if(B.kind==="otdr") b.otdr={wavelengths:B.wls, duration:B.dur, auto:B.auto, pulseNs:B.auto?null:B.pulse, rangeKm:B.auto?null:B.range,
+      spliceLoss:+$("bSplice").value, reflectance:+$("bRefl").value, endOfFibre:+$("bEof").value};
+    else b.iolm={wavelengths:B.wls, testConfigId:+B.config, mode:B.mode};
+    return b;
+  }
+  function estimate(){ const n=fibres.size; return B.kind==="otdr"? n*(B.dur+17)*B.wls.length : n*73; }
+  const hms=s=>{ s=Math.round(s); const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return h?`${h} h ${m} min`:m?`${m} min ${x} s`:`${x} s`; };
+  function renderBulk(syncText=true){
+    const st=stem();
+    $("bStem").textContent=st||(rtuState[selected]?"(no routes found for this RTU)":"(finding the cable…)");
+    document.querySelectorAll("[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===B.kind)));
+    $("bWls").innerHTML=[1310,1550,1625].map(w=>`<button type="button" data-wl="${w}" aria-pressed="${B.wls.includes(w)}" class="mono">${w}</button>`).join("");
+    $("bWls").querySelectorAll("[data-wl]").forEach(b=>b.onclick=()=>{ const w=+b.dataset.wl; const s=new Set(B.wls); s.has(w)?s.delete(w):s.add(w); if(!s.size) return; B.wls=[...s].sort(); saveB(); changed(); });
+    $("bWlNote").textContent=B.kind==="otdr"?`FMS fires an OTDR at one wavelength at a time: ${B.wls.length} wavelength${B.wls.length>1?"s":""} = ${B.wls.length} FMS Task${B.wls.length>1?"s":""}.`:"iOLM tests every ticked wavelength in one shot per fibre.";
+    $("bOtdr").hidden=B.kind!=="otdr"; $("bIolm").hidden=B.kind!=="iolm";
+    $("bDur").value=B.dur; $("bAuto").checked=B.auto; $("bManual").hidden=B.auto; $("bPulse").value=B.pulse; $("bRange").value=B.range; $("bConfig").value=B.config;
+    $("bModes").innerHTML=MODES.map(([k,l])=>`<button type="button" data-mode="${k}" aria-pressed="${B.mode===k}">${l}</button>`).join("");
+    $("bModes").querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ B.mode=b.dataset.mode; saveB(); changed(); });
+    document.querySelectorAll("#bRibs [data-r]").forEach(b=>{ const r=+b.dataset.r, all=[...Array(12)].map((_,i)=>(r-1)*12+i+1), n=all.filter(f=>fibres.has(f)).length; b.setAttribute("aria-pressed",String(n===12)); b.classList.toggle("part",n>0&&n<12); });
+    if(syncText && document.activeElement!==$("bFibres")) $("bFibres").value=fibreText();
+    $("bFibreSum").textContent=fibres.size?`${fibres.size} fibre${fibres.size>1?"s":""}: ${fibreText()}`:"No fibres chosen.";
+    renderBulkSide();
+  }
+  function renderBulkSide(){
+    const n=fibres.size, L=light(selected);
+    $("bEst").textContent=n?hms(estimate()):"–";
+    $("bEstNote").textContent=B.kind==="otdr"?`About ${B.dur+17} s per fibre per wavelength (${B.dur} s plus about 17 s overhead, measured 3 Oct).`:(B.mode==="standard"&&B.wls.length===1?"About 73 s per fibre (measured 2 Oct, 1550 Standard).":"About 73 s per fibre as a guide; this mix is not yet measured.");
+    $("bN").textContent=n; $("bT").textContent=B.kind==="otdr"?B.wls.length:(n?1:0);
+    $("bRtu").textContent=(cableOf(selected)||{rtus:[]}).rtus.find(r=>r[1]===selected)?.[0]||"–";
+    const ts=tasksFor(selected)||[];
+    $("bQ").textContent=ts.length?ts.length+" Task"+(ts.length>1?"s":""):"none";
+    let warn="";
+    if(L.dot==="off") warn=`<div class="warnbox">${esc(selected)} is ${L.word}. A test cannot run until FMS reports it attached.</div>`;
+    else if(ts.length) warn=`<div class="warnbox">This RTU is busy: ${ts.map(t=>esc(nice(t.owner))+"'s "+esc(t.kind)+" ("+t.done+"/"+t.total+")").join(", ")}. FMS will share the RTU between them, so everything takes longer.</div>`;
+    if(planned) warn+=`<div class="note" style="color:#9BD3B6">FMS check passed: ${planned.fibres} fibres found on ${esc(selected)}.</div>`;
+    $("bBusy").innerHTML=warn;
+    $("bPlan").disabled=!n||!stem();
+    $("bStart").disabled=!planned;
+    $("bStart").textContent=planned?`Start ${n} fibre${n>1?"s":""}${B.kind==="otdr"&&B.wls.length>1?" × "+B.wls.length+" wavelengths":""}`:"Start (check with FMS first)";
+  }
+  $("bPlan").onclick=async()=>{
+    $("bPlan").disabled=true; $("bPlan").textContent="Checking…";
+    try{ planned=await relay("/api/bulk/plan",payload()); }
+    catch(e){ planned=null; if(!quiet(e)) toast("FMS check failed: "+e.message); }
+    $("bPlan").textContent="Check with FMS"; renderBulkSide();
+  };
+  $("bStart").onclick=async()=>{
+    if(!planned) return;
+    const n=fibres.size;
+    if(!confirm(`Start ${B.kind.toUpperCase()} on ${n} fibre${n>1?"s":""} from ${selected}?\n\nAbout ${hms(estimate())}. ${planned.tasks} FMS Task${planned.tasks>1?"s":""}.`)) return;
+    $("bStart").disabled=true; $("bStart").textContent="Starting…";
+    try{ const r=await relay("/api/bulk/start",payload()); toast(`Started ${r.ids.length} FMS Task${r.ids.length>1?"s":""}. Follow it in the Tasks tab.`); planned=null; showTab("tasks"); refreshTasks(true); }
+    catch(e){ if(!quiet(e)) toast("Not started: "+e.message); renderBulkSide(); }
+  };
 
-  // ── cancel ──
-  let confirming=null;
-  function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),4500); }
-  async function doCancel(t){
-    const mine=tasksData && tasksData.me && nice(t.creator).toLowerCase()===nice(tasksData.me.name).toLowerCase();
+  // ── Run history ──
+  let H={rows:[],res:"",sel:null};
+  const RESULTS=["","Pass","Issues","Part done","Running","Cancelled","Stopped","Failed"];
+  async function loadHistory(){
+    $("hNote").textContent="Loading…"; $("hRows").innerHTML="";
     try{
-      const r=await relay("/api/tasks/cancel",{id:t.id, confirmOwner:mine?"":t.creator});
-      toast(`Cancelled. ${r.doneBefore} of ${r.total} fibres had finished; the rest will not run.`);
-    }catch(e){ if(e.message!=="signed out") toast("Not cancelled: "+e.message); }
-    confirming=null; refreshTasks(true);
+      const d=await relay("/api/history",{days:+$("hDays").value,fms:true});
+      H.rows=(d.rows||[]).map(r=>Object.assign({},r,{rtu:rtuLabel(r.rtu)}));
+      const opts=(id,vals,all)=>{ const cur=$(id).value; $(id).innerHTML=`<option value="">${all}</option>`+[...new Set(vals.filter(Boolean))].sort().map(v=>`<option${v===cur?" selected":""}>${esc(v)}</option>`).join(""); };
+      opts("hType",H.rows.map(r=>r.type),"All types"); opts("hRtu",H.rows.map(r=>r.rtu),"All RTUs"); opts("hOwner",H.rows.map(r=>nice(r.owner)),"Everyone");
+      $("hNote").textContent=(d.notes||[]).join(" ")||`${H.rows.length} runs.`;
+      renderHistory();
+    }catch(e){ if(!quiet(e)) $("hNote").textContent="Could not load history: "+e.message; }
   }
+  function filtered(){ return H.rows.filter(r=>(!H.res||r.result===H.res)&&(!$("hType").value||r.type===$("hType").value)&&(!$("hRtu").value||r.rtu===$("hRtu").value)&&(!$("hOwner").value||nice(r.owner)===$("hOwner").value)); }
+  const when=t=>t?new Date(t*1000).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
+  const took=(a,b)=>(!a||!b)?"":hms(b-a);
+  function renderHistory(){
+    $("hResults").innerHTML=RESULTS.map(r=>`<button class="fchip" type="button" data-res="${r}" aria-pressed="${H.res===r}">${r||"All"}</button>`).join("");
+    $("hResults").querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{ H.res=b.dataset.res; renderHistory(); });
+    const rows=filtered();
+    $("hRows").innerHTML=rows.map((r,i)=>`<tr class="${H.sel===r?"sel":""}"><td><button class="lnk" data-i="${i}">${esc(when(r.started))}</button></td><td>${esc(r.type)}</td><td class="mono">${esc(r.rtu)}</td><td class="mono">${esc(r.cable)}</td><td>${esc(r.scope)}</td><td>${esc(nice(r.owner))}</td><td><span class="res ${esc(String(r.result).split(" ")[0])}">${esc(r.result)}</span></td><td class="mono">${esc(took(r.started,r.ended))}</td></tr>`).join("")||`<tr><td colspan="8" class="note">No runs match.</td></tr>`;
+    $("hRows").querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{ H.sel=rows[+b.dataset.i]; renderHistory(); });
+    const r=H.sel;
+    $("hDetail").innerHTML="<h2>Run detail</h2>"+(r?`<div style="display:flex;flex-direction:column;gap:8px"><b>${esc(r.type)} · ${esc(r.scope)}</b><span class="note">${esc(when(r.started))} · ${esc(nice(r.owner))} · ${esc(r.rtu)}</span><span class="res ${esc(String(r.result).split(" ")[0])}" style="align-self:flex-start">${esc(r.result)}</span><div>${esc(r.summary)}</div>${r.location?`<div class="note">Location: ${esc(r.location)}</div>`:""}${r.via&&r.via.length?`<div class="note">OTDR method: ${esc(r.via.join(", "))}</div>`:""}<div class="note mono">${esc(r.id||"")}</div></div>`:"<div class='note'>Pick a run.</div>");
+  }
+  ["hType","hRtu","hOwner"].forEach(id=>$(id).onchange=renderHistory);
+  $("hDays").onchange=loadHistory;
+  $("hCsv").onclick=()=>{
+    const rows=filtered(), cols=["started","type","rtu","cable","scope","owner","result","summary"];
+    const csv=[cols.join(",")].concat(rows.map(r=>cols.map(c=>{ const v=c==="started"?when(r.started):c==="owner"?nice(r.owner):(r[c]??""); return '"'+String(v).replace(/"/g,'""')+'"'; }).join(","))).join("\r\n");
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="reach-run-history.csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  };
 
   async function health(){
-    try{ const r=await fetch(RELAY+"/health",{cache:"no-store"}); const h=await r.json();
-      $("relayInfo").textContent=`relay ${h.version} · ${RELAY===LIVE_RELAY?"live":"local: "+RELAY}`;
-    }catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; }
+    try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=`relay ${h.version} · ${RELAY===LIVE_RELAY?"live":"local: "+RELAY}`; $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+    catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
-  function start(){
-    $("signin").hidden=true; $("app").hidden=false;
+  async function start(){
+    try{ const a=await relay("/api/desktop/access",{}); if(!a.allowed){ showBlocked(); return; } }
+    catch(e){ if(quiet(e)) return; if(e.status===404){ showBlocked("This service is too old for the desktop console (needs v27)."); return; } }
+    $("signin").hidden=true; $("blocked").hidden=true; $("app").hidden=false;
     $("who").textContent=session.user;
-    renderSide(); renderMain(); showTab(tab); health(); heartbeat(); refreshTasks(true);
-    timers.push(setInterval(heartbeat,30000), setInterval(refreshTasks,15000), setInterval(health,60000));
+    renderSide(); renderMain(); screen="console"; showTab(["tasks","bulk","e2e","uni"].includes(tab)?tab:"tasks");
+    health(); heartbeat(); refreshRtus().then(()=>refreshTasks(true));
+    timers.push(setInterval(heartbeat,30000), setInterval(refreshTasks,15000), setInterval(health,60000), setInterval(refreshRtus,60000));
   }
-  window.addEventListener("pagehide",()=>{ try{ navigator.sendBeacon && fetch(RELAY+"/api/presence/leave",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","X-App-Key":KEY,"X-Session":session.id},body:"{}"}); }catch(e){} });
+  window.addEventListener("pagehide",()=>{ try{ fetch(RELAY+"/api/presence/leave",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","X-App-Key":KEY,"X-Session":session.id},body:"{}"}); }catch(e){} });
 
   if(session.id) start(); else signedOut("");
 })();
