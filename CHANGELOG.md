@@ -443,6 +443,19 @@ in one direction.
 
 ---
 
+## v42 (desktop) + v39 (phone) + relay v35 — 8 October 2026 — EXFO continuity settings
+
+- Alkis 8 Oct, EXFO's parameters "giving the best results under normal network conditions":
+  tone duration 4 s, wavelength 1550 nm, scan (OTDR) duration 1 s, modulation 330 Hz.
+- E2E continuity defaults (phone and desktop) now tone 4 s and OTDR 1 s (were 10 s and 3 s); the OTDR
+  box now allows 1 s (was 3 s minimum). The tone is sent with 330 Hz modulation (`freqHz` 330, was 0,
+  an unmodulated tone). Relay v35 defaults match (`PACE` default_tone_s 4, default_otdr_s 1, freqHz 330).
+- Unchanged safety nets: the first test of a run and the retry of a missed fibre still get the 20 s
+  cover tone, and auto pacing lengthens the tone by 2 s if fibres are missed.
+- Time estimate now max(9, tone + 5) s a fibre until a real run is timed (was 12.8 s measured at 10 s / 3 s).
+- Report text says "tone at 1550 nm" with the modulation instead of "CW tone".
+- Uni-dir tone settings are unchanged.
+
 ## v41 + relay v34 — 7 October 2026 — Cable View and stored traces
 
 - Alkis 7 Oct: the Fibres screen is now **Cable View** (nav, heading, Help). The header and browser tab title are just

@@ -724,8 +724,8 @@
               <div class="note" id="eRibSum" style="margin-top:8px"></div>
               <details style="margin-top:12px"><summary style="cursor:pointer;min-height:32px">Pace (advanced)</summary>
                 <div class="row" style="margin-top:10px">
-                  <label class="f">Tone (s)<input type="number" id="eToneS" min="4" max="20" value="10" style="width:100px"></label>
-                  <label class="f">OTDR (s)<input type="number" id="eOtdrS" min="3" max="30" value="3" style="width:100px"></label>
+                  <label class="f">Tone (s)<input type="number" id="eToneS" min="4" max="20" value="4" style="width:100px"></label>
+                  <label class="f">OTDR (s)<input type="number" id="eOtdrS" min="1" max="30" value="1" style="width:100px"></label>
                   <label class="chk"><input type="checkbox" id="eAuto" checked> Auto pacing</label>
                   <button class="btn" type="button" id="eResetAdv">Proven defaults</button>
                 </div>
@@ -929,6 +929,8 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <h3>v42 (8 Oct 2026)</h3>
+      <ul><li>E2E continuity uses EXFO's recommended settings: tone 4 s at 1550 nm with 330 Hz modulation, OTDR 1 s (was tone 10 s, OTDR 3 s). Runs should be much quicker; auto pacing still lengthens the tone if fibres are missed.</li></ul>
       <h3>v41 (7 Oct 2026)</h3>
       <ul><li>Fibres is now Cable View.</li><li>A fibre in Cable View lists its stored OTDR traces from both ends; click one to see the trace, with its events, and lay another over it to compare.</li><li>The header and browser tab just say Reach Fibre Tester.</li></ul>
       <h3>v40 (7 Oct 2026)</h3>
@@ -1024,7 +1026,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v41";
+  const APP_VERSION="v42";
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1386,7 +1388,7 @@
 
   // ── E2E Continuity ──
   const E={tone:"", test:"", stem:"", ribbons:new Set(jget("rft.desktop.e2eRibs",[1])), jobId:"", snap:null, pollT:null, last:{}, notified:{}};
-  const EDEF={toneS:10, otdrS:3};
+  const EDEF={toneS:4, otdrS:1};   /* v42: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz */
   (function buildERibs(){
     $("eRibs").innerHTML=[...Array(NRIB)].map((_,i)=>`<button type="button" data-er="${i+1}" title="Ribbon ${i+1}, fibres ${fname(i*12+1)}-${fname(i*12+12)}">${i+1}</button>`).join("");
     $("eRibs").querySelectorAll("[data-er]").forEach(b=>b.onclick=()=>{ const r=+b.dataset.er; E.ribbons.has(r)?E.ribbons.delete(r):E.ribbons.add(r); eSetupPaint(); });
@@ -1434,7 +1436,7 @@
     $("eRibs").querySelectorAll("[data-er]").forEach(b=>b.setAttribute("aria-pressed",String(E.ribbons.has(+b.dataset.er))));
     const n=E.ribbons.size*PER, tone=Math.max(4,+$("eToneS").value||EDEF.toneS);
     $("eN").textContent=n; $("eR").textContent=E.ribbons.size?rangeText([...E.ribbons]):"–";
-    $("eEst").textContent=n?mins(n*Math.max(13,tone+2.5)):"–";
+    $("eEst").textContent=n?mins(n*Math.max(9,tone+5)):"–";
     $("eRibSum").textContent=E.ribbons.size?`${E.ribbons.size} ribbon${E.ribbons.size>1?"s":""} (${rangeText([...E.ribbons])}), ${n} fibres.`:"No ribbons chosen.";
     const b=busyText([E.tone,E.test].filter(Boolean));
     $("eBusy").innerHTML=b?`<div class="warnbox">${esc(b)}. Two tests on one RTU clash, so this run would be slower and less reliable. <button class="btn" type="button" data-free-e2e="1" style="margin-top:8px">Tell me when free</button></div>`:"";
@@ -1447,11 +1449,11 @@
     $("eErr").textContent="";
     if(!E.stem){ $("eErr").textContent="The cable was not found in FMS."; return; }
     if(!E.ribbons.size){ $("eErr").textContent="Pick at least one ribbon."; return; }
-    const toneS=Math.min(20,Math.max(4,+$("eToneS").value||EDEF.toneS)), otdrS=Math.min(30,Math.max(3,+$("eOtdrS").value||EDEF.otdrS));
+    const toneS=Math.min(20,Math.max(4,+$("eToneS").value||EDEF.toneS)), otdrS=Math.min(30,Math.max(1,+$("eOtdrS").value||EDEF.otdrS));
     const b=busyText([E.tone,E.test]);
     if(b && !confirm(b+".\n\nTwo tests on one RTU will clash. Start anyway?")) return;
     const body={toneRtu:E.tone, testRtu:E.test, stem:E.stem, ribbons:[...E.ribbons].sort((a,b)=>a-b), toneS, otdrS, autoPace:$("eAuto").checked,
-                appVersion:"desktop "+APP_VERSION, wavelengthNm:1550, freqHz:0, simulate:(SIM&&RELAY!==LIVE_RELAY)?SIM:null, user:session.user||""};
+                appVersion:"desktop "+APP_VERSION, wavelengthNm:1550, freqHz:330, simulate:(SIM&&RELAY!==LIVE_RELAY)?SIM:null, user:session.user||""};
     try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
     $("eStart").disabled=true; $("eStart").textContent="Starting…";
     try{ const d=await relay("/api/continuity/start",body); eAttach(d.jobId); heartbeat(); }

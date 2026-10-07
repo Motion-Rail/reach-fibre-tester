@@ -667,8 +667,8 @@
       <details class="ct-panel ct-adv" id="ctAdv">
         <summary>Advanced</summary>
         <div class="ct-row" style="margin-top:10px;">
-          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="10"></div>
-          <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="3" max="30" value="3"></div>
+          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="4"></div>
+          <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="1" max="30" value="1"></div>
         </div>
         <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Auto pacing</label>
         <label class="ct-check"><input type="checkbox" id="ctSound" checked> Sound when a run ends</label>
@@ -929,8 +929,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v38";
+const APP_VERSION="v39";
 const APP_VERSIONS=[
+  ["v39","8 Oct 2026","E2E continuity uses EXFO's recommended settings: tone 4 s at 1550 nm with 330 Hz modulation, OTDR 1 s (was tone 10 s, OTDR 3 s, unmodulated). Runs should be much quicker. Auto pacing still lengthens the tone if fibres are missed. Needs service v35."],
   ["v38","7 Oct 2026","The relay (service) version now shows next to the app version at the bottom of the start and E2E screens, so you can see what you are on. The sign in page shows the app version only."],
   ["v37","7 Oct 2026","Your Uni-dir progress now shows fibre by fibre on the desktop cable health check as you go. One Light or Dark button. Needs service v31."],
   ["v36","7 Oct 2026","Run history opens on Today, which loads in a second or two; pick 7, 30 or 90 days for more. The last list shows at once while it refreshes."],
@@ -1865,7 +1866,7 @@ let crosses={};                              // index -> "crossed with ..."
   });
   function estimate(){
     const n=ribbons.size*PER, tone=Math.max(4,+$("ctToneS").value||DEF.toneS);
-    const best=n*Math.max(13,tone+2.5);        // measured: 12.8 s a fibre at tone 10 s
+    const best=n*Math.max(9,tone+5);           // v39 estimate for 4 s tone / 1 s OTDR, to confirm on a real run (was 12.8 s at 10 s / 3 s)
     $("ctEstimate").textContent=ribbons.size
       ? n+" fibres, about "+mins(best)+" if all straight."
       : "No ribbons selected.";
@@ -1873,7 +1874,7 @@ let crosses={};                              // index -> "crossed with ..."
   $("ctToneS").addEventListener("change",estimate);
   function mins(s){ s=Math.max(0,Math.round(s)); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
     return (h? h+" h ":"")+(h||m? m+" min ":"")+sec+" sec"; }
-  const DEF={toneS:10, otdrS:3};   // v15: measured optimum, see CHANGELOG
+  const DEF={toneS:4, otdrS:1};    // v39: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz (was 10 s / 3 s CW)
   $("ctResetAdv").onclick=()=>{ $("ctToneS").value=DEF.toneS; $("ctOtdrS").value=DEF.otdrS; $("ctAuto").checked=true;
     jset(LASTKEY,{...jget(LASTKEY,{}), adv:false}); estimate(); };
 
@@ -1881,7 +1882,7 @@ let crosses={};                              // index -> "crossed with ..."
     $("ctErr").textContent="";
     if(!ends){ $("ctErr").textContent="Find and pick the cable first."; return; }
     if(!ribbons.size){ $("ctErr").textContent="Pick at least one ribbon."; return; }
-    const toneS=Math.min(20,Math.max(4,+$("ctToneS").value||DEF.toneS)), otdrS=Math.min(30,Math.max(3,+$("ctOtdrS").value||DEF.otdrS));
+    const toneS=Math.min(20,Math.max(4,+$("ctToneS").value||DEF.toneS)), otdrS=Math.min(30,Math.max(1,+$("ctOtdrS").value||DEF.otdrS));
     const adv = toneS!==DEF.toneS || otdrS!==DEF.otdrS || !$("ctAuto").checked;
     // v28: warn when someone else is already testing on one of these RTUs
     if(window.rftBeat) await window.rftBeat();          // v35: fresh list of who is testing where
@@ -1897,7 +1898,7 @@ let crosses={};                              // index -> "crossed with ..."
         }
         return; } }
     const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
-                toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:0,
+                toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:330,
                 simulate:null, user:(jget("toneTester.session",{})||{}).user||""};
     jset(LASTKEY,{search:$("ctSearch").value.trim(), stem:ends.stem, tone:ends.a.rtuName, ribbons:body.ribbons, toneS, otdrS, auto:body.autoPace, adv});
     try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
@@ -2108,7 +2109,7 @@ let crosses={};                              // index -> "crossed with ..."
       "Versions: app "+(s.appVersion||APP_VERSION)+", relay "+(s.relayVersion||"?"),
       "", "Crossed:", ...(cr.length?cr:["None"]), "", "DIS:", ...(ds.length?ds:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
       ...(pats.length?["","Patterns:",...pats]:[]),
-      "", "Method: CW tone at the tone end; AdHoc OTDR on the same fibre at the far end. The far RTU refusing the OTDR as live fibre (112_LiveFiberDetected) proves the fibre end to end."].join("\n");
+      "", "Method: tone at the tone end; AdHoc OTDR on the same fibre at the far end. The far RTU refusing the OTDR as live fibre (112_LiveFiberDetected) proves the fibre end to end."].join("\n");
   }
   function csv(){
     const rows=[["Cable","Fibre","Ribbon","Position","Result","Far end fibre","Far end ribbon","Far end position","How found","Tests","DIS distance (m)","DIS measured from","DIS location"]];
@@ -2142,7 +2143,7 @@ let crosses={};                              // index -> "crossed with ..."
     h2("Test details");
     kv("Cable",cableId(s.stem)); kv("Tone from RTU",s.toneRtu); kv("OTDR from RTU",s.testRtu); kv("Ribbons",rangeText(s.ribbons)+" ("+s.targets+" fibres)");
     kv("Started",new Date(s.started*1000).toLocaleString("en-GB")); kv("Ended",s.ended?new Date(s.ended*1000).toLocaleString("en-GB"):"still running");
-    kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","CW tone 1550 nm, "+(s.pace?s.pace.toneS:(s.settings||{}).toneS)+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s"+(s.pace&&s.pace.auto?"  |  auto pacing":""));
+    kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","Tone 1550 nm"+((s.settings||{}).freqHz?" "+(s.settings||{}).freqHz+" Hz":"")+", "+(s.pace?s.pace.toneS:(s.settings||{}).toneS)+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s"+(s.pace&&s.pace.auto?"  |  auto pacing":""));
     kv("Time taken",mins((s.ended||s.now)-s.started)); kv("Versions","App "+(s.appVersion||APP_VERSION)+"  |  Relay "+(s.relayVersion||"?"));
     h2("Result");
     kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); kv("Crossed",String(s.counts.cross)); kv("DIS",String(s.counts.dis||0)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
@@ -2157,7 +2158,7 @@ let crosses={};                              // index -> "crossed with ..."
       page(); doc.setFont("courier","normal"); doc.setFontSize(8); doc.setTextColor(20); doc.text("R"+String(r).padStart(2,"0")+"  "+cells.join(" "),L,y); y+=4.4; });
     y+=2; para("Key: number = straight at that position; [nnn] = crossed, lands on far end fibre nnn; DIS = no light at the far end; ? = not found; . = not tested.");
     h2("Method");
-    para("A CW tone at 1550 nm is emitted on the fibre at the tone end. An AdHoc OTDR is ordered on the same fibre number at the far end. The far RTU refuses the OTDR because it detects light (112_LiveFiberDetected), which proves the fibre end to end. A completed OTDR means the tone is on another fibre, and the search moves on to the likely crossings.");
+    para("A tone at 1550 nm is emitted on the fibre at the tone end. An AdHoc OTDR is ordered on the same fibre number at the far end. The far RTU refuses the OTDR because it detects light (112_LiveFiberDetected), which proves the fibre end to end. A completed OTDR means the tone is on another fibre, and the search moves on to the likely crossings.");
     const n=doc.internal.getNumberOfPages(); for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFontSize(7.5); doc.setTextColor(150); doc.text(S("Reach Fibre Tester "+(s.appVersion||APP_VERSION)+"  |  E2E continuity  |  "+cableId(s.stem)+"  |  page "+p+" of "+n),L,288); }
     return doc.output("blob");
   }
