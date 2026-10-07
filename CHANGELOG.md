@@ -443,6 +443,32 @@ in one direction.
 
 ---
 
+## v40 + relay v33 — 7 October 2026 — Task result files
+
+- Run history: a finished FMS Task's detail has **Download files**, the .sor of every fibre in one zip
+  (`<cable> <RTU> <OTDR|iOLM> <yyyy-mm-dd HHMM>.zip`, UK time).
+- Relay `relay_files.py`: `POST /api/taskfiles/start {taskId}`, `/status {id}`, `/get {id}` (desktop users only).
+  The Task does not list its result ids, so each fibre's stored result is found in the results API (same route,
+  same test type, test time within 10 min of the Task's time for that fibre). Files come from
+  `GET /upload/ClientsData/zip?resultIds=a,b,...`, 20 ids a call, as the FMS Task page does (captured 7 Oct);
+  the zips are merged into one, flat, kept 30 min. A running Task is refused.
+- Live OTDR quicker (Alkis 7 Oct): 3 s shots by default (was 5), Shot length 1, 2, 3, 5 or 10 s in the Live OTDR
+  window (`POST /api/otdr/live/settings {id, seconds}`, used from the next shot, remembered in `rft.lo.secs`).
+  The next OTDR is fired as soon as FMS has stored the last one, and that trace is read while the next runs
+  (was: read, compare, 1 s pause, then fire). The stored result id comes from the STOMP push when it connects,
+  else from the results list checked every second from the end of the shot (was every 2 s from the start).
+  The trace is read by `resultid eq` (one result, as probe v2 did live) instead of the last three with traces.
+  The page polls every second and only gets traces when there is a new one (`have`). The window shows how
+  often a trace arrives.
+- Tests: new test_files (13 checks); test_otdr extended for the quicker loop.
+
+## v39 — 7 October 2026 — desktop tidy (app only)
+
+- Cable health check: the Live OTDR buttons now sit at the top of a fibre's detail, under its
+  name. They were below the history list, which can be long.
+- Help: guide and release notes text is white in dark mode (it was dark grey on dark).
+- Relay unchanged (v32). Phone unchanged (v37).
+
 ## v38 + relay v32 — 7 October 2026 — Live OTDR
 
 Step 4.6 (Alkis, 7 Oct: EXFO's concern was a Task per fibre, not load; OTDR on automatic settings at 1550 nm).

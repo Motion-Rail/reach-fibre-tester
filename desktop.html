@@ -297,6 +297,8 @@
   .helpbody h3{font-size:14px;margin:22px 0 6px;font-weight:700}
   .helpbody p,.helpbody li{font-size:14px;color:#393C41}
   .helpbody ul,.helpbody ol{padding-left:20px;margin:6px 0}
+  :root[data-theme=dark] .helpbody,:root[data-theme=dark] .helpbody p,:root[data-theme=dark] .helpbody li,:root[data-theme=dark] .helpbody h3,:root[data-theme=dark] .helpbody b,:root[data-theme=dark] .helpkey,:root[data-theme=dark] .helphead h2{color:#FFFFFF}
+  :root[data-theme=dark] .helpbody .note{color:rgba(255,255,255,.78)}
   .helpkey{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:14px}
   footer{height:36px;display:flex;align-items:center;gap:16px;padding:0 24px;background:var(--surface);box-shadow:0 -1px 0 var(--line2);font-size:12px;color:var(--faint);font-weight:500}
   @media (max-width:640px){ header{padding:10px 16px;gap:10px} main{padding:18px 16px} .ribs{grid-template-columns:repeat(9,minmax(0,1fr))} .bside{position:static} .fibbig{font-size:48px} .tabs{align-self:stretch} }
@@ -922,6 +924,10 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <h3>v40 (7 Oct 2026)</h3>
+      <ul><li>Live OTDR is quicker: 3 s shots, the next shot starts as soon as FMS has stored the last, and the screen checks every second. Pick the Shot length (1 to 10 s) in the Live OTDR window; it shows how often a trace arrives.</li><li>Download files: open an FMS Task in Run history and press Download files to get the .sor file of every fibre in one zip.</li></ul>
+      <h3>v39 (7 Oct 2026)</h3>
+      <ul><li>Live OTDR buttons sit at the top of a fibre's detail, above the history.</li><li>Help text is white in dark mode.</li></ul>
       <h3>v38 (7 Oct 2026)</h3>
       <ul><li>Live OTDR: open a fibre on the cable health check and press Live from an end. A short OTDR repeats about every 20 to 30 s; new loss since the first trace is marked in red with its distance.</li></ul>
       <h3>v37 (7 Oct 2026)</h3>
@@ -980,9 +986,10 @@
       <h3>Cable health check (Fibres)</h3>
       <p>The Fibres button opens the cable health check: every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. Click a fibre for its E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Live OTDR</h3>
-      <p>On the cable health check, click a fibre and press Live from one end. The RTU repeats a 5 s OTDR at 1550 nm with FMS automatic settings, with no FMS Task, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
+      <p>On the cable health check, click a fibre and press Live from one end. The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
       <h3>Run history</h3>
       <p>Finished work: every E2E run, Uni-dir session and FMS bulk Task, including cancelled ones. (The Tasks tab is different: it shows bulk Tasks running on one RTU now, and lets you cancel them.) It opens on Today, which is quickest; choose 7, 30 or 90 days for more. "App runs only" skips the FMS Tasks and loads fastest. The last list shows at once while it refreshes. Filter by result, type, RTU and person, click a row for detail, or export a CSV.</p>
+      <p>For a finished FMS Task, the detail has <b>Download files</b>: the .sor file of every fibre in the Task, in one zip named after the cable, RTU, test type and start time. FMS makes the files 20 at a time, so a full ribbon set takes a minute or two.</p>
 
       <h3>Who is online</h3>
       <p>The pill at the top shows who is signed in (mobile or desktop) and what is running. Click it for the list.</p>
@@ -990,6 +997,7 @@
   </dialog>
   <dialog class="lotdr" id="loDlg" aria-labelledby="loTitle">
     <div class="lohead"><h2 id="loTitle">Live OTDR</h2><span class="chip" id="loState">…</span><span class="grow"></span>
+      <label class="note" for="loShot" style="display:flex;align-items:center;gap:6px">Shot <select id="loShot" title="OTDR length. Shorter is quicker but noisier further down the fibre."><option value="1">1 s</option><option value="2">2 s</option><option value="3">3 s</option><option value="5">5 s</option><option value="10">10 s</option></select></label>
       <button class="btn" type="button" id="loWhole">Whole fibre</button>
       <button class="btn" type="button" id="loRef">Use latest as reference</button>
       <button class="btn danger" type="button" id="loStop">Stop</button>
@@ -999,7 +1007,7 @@
       <div class="warnbox" id="loErr" hidden></div>
       <svg class="lochart" id="loChart" viewBox="0 0 1100 380" role="img" aria-label="OTDR trace"></svg>
       <div class="lofind" id="loFind"></div>
-      <p class="note" style="margin:0">Grey is the reference (the first trace, or the one you chose). Blue is the latest. A red line marks new loss of 0.15 dB or more since the reference, with its distance from the RTU. Click a red mark to zoom in. Each trace is a 5 s OTDR at 1550 nm with FMS automatic settings, so a new one arrives about every 20 to 30 s.</p>
+      <p class="note" style="margin:0">Grey is the reference (the first trace, or the one you chose). Blue is the latest. A red line marks new loss of 0.15 dB or more since the reference, with its distance from the RTU. Click a red mark to zoom in. Each trace is a short OTDR at 1550 nm with FMS automatic settings (3 s unless you pick another Shot length). The next OTDR starts as soon as FMS has stored the last one. A shorter shot is quicker but noisier towards the far end.</p>
     </div>
   </dialog>
   <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span id="appv">desktop</span></footer>
@@ -1008,7 +1016,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v38";
+  const APP_VERSION="v40";
   const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1047,6 +1055,7 @@
     return d;
   }
   const quiet=e=>e && (e.message==="signed out"||e.message==="blocked");
+  let RELAYV=0;   /* v40: relay version number from /health */
   function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),5000); }
 
   // ── sign in, lock ──
@@ -1877,7 +1886,30 @@
     $("hRows").innerHTML=rows.map((r,i)=>`<tr class="${H.sel===r?"sel":""}"><td><button class="lnk" data-i="${i}">${esc(when(r.started))}</button></td><td>${esc(r.type)}</td><td class="mono">${esc(r.rtu)}</td><td class="mono">${esc(r.cable)}</td><td>${esc(r.scope)}</td><td>${esc(nice(r.owner))}</td><td><span class="res ${esc(String(r.result).split(" ")[0])}">${esc(r.result)}</span></td><td class="mono">${esc(took(r.started,r.ended))}</td></tr>`).join("")||`<tr><td colspan="8" class="note">No runs match.</td></tr>`;
     $("hRows").querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{ H.sel=rows[+b.dataset.i]; renderHistory(); });
     const r=H.sel;
-    $("hDetail").innerHTML="<h2>Run detail</h2>"+(r?`<div style="display:flex;flex-direction:column;gap:8px"><b>${esc(r.type)} · ${esc(r.scope)}</b><span class="note">${esc(when(r.started))} · ${esc(nice(r.owner))} · ${esc(r.rtu)}</span><span class="res ${esc(String(r.result).split(" ")[0])}" style="align-self:flex-start">${esc(r.result)}</span><div>${esc(r.summary)}</div>${r.location?`<div class="note">Location: ${esc(r.location)}</div>`:""}</div>`:"<div class='note'>Pick a run.</div>");
+    $("hDetail").innerHTML="<h2>Run detail</h2>"+(r?`<div style="display:flex;flex-direction:column;gap:8px"><b>${esc(r.type)} · ${esc(r.scope)}</b><span class="note">${esc(when(r.started))} · ${esc(nice(r.owner))} · ${esc(r.rtu)}</span><span class="res ${esc(String(r.result).split(" ")[0])}" style="align-self:flex-start">${esc(r.result)}</span><div>${esc(r.summary)}</div>${r.location?`<div class="note">Location: ${esc(r.location)}</div>`:""}${r.source==="fms"&&r.id&&r.result!=="Running"&&RELAYV>=33?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px"><button class="btn primary" type="button" id="hFiles">Download files</button><span class="note" id="hFilesNote">The .sor file of every fibre in this Task, in one zip.</span></div>`:""}</div>`:"<div class='note'>Pick a run.</div>");
+    if($("hFiles")) $("hFiles").onclick=()=>taskFiles(r.id,$("hFiles"),$("hFilesNote"));
+  }
+  // ── v40: a finished FMS Task's result files (.sor) as one zip; the relay finds each fibre's result and asks FMS 20 at a time ──
+  async function taskFiles(taskId,btn,note){
+    btn.disabled=true; const say=t=>{ if(note) note.textContent=t; };
+    try{
+      let j=await relay("/api/taskfiles/start",{taskId});
+      while(j.state==="running"){
+        say(j.tested?(j.files?`Fetching files… ${j.files} of ${j.tested}`:`Finding results… ${j.matched} of ${j.tested}`):(j.note||"Starting…"));
+        await new Promise(res=>setTimeout(res,1500));
+        j=await relay("/api/taskfiles/status",{id:j.id});
+      }
+      if(j.state!=="ready") throw new Error(j.note||"The download failed.");
+      say("Saving…");
+      const h={"Content-Type":"application/json","X-App-Key":KEY}; if(session.id) h["X-Session"]=session.id;
+      const res=await fetch(RELAY+"/api/taskfiles/get",{method:"POST",headers:h,body:JSON.stringify({id:j.id})});
+      if(!res.ok) throw new Error("The download has expired. Try again.");
+      const blob=await res.blob(), a=document.createElement("a");
+      a.href=URL.createObjectURL(blob); a.download=j.fileName||"task-files.zip"; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000);
+      say(`${j.note} ${j.size>=1048576?(j.size/1048576).toFixed(1)+" MB":Math.max(1,Math.round(j.size/1024))+" KB"}.`+(j.missing&&j.missing.length?` Missing: ${j.missing.slice(0,8).map(fNum).join(", ")}${j.missing.length>8?" …":""}.`:""));
+    }catch(e){ if(!quiet(e)) say(e.message); }
+    finally{ btn.disabled=false; }
   }
   ["hType","hRtu","hOwner"].forEach(id=>$(id).onchange=renderHistory);
   $("hDays").onchange=loadHistory; $("hSrc").onchange=loadHistory; $("hRefresh").onclick=loadHistory;
@@ -1889,7 +1921,7 @@
 
   async function health(){
     try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=`relay ${h.version} · ${RELAY===LIVE_RELAY?"live":"local: "+RELAY}`;
-      const fb=document.querySelector('nav [data-nav="fibres"]'); if(fb) fb.hidden=!(parseInt(String(h.version||"").replace(/\D/g,""))>=31);   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+      RELAYV=parseInt(String(h.version||"").replace(/\D/g,""))||0; const fb=document.querySelector('nav [data-nav="fibres"]'); if(fb) fb.hidden=!(parseInt(String(h.version||"").replace(/\D/g,""))>=31);   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
@@ -2023,6 +2055,7 @@
     const ends=d.ends||[], nm=i=>ends[i]?esc(ends[i].short||short(ends[i].rtu)):(i?"B end":"A end"), c=contOf(r);
     const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
     let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
+    h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
     h+=`<h4>Continuity</h4><div style="margin-bottom:6px">${ctag}</div>`;
     if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found&&r.e2e.state!=="straight"?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
     if(r.uni) h+=`<div class="kv"><span>Uni-dir</span><span>${esc(SWORD[r.uni.state]||r.uni.state)}${r.uni.location?" at "+esc(r.uni.location):""} · ${esc(nice(r.uni.by||""))} · ${when(r.uni.t)}</span></div>`;
@@ -2046,7 +2079,6 @@
     else h+=`<p class="note">No OTDR on this fibre yet.</p>`;
     h+=`<h4>History</h4><ul class="fhist" id="fHist"><li><span class="note">Reading…</span></li></ul>`;
     h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${ends.map(e=>`<button class="btn" type="button" data-open="${esc(e.rtu)}">Open ${esc(e.short||short(e.rtu))}</button>`).join("")}<button class="btn" type="button" id="fCopy">Copy name</button></div>`;
-    h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
     $("fDet").innerHTML=h;
     $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
     $("fDet").querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>loStart(d.stem,f,b.dataset.lo));
@@ -2082,7 +2114,8 @@
   // ── v38: Live OTDR. A short OTDR again and again on one fibre; the trace is drawn over the reference ──
   const LO={id:"", t:null, s:null, zoom:null};
   async function loStart(stem,f,rtuId){
-    try{ const s=await relay("/api/otdr/live/start",{stem, fibre:f, rtuId}); loOpen(s.id,s); }
+    let seconds=3; try{ seconds=+localStorage.getItem("rft.lo.secs")||3; }catch(e){}
+    try{ const s=await relay("/api/otdr/live/start",{stem, fibre:f, rtuId, seconds}); loOpen(s.id,s); }
     catch(e){ if(!quiet(e)) toast(e.message); }
   }
   function loOpen(id,s){
@@ -2091,27 +2124,41 @@
   }
   async function loPoll(){
     clearTimeout(LO.t); if(!LO.id || !$("loDlg").open) return;
-    try{ LO.s=await relay("/api/otdr/live/status",{id:LO.id}); loPaint(); }
+    try{
+      const have=LO.s&&LO.s.id===LO.id&&LO.s.ref?LO.s.count:-1;          /* v40: traces only come when there is a new one */
+      const n=await relay("/api/otdr/live/status",{id:LO.id,have});
+      if(!("ref" in n) && LO.s){ n.ref=LO.s.ref; n.latest=LO.s.latest; }
+      const fresh=!LO.s||n.count!==LO.s.count||n.state!==LO.s.state||n.error!==LO.s.error; LO.s=n; if(fresh) loPaint(); else loInfo();
+    }
     catch(e){ if(quiet(e)) return; $("loErr").hidden=false; $("loErr").textContent=e.message; }
-    if(LO.s && LO.s.state==="running") LO.t=setTimeout(loPoll,3000);
+    if(LO.s && LO.s.state==="running") LO.t=setTimeout(loPoll,1000);
   }
   $("loClose").onclick=()=>{ clearTimeout(LO.t); const d=$("loDlg"); if(d.close) d.close(); else d.removeAttribute("open"); };
   $("loStop").onclick=async()=>{ try{ await relay("/api/otdr/live/stop",{id:LO.id}); toast("Live OTDR stopped."); }catch(e){ if(!quiet(e)) toast(e.message); } loPoll(); };
   $("loRef").onclick=async()=>{ try{ LO.s=await relay("/api/otdr/live/reference",{id:LO.id}); loPaint(); toast("The latest trace is now the reference."); }catch(e){ if(!quiet(e)) toast(e.message); } };
   $("loWhole").onclick=()=>{ LO.zoom=null; loPaint(); };
+  $("loShot").onchange=async()=>{ const v=+$("loShot").value; try{ localStorage.setItem("rft.lo.secs",String(v)); }catch(e){}
+    if(!LO.id||!LO.s||LO.s.state!=="running") return;
+    try{ const n=await relay("/api/otdr/live/settings",{id:LO.id,seconds:v}); LO.s.shotS=n.shotS; loInfo(); toast(`Shot length ${v} s from the next trace.`); }catch(e){ if(!quiet(e)) toast(e.message); } };
+  /* v40: how often a trace arrives, from the last few */
+  function loEvery(s){ const t=(s.shots||[]).slice(-5).map(x=>x.t); if(t.length<2) return 0; return Math.round((t[t.length-1]-t[0])/(t.length-1)); }
+  function loInfo(){
+    const s=LO.s; if(!s) return; const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
+    $("loShot").value=String(s.shotS||3); $("loShot").disabled=s.state!=="running";
+    $("loInfo").textContent=s.state==="running"
+      ? `${s.count} trace${s.count===1?"":"s"} so far · 1550 nm, automatic settings, ${s.shotS} s shot · ${ev?`a new trace every ${ev} s`:"timing the first traces"} · stops in ${left} min · started by ${s.owner}`
+      : `${s.count} trace${s.count===1?"":"s"}${ev?`, one every ${ev} s`:""}. ${s.note||""}`;
+  }
   function loPaint(){
     const s=LO.s; if(!s){ $("loInfo").textContent="Starting…"; return; }
     const words={running:"Running",stopped:"Stopped",done:"Finished"};
     $("loTitle").textContent=`Live OTDR · ${fNum(s.fibre)} from ${short(s.rtuName)}`;
     $("loState").className="chip "+(s.state==="running"?"running":"stopped"); $("loState").textContent=words[s.state]||s.state;
-    const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60));
-    $("loInfo").textContent=s.state==="running"
-      ? `${s.count} trace${s.count===1?"":"s"} so far · 1550 nm, automatic settings, ${s.shotS} s · a new trace about every 20 to 30 s · stops in ${left} min · started by ${s.owner}`
-      : `${s.count} trace${s.count===1?"":"s"}. ${s.note||""}`;
+    loInfo();
     $("loErr").hidden=!s.error; $("loErr").textContent=s.error||"";
     $("loStop").hidden=s.state!=="running"; $("loRef").disabled=!s.latest;
     const ref=s.ref&&s.ref.trace, cur=s.latest&&s.latest.trace, svg=$("loChart");
-    if(!ref){ svg.innerHTML=`<text x="550" y="190" text-anchor="middle">Waiting for the first trace (about 20 to 30 s)…</text>`; $("loFind").innerHTML=""; return; }
+    if(!ref){ svg.innerHTML=`<text x="550" y="190" text-anchor="middle">Waiting for the first trace…</text>`; $("loFind").innerHTML=""; return; }
     const W=1100,Hh=380,L=56,Rm=16,T=14,B=34;
     const len=(s.ref.len||s.latest&&s.latest.len||0);
     const xmax0=ref.x0+ref.dx*(ref.y.length-1);
