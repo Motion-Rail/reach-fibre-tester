@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>document.documentElement.setAttribute("data-look","glass");try{if(localStorage.getItem("rft.theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
-<title>Reach Fibre Tester · Desktop</title>
+<title>Reach Fibre Tester</title>
 <!-- v32, 6 Oct 2026: native desktop E2E Continuity and Tone (Uni-dir) replace the embedded phone screens; Run history opens on Today, App runs only option, last list shown at once. Needs relay v28. -->
 <!-- v31, 6 Oct 2026: Help guide, Start checks with FMS then one confirm (no separate check button), default comment = RTU and fibres, Bulk Test removed from the header (it is the RTU tab), cables start collapsed.
      v30, 6 Oct 2026: desktop lock (relay DESKTOP_USERS), RTU online lights with key, collapsible cables,
@@ -119,6 +119,11 @@
   .fhist{list-style:none;margin:0;padding:0}
   .fhist li{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line2);font-size:13px}
   .fhist li .t{color:var(--faint);min-width:86px;font-size:12px}
+  /* v41: stored OTDR traces, each row opens the trace */
+  .ftr{max-height:240px;overflow:auto}
+  .ftr li{padding:0}
+  .ftr .trrow{background:none;border:0;cursor:pointer;display:flex;gap:10px;width:100%;text-align:left;padding:7px 4px;border-radius:6px;color:inherit;font:inherit;font-size:13px;text-decoration:none}
+  .ftr .trrow:hover{background:var(--line2)}
   .tag{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;background:var(--soft2);color:var(--ink)}
   .tag.flip{background:var(--fcfl);color:var(--fcfli)}
   .tag.ok{background:var(--ok-tint);color:var(--ok)}.tag.bad{background:var(--bad-tint);color:var(--bad)}.tag.warn{background:var(--warn-tint);color:var(--warn)}
@@ -544,11 +549,11 @@
 <section id="app" hidden>
   <header>
     <img class="logo" src="logo.png" alt="Motion">
-    <div class="title">Reach Fibre Tester<small>desktop</small></div>
+    <div class="title">Reach Fibre Tester</div>
     <nav aria-label="Screens">
       <button data-nav="live">Live</button>
       <button data-nav="console">Console</button>
-      <button data-nav="fibres" hidden>Fibres</button>
+      <button data-nav="fibres" hidden>Cable View</button>
       <button data-nav="history">Run history</button>
     </nav>
     <span class="grow"></span>
@@ -872,7 +877,7 @@
     <main id="screen-fibres" hidden>
       <section class="panel">
         <div class="fbar">
-          <h2 style="margin:0">Fibres</h2>
+          <h2 style="margin:0">Cable View</h2>
           <select id="fCable" aria-label="Cable"></select>
           <span class="seg" role="group" aria-label="Colour by">
             <button type="button" data-fm="cont" aria-pressed="true">Continuity</button>
@@ -924,6 +929,8 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <h3>v41 (7 Oct 2026)</h3>
+      <ul><li>Fibres is now Cable View.</li><li>A fibre in Cable View lists its stored OTDR traces from both ends; click one to see the trace, with its events, and lay another over it to compare.</li><li>The header and browser tab just say Reach Fibre Tester.</li></ul>
       <h3>v40 (7 Oct 2026)</h3>
       <ul><li>Live OTDR is quicker: 3 s shots, the next shot starts as soon as FMS has stored the last, and the screen checks every second. Pick the Shot length (1 to 10 s) in the Live OTDR window; it shows how often a trace arrives.</li><li>Download files: open an FMS Task in Run history and press Download files to get the .sor file of every fibre in one zip.</li></ul>
       <h3>v39 (7 Oct 2026)</h3>
@@ -983,10 +990,10 @@
       <h3>Live (the first screen)</h3>
       <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
 
-      <h3>Cable health check (Fibres)</h3>
-      <p>The Fibres button opens the cable health check: every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. Click a fibre for its E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
+      <h3>Cable View</h3>
+      <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. Click a fibre for Live OTDR, its stored OTDR traces from both ends (click one to see the trace, and pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Live OTDR</h3>
-      <p>On the cable health check, click a fibre and press Live from one end. The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
+      <p>In Cable View, click a fibre and press Live from one end. The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
       <h3>Run history</h3>
       <p>Finished work: every E2E run, Uni-dir session and FMS bulk Task, including cancelled ones. (The Tasks tab is different: it shows bulk Tasks running on one RTU now, and lets you cancel them.) It opens on Today, which is quickest; choose 7, 30 or 90 days for more. "App runs only" skips the FMS Tasks and loads fastest. The last list shows at once while it refreshes. Filter by result, type, RTU and person, click a row for detail, or export a CSV.</p>
       <p>For a finished FMS Task, the detail has <b>Download files</b>: the .sor file of every fibre in the Task, in one zip named after the cable, RTU, test type and start time. FMS makes the files 20 at a time, so a full ribbon set takes a minute or two.</p>
@@ -998,6 +1005,7 @@
   <dialog class="lotdr" id="loDlg" aria-labelledby="loTitle">
     <div class="lohead"><h2 id="loTitle">Live OTDR</h2><span class="chip" id="loState">…</span><span class="grow"></span>
       <label class="note" for="loShot" style="display:flex;align-items:center;gap:6px">Shot <select id="loShot" title="OTDR length. Shorter is quicker but noisier further down the fibre."><option value="1">1 s</option><option value="2">2 s</option><option value="3">3 s</option><option value="5">5 s</option><option value="10">10 s</option></select></label>
+      <label class="note" for="loCmp" id="loCmpL" style="display:flex;align-items:center;gap:6px" hidden>Lay over <select id="loCmp"></select></label>
       <button class="btn" type="button" id="loWhole">Whole fibre</button>
       <button class="btn" type="button" id="loRef">Use latest as reference</button>
       <button class="btn danger" type="button" id="loStop">Stop</button>
@@ -1007,17 +1015,17 @@
       <div class="warnbox" id="loErr" hidden></div>
       <svg class="lochart" id="loChart" viewBox="0 0 1100 380" role="img" aria-label="OTDR trace"></svg>
       <div class="lofind" id="loFind"></div>
-      <p class="note" style="margin:0">Grey is the reference (the first trace, or the one you chose). Blue is the latest. A red line marks new loss of 0.15 dB or more since the reference, with its distance from the RTU. Click a red mark to zoom in. Each trace is a short OTDR at 1550 nm with FMS automatic settings (3 s unless you pick another Shot length). The next OTDR starts as soon as FMS has stored the last one. A shorter shot is quicker but noisier towards the far end.</p>
+      <p class="note" style="margin:0" id="loNote">Grey is the reference (the first trace, or the one you chose). Blue is the latest. A red line marks new loss of 0.15 dB or more since the reference, with its distance from the RTU. Click a red mark to zoom in. Each trace is a short OTDR at 1550 nm with FMS automatic settings (3 s unless you pick another Shot length). The next OTDR starts as soon as FMS has stored the last one. A shorter shot is quicker but noisier towards the far end.</p>
     </div>
   </dialog>
-  <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span id="appv">desktop</span></footer>
+  <footer><span id="relayInfo">relay …</span><span id="updated"></span><span class="grow"></span><span id="appv"></span></footer>
 </section>
 
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v40";
-  const LIVE_RELAY="https://relay-njqb.onrender.com", KEY="123456";
+  const APP_VERSION="v41";
+  const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
   let RELAY=LIVE_RELAY; try{ RELAY=sessionStorage.getItem("rft.relay")||LIVE_RELAY; }catch(e){}
@@ -1031,7 +1039,7 @@
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
   let session=jget(SES,{id:"",user:""})||{id:"",user:""};
   const DEFAULT_USER="alkis.kardasopoulos@motionrail.co.uk";
-  $("appv").textContent="desktop "+APP_VERSION;
+  $("appv").textContent="app "+APP_VERSION;
 
   const CABLES=[
     {name:"Slough to Reading", pre:"F-0057-RGAC", rtus:[["0057","RTU2-0057-1991132"],["RGAC","RTU2-RGAC-1991133"]]},
@@ -1920,7 +1928,7 @@
   };
 
   async function health(){
-    try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=`relay ${h.version} · ${RELAY===LIVE_RELAY?"live":"local: "+RELAY}`;
+    try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=RELAY===LIVE_RELAY?"":"local relay: "+RELAY; $("appv").textContent=`app ${APP_VERSION} · relay ${h.version}`;
       RELAYV=parseInt(String(h.version||"").replace(/\D/g,""))||0; const fb=document.querySelector('nav [data-nav="fibres"]'); if(fb) fb.hidden=!(parseInt(String(h.version||"").replace(/\D/g,""))>=31);   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
@@ -2056,6 +2064,7 @@
     const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
     let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
     h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
+    if(RELAYV>=34) h+=`<h4>OTDR traces</h4><ul class="fhist ftr" id="fTraces"><li><span class="note">Reading…</span></li></ul>`;
     h+=`<h4>Continuity</h4><div style="margin-bottom:6px">${ctag}</div>`;
     if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found&&r.e2e.state!=="straight"?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
     if(r.uni) h+=`<div class="kv"><span>Uni-dir</span><span>${esc(SWORD[r.uni.state]||r.uni.state)}${r.uni.location?" at "+esc(r.uni.location):""} · ${esc(nice(r.uni.by||""))} · ${when(r.uni.t)}</span></div>`;
@@ -2082,6 +2091,7 @@
     $("fDet").innerHTML=h;
     $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
     $("fDet").querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>loStart(d.stem,f,b.dataset.lo));
+    if($("fTraces")) loadTraces(d.stem,f);
     $("fCopy").onclick=()=>{ try{ navigator.clipboard.writeText(d.stem+"-"+fNum(f)); toast("Copied "+d.stem+"-"+fNum(f)); }catch(e){} };
     const key=d.stem+"|"+f, had=!!FB.det[key];
     try{ if(!FB.det[key]){ FB.det[key]=await relay("/api/fibre",{stem:d.stem,fibre:f}); if(FB.sel===f && Object.keys(FB.det[key].iolm||{}).length) return showFibre(f); } }
@@ -2113,6 +2123,36 @@
 
   // ── v38: Live OTDR. A short OTDR again and again on one fibre; the trace is drawn over the reference ──
   const LO={id:"", t:null, s:null, zoom:null};
+  // ── v41: stored OTDR traces of a fibre; click one to view it, lay another over it ──
+  const TR={key:"", rows:[], cache:{}};
+  const whenS=t=>t?new Date(t*1000).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
+  async function loadTraces(stem,f){
+    const key=stem+"|"+f, box=$("fTraces"); TR.key=key;
+    try{
+      const d=await relay("/api/otdr/traces",{stem,fibre:f}); if(TR.key!==key||!$("fTraces")) return;
+      TR.rows=d.traces||[];
+      $("fTraces").innerHTML=TR.rows.length?TR.rows.slice(0,25).map((r,i)=>`<li><button type="button" class="lnk trrow" data-tr="${i}"><span class="t">${whenS(r.t)}</span><span>From ${esc(short(r.rtu))} · ${r.len?km(r.len):"–"} · ${r.loss!=null?db(r.loss)+" dB":"–"}${r.wl?" @"+esc(r.wl):""}${r.live?' <span class="tag">live</span>':""}</span></button></li>`).join("")
+        +(TR.rows.length>25?`<li><span class="note">${TR.rows.length-25} older not shown.</span></li>`:"")
+        :`<li><span class="note">No stored OTDR trace on this fibre yet.</span></li>`;
+      $("fTraces").querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>trOpen(+b.dataset.tr));
+    }catch(e){ if(!quiet(e)&&$("fTraces")) $("fTraces").innerHTML=`<li><span class="note">Traces not available: ${esc(e.message)}</span></li>`; }
+  }
+  async function trGet(r){ if(!TR.cache[r.resultId]) TR.cache[r.resultId]=await relay("/api/otdr/trace",{resultId:r.resultId}); return TR.cache[r.resultId]; }
+  async function trOpen(i,over){
+    const r=TR.rows[i]; if(!r) return; clearTimeout(LO.t); LO.id=""; LO.zoom=null;
+    const d=$("loDlg"); if(!d.open){ if(d.showModal) d.showModal(); else d.setAttribute("open",""); }
+    LO.s={view:true, fibre:FB.sel, rtuName:r.rtu, row:r, state:"view", count:1, ref:null, latest:null, shots:[], over:null};
+    $("loCmp").innerHTML=`<option value="">Nothing</option>`+TR.rows.slice(0,25).map((x,j)=>j===i?"":`<option value="${j}">${whenS(x.t)} from ${esc(short(x.rtu))}</option>`).join("");
+    loPaint(); $("loInfo").textContent="Reading the trace from FMS…";
+    try{ const t=await trGet(r); if(!LO.s||LO.s.row!==r) return; LO.s.ref={t:r.t,len:t.len,trace:t.trace,events:t.events,resultId:r.resultId}; loPaint(); }
+    catch(e){ if(!quiet(e)){ $("loErr").hidden=false; $("loErr").textContent=e.message; } }
+  }
+  $("loCmp").onchange=async()=>{
+    const s=LO.s; if(!s||!s.view) return; const j=$("loCmp").value;
+    if(j===""){ s.latest=null; s.over=null; loPaint(); return; }
+    const r=TR.rows[+j]; try{ const t=await trGet(r); if(LO.s!==s) return; s.over=r; s.latest={t:r.t,len:t.len,trace:t.trace,events:t.events,steps:[],new:[],resultId:r.resultId}; loPaint(); }
+    catch(e){ if(!quiet(e)) toast(e.message); }
+  };
   async function loStart(stem,f,rtuId){
     let seconds=3; try{ seconds=+localStorage.getItem("rft.lo.secs")||3; }catch(e){}
     try{ const s=await relay("/api/otdr/live/start",{stem, fibre:f, rtuId, seconds}); loOpen(s.id,s); }
@@ -2133,7 +2173,7 @@
     catch(e){ if(quiet(e)) return; $("loErr").hidden=false; $("loErr").textContent=e.message; }
     if(LO.s && LO.s.state==="running") LO.t=setTimeout(loPoll,1000);
   }
-  $("loClose").onclick=()=>{ clearTimeout(LO.t); const d=$("loDlg"); if(d.close) d.close(); else d.removeAttribute("open"); };
+  $("loClose").onclick=()=>{ clearTimeout(LO.t); if(LO.s&&LO.s.view) LO.s=null; const d=$("loDlg"); if(d.close) d.close(); else d.removeAttribute("open"); };
   $("loStop").onclick=async()=>{ try{ await relay("/api/otdr/live/stop",{id:LO.id}); toast("Live OTDR stopped."); }catch(e){ if(!quiet(e)) toast(e.message); } loPoll(); };
   $("loRef").onclick=async()=>{ try{ LO.s=await relay("/api/otdr/live/reference",{id:LO.id}); loPaint(); toast("The latest trace is now the reference."); }catch(e){ if(!quiet(e)) toast(e.message); } };
   $("loWhole").onclick=()=>{ LO.zoom=null; loPaint(); };
@@ -2143,7 +2183,8 @@
   /* v40: how often a trace arrives, from the last few */
   function loEvery(s){ const t=(s.shots||[]).slice(-5).map(x=>x.t); if(t.length<2) return 0; return Math.round((t[t.length-1]-t[0])/(t.length-1)); }
   function loInfo(){
-    const s=LO.s; if(!s) return; const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
+    const s=LO.s; if(!s) return;
+    if(s.view){ const r=s.row; $("loInfo").textContent=`Stored OTDR · ${whenS(r.t)} · from ${short(r.rtu)} · ${r.len?km(r.len):"length not read"}${r.loss!=null?" · "+db(r.loss)+" dB":""}${r.wl?" at "+r.wl+" nm":""}${r.live?" · a live OTDR shot":""}`; return; } const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
     $("loShot").value=String(s.shotS||3); $("loShot").disabled=s.state!=="running";
     $("loInfo").textContent=s.state==="running"
       ? `${s.count} trace${s.count===1?"":"s"} so far · 1550 nm, automatic settings, ${s.shotS} s shot · ${ev?`a new trace every ${ev} s`:"timing the first traces"} · stops in ${left} min · started by ${s.owner}`
@@ -2152,13 +2193,14 @@
   function loPaint(){
     const s=LO.s; if(!s){ $("loInfo").textContent="Starting…"; return; }
     const words={running:"Running",stopped:"Stopped",done:"Finished"};
-    $("loTitle").textContent=`Live OTDR · ${fNum(s.fibre)} from ${short(s.rtuName)}`;
-    $("loState").className="chip "+(s.state==="running"?"running":"stopped"); $("loState").textContent=words[s.state]||s.state;
+    $("loTitle").textContent=`${s.view?"OTDR trace":"Live OTDR"} · ${fNum(s.fibre)} from ${short(s.rtuName)}`;
+    $("loState").className="chip "+(s.state==="running"?"running":"stopped"); $("loState").textContent=s.view?"Stored":(words[s.state]||s.state);
+    $("loRef").hidden=!!s.view; $("loShot").parentElement.hidden=!!s.view; $("loCmpL").hidden=!s.view; $("loNote").hidden=!!s.view;
     loInfo();
     $("loErr").hidden=!s.error; $("loErr").textContent=s.error||"";
     $("loStop").hidden=s.state!=="running"; $("loRef").disabled=!s.latest;
     const ref=s.ref&&s.ref.trace, cur=s.latest&&s.latest.trace, svg=$("loChart");
-    if(!ref){ svg.innerHTML=`<text x="550" y="190" text-anchor="middle">Waiting for the first trace…</text>`; $("loFind").innerHTML=""; return; }
+    if(!ref){ svg.innerHTML=`<text x="550" y="190" text-anchor="middle">${s.view?"Reading the trace…":"Waiting for the first trace…"}</text>`; $("loFind").innerHTML=""; return; }
     const W=1100,Hh=380,L=56,Rm=16,T=14,B=34;
     const len=(s.ref.len||s.latest&&s.latest.len||0);
     const xmax0=ref.x0+ref.dx*(ref.y.length-1);
@@ -2177,6 +2219,13 @@
     const marks=steps.filter(b=>b.m>=xa&&b.m<=xb).map(b=>`<line class="bend" x1="${X(b.m)}" x2="${X(b.m)}" y1="${T}" y2="${Hh-B}"/><text class="bendt" x="${X(b.m)+5}" y="${T+28}">${b.db.toFixed(2)} dB</text>`).join("");
     svg.innerHTML=g+`<path class="ref" d="${path(ref)}"/>`+(cur?`<path class="new" d="${path(cur)}"/>`:"")+marks;
     const nw=(s.latest&&s.latest.new)||[];
+    if(s.view){
+      const ev=(s.ref.events||[]).filter(e=>e.m>=xa&&e.m<=xb&&e.loss!=null&&Math.abs(e.loss)>=0.05).slice(0,8);
+      $("loFind").innerHTML=`<button type="button" class="ok">Grey: ${esc(whenS(s.ref.t))} from ${esc(short(s.row.rtu))}${s.over?` · Blue: ${esc(whenS(s.over.t))} from ${esc(short(s.over.rtu))}`:""}</button>`
+        +ev.map(e=>`<button type="button" data-zm="${e.m}">${esc(e.type||"Event")} ${(+e.loss).toFixed(2)} dB at ${(e.m/1000).toFixed(2)} km</button>`).join("");
+      $("loFind").querySelectorAll("[data-zm]").forEach(b=>b.onclick=()=>{ const m=+b.dataset.zm; LO.zoom=[Math.max(ref.x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
+      return;
+    }
     $("loFind").innerHTML=steps.length?steps.map(b=>`<button type="button" data-zm="${b.m}">New loss ${b.db.toFixed(2)} dB at ${(b.m/1000).toFixed(2)} km from ${esc(short(s.rtuName))}${nw.some(n=>Math.abs(n.m-b.m)<300)?" (just appeared)":""}</button>`).join("")
       : `<button type="button" class="ok">${s.count>1?"No new loss since the reference":"Reference trace taken. Now handle the fibre and watch for a red mark."}</button>`;
     $("loFind").querySelectorAll("[data-zm]").forEach(b=>b.onclick=()=>{ const m=+b.dataset.zm; LO.zoom=[Math.max(ref.x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
@@ -2243,7 +2292,7 @@
     navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(hadSW && !reloaded){ reloaded=true; location.reload(); } });
     navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
   }
-  $("signVer").textContent="desktop "+APP_VERSION;
+  $("signVer").textContent="app "+APP_VERSION;
   if(session.id) start(); else signedOut("");
 })();
 </script>

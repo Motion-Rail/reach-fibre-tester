@@ -443,6 +443,31 @@ in one direction.
 
 ---
 
+## v41 + relay v34 — 7 October 2026 — Cable View and stored traces
+
+- Alkis 7 Oct: the Fibres screen is now **Cable View** (nav, heading, Help). The header and browser tab title are just
+  "Reach Fibre Tester" (the small "desktop" label and "· Desktop" are gone).
+- A fibre in Cable View lists its stored OTDR traces from both ends (newest first, 25 shown, with seconds;
+  live OTDR shots tagged "live"), above the history. Click one: the trace opens in the OTDR window
+  (title "OTDR trace", chip Stored, events listed and clickable to zoom). "Lay over" picks a second trace
+  to draw in blue over it, to compare before and after work on the fibre.
+- Relay v34 `relay_otdr.py`: `POST /api/otdr/traces {stem, fibre}` (results API, Adhoc OTDR per end,
+  top 40 each, errors skipped; `live` when the PromiseId is one of this relay's live shots) and
+  `POST /api/otdr/trace {resultId}` (reduced trace, length, events; cached, 60 kept). Desktop users only.
+- Versions (Alkis 7 Oct): desktop footer reads "app v41 · relay v34"; desktop sign in shows "app v41".
+  Phone v38: start and E2E screens read "Reach Fibre Tester app v38 · relay v34 · Version history";
+  the phone sign in shows the app version only.
+- Relay memory: the relay climbed from about 20% to 70% of its 512 MB in a day (Render metrics 7 Oct).
+  Finished Task routes are now kept as compact tuples (about half the memory) and the other caches are
+  capped (history files 1500, history Tasks 600, run logs 800, folder lists 300, cable views 6); live
+  OTDR sessions that ended over an hour ago are dropped.
+- Relay moved to Frankfurt (Alkis 7 Oct): the app, desktop and push.js now use
+  https://relay-eu-0t5v.onrender.com (Render `relay-eu`, Frankfurt, Starter, health check /health,
+  MALLOC_ARENA_MAX=2). FMS is in AWS Paris; the old relay (relay-njqb, Oregon) crossed the Atlantic on
+  every FMS call. Browser to relay /health measured about 100 ms vs 210 ms. Same VAPID key, so phone
+  alerts keep working. Old relay to be suspended by Alkis once the new one has run a day.
+- Tests: test_otdr 31, ui_otdr 22, ui_v36m 9 (versions on the phone), ui_desktop footer.
+
 ## v40 + relay v33 — 7 October 2026 — Task result files
 
 - Run history: a finished FMS Task's detail has **Download files**, the .sor of every fibre in one zip

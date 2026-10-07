@@ -520,7 +520,7 @@
     <div class="lookrow alertrow" id="pushRow"><span>Alerts</span><button type="button" id="pushBtn">Turn on</button><button type="button" id="pushTest" hidden>Test</button></div>
     <p class="pushtxt" id="pushTxt"></p>
     <div class="lookrow" role="group" aria-label="Appearance"><span>Look</span><button type="button" data-th="light">Light</button><button type="button" data-th="dark">Dark</button></div>
-    <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
+    <div class="appver"><button class="linkbtn verlink">Reach Fibre Tester app <span class="appv">v14</span><span class="relv"></span> · Version history</button></div>
 
   </div></div>
 </section>
@@ -679,7 +679,7 @@
       <button class="primary" id="ctStart">Start continuity run</button>
       <div class="err" id="ctErr"></div>
 
-<div class="appver"><button class="linkbtn verlink">Reach Fibre Tester <span class="appv">v14</span> · Version history</button></div>
+<div class="appver"><button class="linkbtn verlink">Reach Fibre Tester app <span class="appv">v14</span><span class="relv"></span> · Version history</button></div>
       <div class="ct-panel" id="ctJobsPanel" style="display:none;">
         <h3>Recent runs</h3>
         <div id="ctJobs"></div>
@@ -910,7 +910,7 @@
 (()=>{ const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
   let r=""; try{ r=sessionStorage.getItem("rft.relay")||""; }catch(e){}
-  window.RFT_RELAY=(r||"https://relay-njqb.onrender.com").replace(/\/$/,"");
+  window.RFT_RELAY=(r||"https://relay-eu-0t5v.onrender.com").replace(/\/$/,"");
   window.RFT_EMBED=q.get("embed")==="1"?{mode:q.get("mode")||"",cable:(q.get("cable")||"").toUpperCase(),rtu:q.get("rtu")||""}:null;
   if(window.RFT_EMBED) document.documentElement.classList.add("embed");
   // v34: short RTU names as the team says them (RGAC2, SGIC2)
@@ -929,8 +929,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v37";
+const APP_VERSION="v38";
 const APP_VERSIONS=[
+  ["v38","7 Oct 2026","The relay (service) version now shows next to the app version at the bottom of the start and E2E screens, so you can see what you are on. The sign in page shows the app version only."],
   ["v37","7 Oct 2026","Your Uni-dir progress now shows fibre by fibre on the desktop cable health check as you go. One Light or Dark button. Needs service v31."],
   ["v36","7 Oct 2026","Run history opens on Today, which loads in a second or two; pick 7, 30 or 90 days for more. The last list shows at once while it refreshes."],
   ["v35","7 Oct 2026","Notifications on your phone or browser, even with the app closed: when your E2E run or FMS Task ends, when a busy RTU is free, and when FMS stops answering during your run. Turn on under Alerts on the start screen. On iPhone add the app to the Home Screen first. Needs service v30."],
@@ -970,6 +971,9 @@ const APP_VERSIONS=[
   ["v1","Jul 2026","First build: NEXT workflow, ribbon rail, colours, report."]];
 (()=>{ const $=id=>document.getElementById(id);
   document.querySelectorAll(".appv").forEach(e=>e.textContent=APP_VERSION);
+  /* v38: relay (service) version beside the app version after sign in */
+  (function relv(){ const r=(window.RFT_RELAY||"https://relay-eu-0t5v.onrender.com").replace(/\/$/,"");
+    fetch(r+"/health",{cache:"no-store"}).then(x=>x.json()).then(h=>{ if(h&&h.version) document.querySelectorAll(".relv").forEach(e=>e.textContent=" · relay "+h.version); }).catch(()=>{}); })();
   function open(){
     $("verList").innerHTML=APP_VERSIONS.map(v=>'<div class="ver-item'+(v[0]===APP_VERSION?' cur':'')+'"><b>'+v[0]+(v[0]===APP_VERSION?' (this app)':'')+'</b><span class="vd">'+v[1]+'</span><p>'+v[2]+'</p></div>').join("");
     $("verNow").textContent="App "+APP_VERSION+" · service checking…";

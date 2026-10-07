@@ -3,7 +3,7 @@
    window.RFTPush: state(), enable(), disable(), test(), watch(rtuId, rtuName), unwatch(rtuId), resync(), isOn() */
 (function () {
   "use strict";
-  var KEY = "123456", LS = "rft.push", LIVE = "https://relay-njqb.onrender.com";
+  var KEY = "123456", LS = "rft.push", LIVE = "https://relay-eu-0t5v.onrender.com";
   function base() {
     var r = window.RFT_RELAY;
     if (!r) { try { r = sessionStorage.getItem("rft.relay"); } catch (e) {} }
