@@ -120,6 +120,14 @@
   .fhist li{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line2);font-size:13px}
   .fhist li .t{color:var(--faint);min-width:86px;font-size:12px}
   /* v41: stored OTDR traces, each row opens the trace */
+  /* v43: cable progress bars and the problem list */
+  .fprog{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+  .fprog .prow{display:grid;grid-template-columns:150px 1fr 120px;gap:12px;align-items:center;font-size:13px}
+  .fprog .pbar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line2)}
+  .fprog .pbar i{display:block;height:100%;border-radius:0;margin:0;min-width:0}
+  .fprog .probs{display:flex;flex-wrap:wrap;gap:6px}
+  .fprog .probs button{font:inherit;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--line2);background:none;color:inherit;cursor:pointer}
+  .fprog .probs button:hover{background:var(--line2)}
   .ftr{max-height:240px;overflow:auto}
   .ftr li{padding:0}
   .ftr .trrow{background:none;border:0;cursor:pointer;display:flex;gap:10px;width:100%;text-align:left;padding:7px 4px;border-radius:6px;color:inherit;font:inherit;font-size:13px;text-decoration:none}
@@ -886,12 +894,14 @@
           </span>
           <span class="grow"></span>
           <input id="fFind" type="search" placeholder="Find a fibre: F123, R11 F3, RGAC 123" aria-label="Find a fibre">
+          <button class="btn" type="button" id="fReport" hidden title="Excel report of this cable: continuity, loss from each end with the both ways average, lengths">Report (Excel)</button>
         </div>
         <div id="fHits" class="fhits" hidden></div>
         <div class="flive" id="fLive" hidden></div>
         <p class="note" id="fNote" style="margin:10px 0 0">Latest result for every fibre, from both ends. Click a fibre for its detail and history.</p>
       </section>
       <section class="fstats" id="fStats" style="margin-top:16px"></section>
+      <section class="panel fprog" id="fProg" style="margin-top:12px"></section>
       <div class="fwrap" style="margin-top:16px">
         <section class="panel">
           <div class="fgrid" id="fGrid"></div>
@@ -929,6 +939,8 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <h3>v43 (8 Oct 2026)</h3>
+      <ul><li>Stay signed in: a relay update or restart no longer signs you out.</li><li>Cable View: progress bars for continuity and loss, and a To check list of crossed, Dis., not found and high loss fibres (click one to open it).</li><li>Report (Excel) in Cable View: every fibre with continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss.</li><li>Test now: one OTDR on the selected fibre from either end (5 to 60 s), no FMS Task; the trace opens when done.</li><li>iOLM results are in the trace list; opening one shows its 1550 OTDR trace and its events.</li></ul>
       <h3>v42 (8 Oct 2026)</h3>
       <ul><li>E2E continuity uses EXFO's recommended settings: tone 4 s at 1550 nm with 330 Hz modulation, OTDR 1 s (was tone 10 s, OTDR 3 s). Runs should be much quicker; auto pacing still lengthens the tone if fibres are missed.</li></ul>
       <h3>v41 (7 Oct 2026)</h3>
@@ -993,7 +1005,7 @@
       <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
 
       <h3>Cable View</h3>
-      <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. Click a fibre for Live OTDR, its stored OTDR traces from both ends (click one to see the trace, and pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
+      <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. The bars under the totals show how much is tested, and To check lists the crossed, Dis., not found and high loss fibres; click one to open it. Report (Excel) saves the whole cable: continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss. Click a fibre for Live OTDR, Test now (one OTDR from either end, 5 to 60 s, no FMS Task), its stored OTDR and iOLM traces from both ends (click one to see the trace, an iOLM shows its 1550 OTDR trace and events; pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Live OTDR</h3>
       <p>In Cable View, click a fibre and press Live from one end. The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
       <h3>Run history</h3>
@@ -1026,7 +1038,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v42";
+  const APP_VERSION="v43";
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1057,6 +1069,7 @@
   async function relay(path, body){
     const h={"Content-Type":"application/json","X-App-Key":KEY};
     if(session.id) h["X-Session"]=session.id;
+    try{ const rz=JSON.parse(localStorage.getItem("rft.resume")||"null"); if(rz&&rz.code&&rz.sid===session.id) h["X-Resume"]=rz.code; }catch(e){}   /* v43: stay signed in through relay restarts */
     const r=await fetch(RELAY+path,{method:"POST",headers:h,body:JSON.stringify(body||{})});
     let d={}; try{d=await r.json();}catch(e){}
     if(r.status===401){ signedOut("Your session ended. Sign in again."); throw new Error("signed out"); }
@@ -1072,7 +1085,7 @@
   function stopTimers(){ timers.forEach(clearInterval); timers=[]; }
   function signedOut(msg){
     stopTimers();
-    session={id:"",user:""}; jset(SES,session);
+    session={id:"",user:""}; jset(SES,session); try{ localStorage.removeItem("rft.resume"); }catch(e){}
     $("app").hidden=true; $("blocked").hidden=true; $("signin").hidden=false;
     $("loginErr").textContent=msg||"";
     $("user").value=jget("rft.lastUser",DEFAULT_USER); $("pass").value=""; $("pass").focus();
@@ -1089,7 +1102,7 @@
     try{
       const user=$("user").value.trim();
       const d=await relay("/api/login",{username:user,password:$("pass").value});
-      session={id:d.session_id||"",user}; jset(SES,session); jset("rft.lastUser",user);
+      session={id:d.session_id||"",user}; jset(SES,session); jset("rft.lastUser",user); try{ if(d&&d.resume&&session.id) localStorage.setItem("rft.resume",JSON.stringify({sid:session.id,code:d.resume})); }catch(e){}
       $("pass").value="";
       start();
     }catch(err){ if(!quiet(err)) $("loginErr").textContent="Sign in failed: "+err.message; }
@@ -1107,7 +1120,7 @@
   async function heartbeat(){
     try{
       const cab=cableOf(selected);
-      online=await relay("/api/presence",{screen:"desktop",cable:cab?cab.pre:"",rtu:selected,detail:screen,appVersion:APP_VERSION});
+      online=await relay("/api/presence",{screen:"desktop",cable:cab?cab.pre:"",rtu:selected,detail:screen,appVersion:APP_VERSION}); { const d=online; try{ if(d&&d.resume&&session.id) localStorage.setItem("rft.resume",JSON.stringify({sid:session.id,code:d.resume})); }catch(e){} }
       const people=online.people||[], running=(online.runs||[]).length+(online.fmsTasks||[]).filter(t=>!t.error).length;
       $("onlineText").textContent=people.length+" online · "+running+" running";
       const me=people.find(p=>p.you); if(me) $("who").textContent=nice(me.name);
@@ -1911,7 +1924,7 @@
       }
       if(j.state!=="ready") throw new Error(j.note||"The download failed.");
       say("Saving…");
-      const h={"Content-Type":"application/json","X-App-Key":KEY}; if(session.id) h["X-Session"]=session.id;
+      const h={"Content-Type":"application/json","X-App-Key":KEY}; if(session.id) h["X-Session"]=session.id; try{ const rz=JSON.parse(localStorage.getItem("rft.resume")||"null"); if(rz&&rz.code&&rz.sid===session.id) h["X-Resume"]=rz.code; }catch(e){}
       const res=await fetch(RELAY+"/api/taskfiles/get",{method:"POST",headers:h,body:JSON.stringify({id:j.id})});
       if(!res.ok) throw new Error("The download has expired. Try again.");
       const blob=await res.blob(), a=document.createElement("a");
@@ -2026,8 +2039,41 @@
     if(!FB.sel){ const first=FB.data.fibres.find(r=>contOf(r)&&contOf(r).state!=="straight"); FB.sel=first?first.f:1; }
     paintFibres(); showFibre(FB.sel);
   }
+  // ── v43: how far the cable has got, in bars, and the fibres that need a look ──
+  function paintProgress(rows,cont,med){
+    const N=rows.length||1, cnt=k=>cont.filter(c=>c&&c.state===k).length, none=cont.filter(c=>!c).length;
+    const seg=(cls,n,lbl)=>n?`<i class="fc ${cls}" style="width:${(100*n/N).toFixed(2)}%" title="${lbl}: ${n}"></i>`:"";
+    const pct=n=>Math.round(100*n/N)+"%";
+    const both=rows.filter(r=>["a","b"].every(k=>(r.iolm&&r.iolm[k])||(r.otdr&&r.otdr[k]))).length;
+    const one=rows.filter(r=>["a","b"].some(k=>(r.iolm&&r.iolm[k])||(r.otdr&&r.otdr[k]))).length-both;
+    const tested=N-none;
+    const probs=[]; rows.forEach((r,i)=>{ const c=cont[i]; if(c&&c.state==="cross") probs.push([r.f,"Crossed"+(c.found?" to "+fNum(c.found):"")]);
+      else if(c&&c.state==="dis") probs.push([r.f,"Dis."]); else if(c&&c.state==="unres") probs.push([r.f,"Not found"]);
+      const l=loss1550(r); if(l!=null&&med!=null&&l-med>1.5) probs.push([r.f,`${db(l)} dB, ${db(l-med)} above typical`]); });
+    $("fProg").innerHTML=
+      `<div class="prow"><b>Continuity</b><div class="pbar">${seg("ok",cnt("straight"),"Straight")+seg("flip",cnt("flip"),"Flipped")+seg("cross",cnt("cross"),"Crossed")+seg("dis",cnt("dis"),"Dis.")+seg("unres",cnt("unres"),"Not found")}</div><span class="note">${tested} of ${N} tested (${pct(tested)})</span></div>`
+      +`<div class="prow"><b>Loss tested</b><div class="pbar">${seg("a0",both,"Both ends")+seg("a2",one,"One end")}</div><span class="note">${both} both ends, ${one} one end</span></div>`
+      +`<div class="prow" style="align-items:start"><b>To check</b><div class="probs">${probs.length?probs.slice(0,40).map(([f,t])=>`<button type="button" data-pf="${f}">${fNum(f)} · ${esc(t)}</button>`).join("")+(probs.length>40?`<span class="note">and ${probs.length-40} more</span>`:""):`<span class="note">${tested?"Nothing to check so far.":"Nothing tested yet."}</span>`}</div><span class="note">${probs.length} fibre${probs.length===1?"":"s"}</span></div>`;
+    $("fProg").querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>showFibre(+b.dataset.pf));
+  }
+  // v43: Excel report of the cable from the relay
+  async function cableReport(){
+    const b=$("fReport"); if(!FB.stem) return; b.disabled=true; const was=b.textContent; b.textContent="Making the report…";
+    try{
+      const h={"Content-Type":"application/json","X-App-Key":KEY}; if(session.id) h["X-Session"]=session.id;
+      try{ const rz=JSON.parse(localStorage.getItem("rft.resume")||"null"); if(rz&&rz.code&&rz.sid===session.id) h["X-Resume"]=rz.code; }catch(e){}
+      const res=await fetch(RELAY+"/api/report/cable",{method:"POST",headers:h,body:JSON.stringify({stem:FB.stem})});
+      if(!res.ok){ let d={}; try{ d=await res.json(); }catch(e){} throw new Error(d.detail||("HTTP "+res.status)); }
+      const name=((res.headers.get("Content-Disposition")||"").match(/filename="([^"]+)"/)||[])[1]||(FB.stem+" report.xlsx");
+      const a=document.createElement("a"); a.href=URL.createObjectURL(await res.blob()); a.download=name; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000); toast("Report saved: "+name);
+    }catch(e){ toast("Report failed: "+e.message); }
+    finally{ b.disabled=false; b.textContent=was; }
+  }
+  $("fReport").onclick=cableReport;
   function paintFibres(){
     const d=FB.data; if(!d) return;
+    $("fReport").hidden=!(RELAYV>=36);
     document.querySelectorAll("[data-fm]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.fm===FB.mode)));
     const rows=d.fibres, med=median(rows.map(loss1550)), cont=rows.map(contOf);
     const n=k=>cont.filter(c=>c&&c.state===k).length, tested=cont.filter(Boolean).length;
@@ -2037,6 +2083,7 @@
     $("fStats").innerHTML=stat("Continuity tested",tested,`of ${rows.length} fibres`)+stat("Straight",n("straight"),"latest E2E or Uni-dir")+stat("Flipped",n("flip"),n("flip")?"F1 to F12, F12 to F1":"none")+stat("Crossed",n("cross"),n("cross")?"see the amber fibres":"none")
       +stat("Dis.",n("dis"),n("dis")?"see the red fibres":"none")+stat("Typical length",lens.length?km(median(lens)):"–",lens.length?lens.length+" OTDR / iOLM readings":"no OTDR or iOLM yet")
       +stat("Typical loss 1550",med==null?"–":db(med)+" dB",med==null?"":"iOLM, or OTDR where no iOLM");
+    paintProgress(rows,cont,med);
     const head=`<span></span>${[...Array(12)].map((_,i)=>`<span class="hd">${i+1}</span>`).join("")}<span></span>`;
     let html=head;
     for(let rb=1; rb<=Math.ceil(rows.length/12); rb++){
@@ -2066,6 +2113,7 @@
     const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
     let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
     h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
+    if(RELAYV>=36) h+=`<h4>Test now</h4><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${ends.map(e=>`<button class="btn" type="button" data-once="${esc(e.rtuId)}">OTDR from ${esc(e.short||short(e.rtu))}</button>`).join("")}<label class="note" style="display:flex;gap:6px;align-items:center">Length <select id="fOnceS"><option value="5">5 s</option><option value="10" selected>10 s</option><option value="15">15 s</option><option value="30">30 s</option><option value="60">60 s</option></select></label></div><p class="note" id="fOnceNote" style="margin:6px 0 0">One OTDR at 1550 nm with FMS automatic settings, no FMS Task. The trace opens when it is done.</p>`;
     if(RELAYV>=34) h+=`<h4>OTDR traces</h4><ul class="fhist ftr" id="fTraces"><li><span class="note">Reading…</span></li></ul>`;
     h+=`<h4>Continuity</h4><div style="margin-bottom:6px">${ctag}</div>`;
     if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found&&r.e2e.state!=="straight"?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
@@ -2094,6 +2142,7 @@
     $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
     $("fDet").querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>loStart(d.stem,f,b.dataset.lo));
     if($("fTraces")) loadTraces(d.stem,f);
+    $("fDet").querySelectorAll("[data-once]").forEach(b=>b.onclick=()=>otdrOnce(d.stem,f,b.dataset.once,b));
     $("fCopy").onclick=()=>{ try{ navigator.clipboard.writeText(d.stem+"-"+fNum(f)); toast("Copied "+d.stem+"-"+fNum(f)); }catch(e){} };
     const key=d.stem+"|"+f, had=!!FB.det[key];
     try{ if(!FB.det[key]){ FB.det[key]=await relay("/api/fibre",{stem:d.stem,fibre:f}); if(FB.sel===f && Object.keys(FB.det[key].iolm||{}).length) return showFibre(f); } }
@@ -2133,11 +2182,25 @@
     try{
       const d=await relay("/api/otdr/traces",{stem,fibre:f}); if(TR.key!==key||!$("fTraces")) return;
       TR.rows=d.traces||[];
-      $("fTraces").innerHTML=TR.rows.length?TR.rows.slice(0,25).map((r,i)=>`<li><button type="button" class="lnk trrow" data-tr="${i}"><span class="t">${whenS(r.t)}</span><span>From ${esc(short(r.rtu))} · ${r.len?km(r.len):"–"} · ${r.loss!=null?db(r.loss)+" dB":"–"}${r.wl?" @"+esc(r.wl):""}${r.live?' <span class="tag">live</span>':""}</span></button></li>`).join("")
+      $("fTraces").innerHTML=TR.rows.length?TR.rows.slice(0,25).map((r,i)=>`<li><button type="button" class="lnk trrow" data-tr="${i}"><span class="t">${whenS(r.t)}</span><span>${r.kind==="iOLM"?'<span class="tag">iOLM</span> ':""}From ${esc(short(r.rtu))} · ${r.len?km(r.len):"–"} · ${r.loss!=null?db(r.loss)+" dB":"–"}${r.wl?" @"+esc(r.wl):""}${r.kind==="iOLM"&&(r.wls||[]).length>1?` <span class="note">(${esc(r.wls.join(", "))})</span>`:""}${r.live?' <span class="tag">live</span>':""}</span></button></li>`).join("")
         +(TR.rows.length>25?`<li><span class="note">${TR.rows.length-25} older not shown.</span></li>`:"")
         :`<li><span class="note">No stored OTDR trace on this fibre yet.</span></li>`;
       $("fTraces").querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>trOpen(+b.dataset.tr));
     }catch(e){ if(!quiet(e)&&$("fTraces")) $("fTraces").innerHTML=`<li><span class="note">Traces not available: ${esc(e.message)}</span></li>`; }
+  }
+  // v43: one OTDR now on the selected fibre; the trace opens in the trace window and joins the list
+  async function otdrOnce(stem,f,rtuId,btn){
+    const secs=+($("fOnceS")||{}).value||10, note=$("fOnceNote"), all=$("fDet").querySelectorAll("[data-once]");
+    all.forEach(b=>b.disabled=true); const t0=Date.now();
+    const tick=setInterval(()=>{ if(note) note.textContent=`Testing ${fNum(f)}… ${Math.round((Date.now()-t0)/1000)} s`; },500);
+    try{
+      const t=await relay("/api/otdr/once",{stem,fibre:f,rtuId,seconds:secs});
+      clearInterval(tick); if(note) note.textContent=`Done in ${Math.round(t.secs)} s: ${t.len?km(t.len):"length not read"}.`;
+      TR.cache[t.resultId]=t;
+      const row={resultId:t.resultId,t:t.t,rtuId:t.rtuId,rtu:t.rtu,len:t.len,loss:null,wl:"1550",live:false};
+      if(FB.sel===f){ TR.rows=[row,...TR.rows.filter(x=>x.resultId!==t.resultId)]; trOpen(0); setTimeout(()=>{ if(FB.sel===f&&$("fTraces")) loadTraces(stem,f); },2500); }
+    }catch(e){ clearInterval(tick); if(!quiet(e)&&note) note.textContent=e.message; }
+    finally{ all.forEach(b=>b.disabled=false); }
   }
   async function trGet(r){ if(!TR.cache[r.resultId]) TR.cache[r.resultId]=await relay("/api/otdr/trace",{resultId:r.resultId}); return TR.cache[r.resultId]; }
   async function trOpen(i,over){
@@ -2146,7 +2209,12 @@
     LO.s={view:true, fibre:FB.sel, rtuName:r.rtu, row:r, state:"view", count:1, ref:null, latest:null, shots:[], over:null};
     $("loCmp").innerHTML=`<option value="">Nothing</option>`+TR.rows.slice(0,25).map((x,j)=>j===i?"":`<option value="${j}">${whenS(x.t)} from ${esc(short(x.rtu))}</option>`).join("");
     loPaint(); $("loInfo").textContent="Reading the trace from FMS…";
-    try{ const t=await trGet(r); if(!LO.s||LO.s.row!==r) return; LO.s.ref={t:r.t,len:t.len,trace:t.trace,events:t.events,resultId:r.resultId}; loPaint(); }
+    try{ const t=await trGet(r); if(!LO.s||LO.s.row!==r) return;
+      if(!t.trace){   /* v43: an iOLM result FMS gave no trace for: show its events */
+        $("loChart").innerHTML=`<text x="550" y="190" text-anchor="middle">${esc(t.note||"No trace for this result.")}</text>`;
+        $("loFind").innerHTML=(t.events||[]).map(e=>`<button type="button">${esc(e.type||"Event")} ${e.loss!=null?(+e.loss).toFixed(2)+" dB ":""}at ${(e.m/1000).toFixed(2)} km</button>`).join("")||'<span class="note">No events either.</span>';
+        return; }
+      LO.s.ref={t:r.t,len:t.len,trace:t.trace,events:t.events,resultId:r.resultId}; loPaint(); }
     catch(e){ if(!quiet(e)){ $("loErr").hidden=false; $("loErr").textContent=e.message; } }
   }
   $("loCmp").onchange=async()=>{
@@ -2186,7 +2254,7 @@
   function loEvery(s){ const t=(s.shots||[]).slice(-5).map(x=>x.t); if(t.length<2) return 0; return Math.round((t[t.length-1]-t[0])/(t.length-1)); }
   function loInfo(){
     const s=LO.s; if(!s) return;
-    if(s.view){ const r=s.row; $("loInfo").textContent=`Stored OTDR · ${whenS(r.t)} · from ${short(r.rtu)} · ${r.len?km(r.len):"length not read"}${r.loss!=null?" · "+db(r.loss)+" dB":""}${r.wl?" at "+r.wl+" nm":""}${r.live?" · a live OTDR shot":""}`; return; } const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
+    if(s.view){ const r=s.row; $("loInfo").textContent=`${r.kind==="iOLM"?"Stored iOLM (its 1550 OTDR trace)":"Stored OTDR"} · ${whenS(r.t)} · from ${short(r.rtu)} · ${r.len?km(r.len):"length not read"}${r.loss!=null?" · "+db(r.loss)+" dB":""}${r.wl?" at "+r.wl+" nm":""}${r.live?" · a live OTDR shot":""}`; return; } const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
     $("loShot").value=String(s.shotS||3); $("loShot").disabled=s.state!=="running";
     $("loInfo").textContent=s.state==="running"
       ? `${s.count} trace${s.count===1?"":"s"} so far · 1550 nm, automatic settings, ${s.shotS} s shot · ${ev?`a new trace every ${ev} s`:"timing the first traces"} · stops in ${left} min · started by ${s.owner}`

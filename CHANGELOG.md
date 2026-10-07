@@ -443,6 +443,27 @@ in one direction.
 
 ---
 
+## v43 (desktop) + v40 (phone) + relay v36 — 8 October 2026 — signed in through restarts, reports, Test now, iOLM traces
+
+Alkis 8 Oct: "Do 1, 2, 3, 4, 5, 7" from the improvement list (1 was v42).
+- **Stay signed in** (relay `relay_resume.py`): login and every presence call return an encrypted resume code
+  (AES-GCM, key from SESSION_KEY or VAPID_PRIVATE_KEY via HKDF) holding the session id, user and latest FMS
+  refresh token. Apps keep it in `rft.resume` and send `X-Resume` with `X-Session`; when the relay does not know
+  the session (restart or deploy) a middleware renews the FMS token and carries on under the same session id.
+  Codes are tied to their session id, refused if tampered or older than 12 h, and cleared on sign out.
+- **Cable View progress** (desktop): bars for continuity (straight, flipped, crossed, Dis., not found) and loss
+  tested (both ends, one end), and a To check list (crossed, Dis., not found, 1550 loss over 1.5 dB above typical).
+- **Report (Excel)** (relay `relay_report.py`, `POST /api/report/cable {stem, ribbons?}`, openpyxl): Summary and
+  Fibres sheets; iOLM loss per wavelength read from FMS for both ends (8 at a time, cached 10 min) with the both
+  ways average; Flipped by the same two mirror pairs rule as Cable View. CORS exposes Content-Disposition.
+- **Test now** (relay `POST /api/otdr/once {stem, fibre, rtuId, seconds 5|10|15|30|60}`): one direct ad hoc OTDR,
+  RTU busy check, marks the RTU testing, returns the trace; desktop opens it in the trace window.
+- **iOLM in the trace list**: `/api/otdr/traces` lists OTDR and iOLM results (iOLM with its wavelengths);
+  `/api/otdr/trace` on an iOLM asks FMS to extract its OTDR traces (`POST .../otdr/extract`, then
+  metadata.RelatedResults), draws the 1550 one and lists the iOLM link elements as events. If FMS gives no trace,
+  the events alone are shown. To confirm on live: the extract call and the RelatedResults shape.
+- Tests: new test_resume 9, test_fibres_v36 20, ui_fibres_v43 15.
+
 ## v42 (desktop) + v39 (phone) + relay v35 — 8 October 2026 — EXFO continuity settings
 
 - Alkis 8 Oct, EXFO's parameters "giving the best results under normal network conditions":

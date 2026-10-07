@@ -15,6 +15,7 @@
   async function call(path, body, get) {
     var h = { "X-App-Key": KEY }, s = ses();
     if (s.id) h["X-Session"] = s.id;
+    try { var rz = JSON.parse(localStorage.getItem("rft.resume") || "null"); if (rz && rz.code && rz.sid === s.id) h["X-Resume"] = rz.code; } catch (e) {}
     if (!get) h["Content-Type"] = "application/json";
     var r = await fetch(base() + path, get ? { headers: h } : { method: "POST", headers: h, body: JSON.stringify(body || {}) });
     var j = {}; try { j = await r.json(); } catch (e) {}
