@@ -62,6 +62,43 @@
   nav button:hover{background:var(--soft);color:var(--ink)}
   nav button[aria-current=page]{background:var(--soft);color:var(--ink)}
   .pill{display:flex;align-items:center;gap:8px;background:var(--soft);color:var(--ink);border:0;border-radius:999px;padding:8px 14px;min-height:36px;cursor:pointer;font-weight:600;font-size:13px}
+  /* v46: top bar drop down menus */
+  .mnav{gap:4px}
+  .mi{position:relative;display:inline-flex;align-items:center;border-radius:8px}
+  .mi > button[data-nav]{padding-right:4px}
+  .mi .mcar{background:none;border:0;color:var(--faint);cursor:pointer;padding:8px 8px 8px 2px;font-size:11px;min-height:36px;border-radius:4px}
+  .mi:hover .mcar,.mi.open .mcar{color:var(--ink)}
+  .mi.cur{background:var(--soft)} .mi.cur > button[data-nav]{color:var(--ink)}
+  .mdd{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:300px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(23,26,32,.16);padding:6px;z-index:60}
+  .mdd.right{left:auto;right:0}
+  .mdd.mshort{min-width:200px}
+  :root[data-look=glass] .mdd{background:rgba(255,255,255,.98);backdrop-filter:blur(14px)}
+  :root[data-look=glass][data-theme=dark] .mdd{background:rgba(24,22,48,.98)}
+  :root[data-theme=dark] .mdd{box-shadow:0 18px 44px rgba(0,0,0,.45)}
+  .mi.open > .mdd{display:block}
+  .mdd [role=menuitem]{display:block;width:100%;text-align:left;background:none;border:0;border-radius:9px;padding:8px 12px;cursor:pointer;color:var(--ink);font:inherit}
+  .mdd [role=menuitem]:hover,.mdd [role=menuitem]:focus-visible{background:var(--brand-tint);outline:none}
+  .mdd [role=menuitem] b{display:block;font-weight:700;font-size:13.5px}
+  .mdd [role=menuitem] span{display:block;color:var(--muted);font-size:12px;font-weight:500;margin-top:1px}
+  .mdd .msec{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);padding:8px 12px 2px}
+  .mdd .mfoot{font-size:12px;color:var(--muted);padding:8px 12px 4px;border-top:1px solid var(--line2);margin-top:4px}
+  .mdd .mfoot:empty{display:none}
+  .mdd .mrow{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 8px 8px;border-bottom:1px solid var(--line2);margin-bottom:4px}
+  .mdd .pbm{height:5px;border-radius:3px;background:var(--soft2);margin-top:6px;overflow:hidden;display:block}.mdd .pbm i{display:block;height:100%;background:var(--ok)}
+  #meBtn{display:inline-flex;align-items:center;gap:8px;color:var(--ink);font-weight:600;font-size:13px;padding:4px 10px 4px 4px}
+  #meBtn .av{width:26px;height:26px;border-radius:50%;background:var(--live);color:#fff;display:grid;place-items:center;font-weight:800;font-size:11px}
+  #meBtn .who{display:inline}
+  dialog.pickdlg{border:0;border-radius:16px;padding:22px 24px;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(23,26,32,.25)}
+  dialog.pickdlg::backdrop{background:rgba(23,26,32,.35)}
+  dialog.pickdlg h2{margin:0 0 4px;font-size:18px}
+  dialog.pickdlg select{width:100%}
+  #pickEnd button{padding:8px 14px}
+  /* v46: fibre panel tabs and Test this fibre */
+  .ftabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:16px 0 4px}
+  .ftabs button{background:none;border:0;padding:9px 12px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer;box-shadow:inset 0 -2px transparent}
+  .ftabs button[aria-selected=true]{color:var(--brand-ink);box-shadow:inset 0 -2px var(--brand)}
+  .ftest{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px 14px 14px;margin-top:12px}
+  .ftest h4:first-child{margin-top:10px}
   .hdrlink{color:var(--muted);font-size:13px;font-weight:600;background:none;border:0;cursor:pointer;padding:8px 6px}
   .hdrlink:hover{color:var(--ink)}
   .who{color:var(--muted);font-size:13px;font-weight:500}
@@ -294,6 +331,36 @@
   .lohead h2{margin:0;font-size:20px;font-weight:500}
   .lobody{padding:14px 24px 22px;display:flex;flex-direction:column;gap:12px}
   .lochart{width:100%;height:auto;display:block;background:var(--soft);border-radius:12px}
+  /* v45: OTDR event table and iOLM link view */
+  .evwrap{overflow:auto;max-height:340px;border:1px solid var(--line);border-radius:12px}
+  table.evt{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  table.evt th{position:sticky;top:0;background:var(--soft2);color:var(--muted);font-weight:700;font-size:12px;text-align:right;padding:8px 10px;white-space:nowrap;z-index:1}
+  table.evt th:nth-child(-n+2),table.evt td:nth-child(-n+2){text-align:left}
+  table.evt td{padding:7px 10px;border-top:1px solid var(--line2);text-align:right;white-space:nowrap}
+  table.evt tbody tr{cursor:pointer}
+  table.evt tbody tr:hover{background:var(--brand-tint)}
+  table.evt tr.sel{background:var(--brand-tint);box-shadow:inset 3px 0 0 var(--brand)}
+  table.evt .w{color:var(--warn);font-weight:700} table.evt .b{color:var(--bad);font-weight:700} table.evt .dim{color:var(--faint)}
+  .evhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap} .evhead h3{margin:0;font-size:15px}
+  .lvsum{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .lvsum .k{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:13px}
+  .lvsum .k b{font-size:15px;margin-left:4px}
+  .lvsum .pass{background:var(--ok-tint);color:var(--ok);border-color:transparent;font-weight:800}
+  .lvsum .fail{background:var(--bad-tint);color:var(--bad);border-color:transparent;font-weight:800}
+  .lvscroll{overflow-x:auto;background:var(--soft);border-radius:12px}
+  svg.lview{display:block;height:auto}
+  svg.lview text{font-family:var(--sans);fill:var(--muted);font-size:11px}
+  svg.lview .fib{stroke:var(--faint);stroke-width:3}
+  svg.lview .km{fill:var(--ink);font-weight:700;font-size:11px}
+  svg.lview .lo{fill:var(--ink);font-weight:800;font-size:12px}
+  svg.lview .el{cursor:pointer}
+  svg.lview .el .ic{stroke-width:2}
+  svg.lview .el.p .ic{fill:var(--ok-tint);stroke:var(--ok)} svg.lview .el.f .ic{fill:var(--bad-tint);stroke:var(--bad)}
+  svg.lview .el.m .ic{fill:var(--warn-tint);stroke:var(--warn)} svg.lview .el.u .ic{fill:var(--surface);stroke:var(--muted)}
+  svg.lview .el.sel .ring{stroke:var(--brand);stroke-width:2;fill:none}
+  svg.lview .el.f .lo{fill:var(--bad)}
+  .lochart .evm{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3} .lochart .evm.sel{stroke:var(--brand);stroke-width:2;stroke-dasharray:none}
+  .lochart .evn{fill:var(--ink);font-size:10px;font-weight:700}
   .lochart .ref{fill:none;stroke:var(--faint);stroke-width:1.4}
   .lochart .new{fill:none;stroke:var(--brand);stroke-width:1.6}
   .lochart .grid{stroke:var(--line);stroke-width:1}
@@ -559,21 +626,35 @@
   <header>
     <img class="logo" src="logo.png" alt="Motion">
     <div class="title">Reach Fibre Tester</div>
-    <nav aria-label="Screens">
-      <button data-nav="live">Live</button>
-      <button data-nav="console">Console</button>
-      <button data-nav="fibres" hidden>Cable View</button>
-      <button data-nav="history">Run history</button>
+    <nav aria-label="Screens" class="mnav">
+      <div class="mi" data-mi="ov"><button data-nav="live">Overview</button><button type="button" class="mcar" aria-label="Overview menu" aria-haspopup="menu" aria-expanded="false">▾</button>
+        <div class="mdd" role="menu"><button type="button" role="menuitem" data-act="live"><b>Live now</b><span>Route map, everything running, who is online</span></button><button type="button" role="menuitem" data-act="rtus"><b>RTUs</b><span>Every RTU: online, busy, what it is doing</span></button><button type="button" role="menuitem" data-act="route"><b>Route map</b><span>The Reach route with each RTU's state</span></button><button type="button" role="menuitem" data-act="done"><b>Finished today</b><span>Runs and Tasks that ended today</span></button></div></div>
+      <div class="mi" data-mi="tr"><button data-nav="history">Tasks &amp; runs</button><button type="button" class="mcar" aria-label="Tasks and runs menu" aria-haspopup="menu" aria-expanded="false">▾</button>
+        <div class="mdd" role="menu"><div class="msec">Now</div><button type="button" role="menuitem" data-act="running"><b>Running now</b><span>Everyone's runs and FMS Tasks, live</span></button><div class="msec">Records</div><button type="button" role="menuitem" data-act="history"><b>Run history</b><span>E2E, tone and FMS Tasks, any day</span></button><button type="button" role="menuitem" data-act="tasks"><b>FMS Tasks on an RTU</b><span>Bulk Tasks per RTU; cancel a running one</span></button><button type="button" role="menuitem" data-act="files"><b>Download Task files</b><span>Open a finished Task, then Download files</span></button><button type="button" role="menuitem" data-act="csv"><b>Export CSV</b><span>The runs list for the days shown</span></button></div></div>
+      <div class="mi" data-mi="tl"><button data-nav="console">Tools</button><button type="button" class="mcar" aria-label="Tools menu" aria-haspopup="menu" aria-expanded="false">▾</button>
+        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="t-live"><b>Real Time</b></button><button type="button" role="menuitem" data-act="t-once"><b>Single Test</b></button><button type="button" role="menuitem" data-act="t-e2e"><b>E2E Continuity</b></button><button type="button" role="menuitem" data-act="t-uni"><b>Tone Test</b></button><button type="button" role="menuitem" data-act="t-bulk"><b>Bulk Test</b></button><div class="mfoot" id="mPickNote"></div></div></div></div>
+      <div class="mi" data-mi="cv" id="miCv" hidden><button data-nav="fibres">Cable View</button><button type="button" class="mcar" aria-label="Cable View menu" aria-haspopup="menu" aria-expanded="false">▾</button>
+        <div class="mdd" role="menu"><div id="mCables"></div><div class="msec">Across cables</div><button type="button" role="menuitem" data-act="find"><b>Find a fibre</b><span>Type F123, R11 F3 or RGAC 123</span></button><button type="button" role="menuitem" data-act="report"><b>Cable report (Excel)</b><span>The cable on screen, both ends</span></button></div></div>
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
-    <button class="pill" id="alertBtn" aria-expanded="false" aria-controls="alertPanel" title="Notifications"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="alertText">Alerts</span></button>
-    <span class="themesw" role="group" aria-label="Appearance"><button type="button" data-th="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button><button type="button" data-th="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Dark</button></span>
-    <span class="who" id="who"></span>
-    <button class="hdrlink" id="helpBtn" aria-haspopup="dialog">Help</button>
-    <button class="hdrlink" id="mobileBtn">Mobile view</button>
-    <button class="hdrlink" id="signOut">Sign out</button>
+
+
+    <div class="mi me" data-mi="me"><button type="button" class="pill mcar" id="meBtn" aria-haspopup="menu" aria-expanded="false"><span class="av" id="meAv">·</span><span class="who" id="who"></span> ▾</button>
+      <div class="mdd right" role="menu" id="meMenu">
+        <div class="mrow"><button class="pill" id="alertBtn" aria-expanded="false" aria-controls="alertPanel" title="Notifications"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="alertText">Alerts</span></button><span class="themesw" role="group" aria-label="Appearance"><button type="button" data-th="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button><button type="button" data-th="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Dark</button></span></div>
+        <button type="button" role="menuitem" class="hdrlink" id="helpBtn" aria-haspopup="dialog"><b>Help and release notes</b></button>
+        <button type="button" role="menuitem" class="hdrlink" id="mobileBtn"><b>Mobile view</b><span>Open the phone app</span></button>
+        <button type="button" role="menuitem" class="hdrlink" id="signOut"><b>Sign out</b></button>
+        <div class="mfoot" id="meVer"></div>
+      </div></div>
   </header>
+  <dialog class="pickdlg" id="pickDlg" aria-labelledby="pickTitle"><form method="dialog">
+    <h2 id="pickTitle">Which cable?</h2><p class="note" id="pickSub" style="margin:0 0 12px"></p>
+    <label class="f">Cable<select id="pickCable"></select></label>
+    <div class="note" style="margin:12px 0 6px">From</div><div class="seg" id="pickEnd"></div>
+    <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end"><button class="btn" value="cancel" type="submit">Cancel</button><button class="btn primary" id="pickGo" type="button">Open</button></div>
+  </form></dialog>
   <div class="online" id="onlinePanel" hidden></div>
   <div class="online" id="alertPanel" hidden>
     <h3>Notifications</h3>
@@ -940,6 +1021,10 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <h3>v46 (8 Oct 2026)</h3>
+      <ul><li>New top bar with drop down menus: Overview, Tasks and runs, Tools and Cable View. Hover or press ▾ to see what each holds; click the name itself to go straight to its page.</li><li>Tools (was Console): Real Time, Single Test, E2E Continuity, Tone Test and Bulk Test. Each asks which cable and end first, and remembers it.</li><li>Alerts, Light or Dark, Help, Mobile view and Sign out are in the menu under your name.</li><li>A fibre in Cable View has a Test this fibre button (Live OTDR and Test now) and Summary, Traces and History tabs. It opens the next fibre the way you left it.</li></ul>
+      <h3>v45 (8 Oct 2026)</h3>
+      <ul><li>OTDR traces have an event table under the trace, laid out like the instrument's: number, type, distance, section length, loss, reflectance, attenuation and cumulative loss. Numbers on the trace match the table; click a row to zoom to it. Amber and red pick out high loss and reflectance.</li><li>iOLM results open in a Link View like EXFO's: every element in order (connectors, splices, splitters) coloured by its pass or fail, with the section lengths and attenuation between them, the link length, loss and ORL per wavelength, and a wavelength choice. The element table sits under it, and the 1550 OTDR trace FMS made from the iOLM (with its own event table) below that.</li></ul>
       <h3>v44 (8 Oct 2026)</h3>
       <ul><li>Keep me signed in: tick it when you sign in and the app stays signed in on this computer for up to 30 days, through restarts and sleep. Sign out ends it.</li><li>Test now can run an iOLM: pick iOLM, the FMS setup (iOLM Motion NRS-304 or AdHoc iOLM) and the wavelengths, then iOLM from either end. Standard iOLM, no FMS Task; the result opens with its trace and events when done. Your choices are remembered.</li></ul>
       <h3>v43 (8 Oct 2026)</h3>
@@ -974,6 +1059,9 @@
       <ul><li>First desktop console: RTU Tasks with cancel.</li></ul>
     </div>
     <div class="helpbody" id="helpGuide">
+      <h3>Finding your way</h3>
+      <ul><li><b>Overview</b>: Live now (route map, everything running, who is online), RTUs, Finished today.</li><li><b>Tasks &amp; runs</b>: Running now, Run history, FMS Tasks on an RTU (cancel), Download Task files, Export CSV.</li><li><b>Tools</b>: Real Time (live OTDR), Single Test (one OTDR or iOLM), E2E Continuity, Tone Test (Uni-dir), Bulk Test (iOLM or OTDR Task). Each asks which cable and end first and remembers it.</li><li><b>Cable View</b>: the four cables with their progress, Find a fibre, the Excel report.</li><li><b>Your name</b> (top right): Alerts, Light or Dark, Help, Mobile view, Sign out.</li></ul>
+      <p class="note">Hover over a menu or press ▾ to open it; click the name itself to go straight to its page.</p>
       <h3>What it is</h3>
       <p>The desktop console shows every RTU on the Reach route, what is running on each, and lets you start and cancel bulk tests from one screen. It uses the same sign in and service as the mobile app, and only named accounts can use it. Nothing here changes the mobile app.</p>
 
@@ -987,7 +1075,7 @@
       </div>
       <p class="note">Lights refresh every minute, running Tasks and tones every 5 seconds. Tests started with Test On Demand in the FMS screen create no Task, so they cannot be seen.</p>
 
-      <h3>RTU tabs</h3>
+      <h3>Tools (the tabs for the RTU you picked)</h3>
       <ul>
         <li><b>Tasks</b>: bulk Tasks on this RTU with progress. <b>Cancel…</b> stops one at any point: finished fibres keep their results, the rest never run. Cancelling someone else's Task asks you to confirm whose it is. A cancelled Task drops off the FMS Tasks page but stays in Run history here.</li>
         <li><b>Bulk Test</b>: pick fibres (ribbon buttons, or type e.g. 61-72, 80), choose OTDR or iOLM and the settings, then <b>Start</b>.</li>
@@ -997,21 +1085,21 @@
 
       <h3>Starting a bulk test</h3>
       <ol>
-        <li>Pick the RTU on the left, then the Bulk Test tab.</li>
+        <li>Tools ▾, Bulk Test, then pick the cable and the end to test from (or pick the RTU on the left and the Bulk Test tab).</li>
         <li>Pick fibres. The comment fills in as the RTU and fibres (e.g. RGAC2 F061-F063); type over it if you want.</li>
         <li>OTDR: wavelengths (each wavelength is a separate FMS Task, because FMS fires one wavelength at a time), duration, and automatic or set pulse and range. iOLM: test limit, acquisition type and wavelengths (all in one shot).</li>
         <li>Press <b>Start</b>. FMS first confirms every fibre exists on that RTU and nothing is started yet; you then see one summary (fibres, Tasks, time, anything already running) and press OK to start.</li>
       </ol>
       <p class="note">Time guide, measured on RGAC2: OTDR about the acquisition time plus 17 s per fibre per wavelength; iOLM Standard about 73 s per fibre. If an RTU is already busy, FMS shares it between Tasks, so both take longer.</p>
 
-      <h3>Live (the first screen)</h3>
+      <h3>Overview: Live now (the first screen)</h3>
       <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
 
       <h3>Cable View</h3>
       <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. The bars under the totals show how much is tested, and To check lists the crossed, Dis., not found and high loss fibres; click one to open it. Report (Excel) saves the whole cable: continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss. Click a fibre for Live OTDR, Test now (one OTDR from either end, 5 to 60 s, or one Standard iOLM with the setup and wavelengths you pick; no FMS Task), its stored OTDR and iOLM traces from both ends (click one to see the trace, an iOLM shows its 1550 OTDR trace and events; pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Live OTDR</h3>
-      <p>In Cable View, click a fibre and press Live from one end. The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
-      <h3>Run history</h3>
+      <p>In Cable View, click a fibre, press Test this fibre, then Live from one end (or Tools ▾, Real Time). The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
+      <h3>Tasks &amp; runs: Run history</h3>
       <p>Finished work: every E2E run, Uni-dir session and FMS bulk Task, including cancelled ones. (The Tasks tab is different: it shows bulk Tasks running on one RTU now, and lets you cancel them.) It opens on Today, which is quickest; choose 7, 30 or 90 days for more. "App runs only" skips the FMS Tasks and loads fastest. The last list shows at once while it refreshes. Filter by result, type, RTU and person, click a row for detail, or export a CSV.</p>
       <p>For a finished FMS Task, the detail has <b>Download files</b>: the .sor file of every fibre in the Task, in one zip named after the cable, RTU, test type and start time. FMS makes the files 20 at a time, so a full ribbon set takes a minute or two.</p>
 
@@ -1030,8 +1118,10 @@
     <div class="lobody">
       <p class="note" id="loInfo" style="margin:0">Starting…</p>
       <div class="warnbox" id="loErr" hidden></div>
+      <div id="loLink" hidden></div>
       <svg class="lochart" id="loChart" viewBox="0 0 1100 380" role="img" aria-label="OTDR trace"></svg>
       <div class="lofind" id="loFind"></div>
+      <div id="loEv" hidden></div>
       <p class="note" style="margin:0" id="loNote">Grey is the reference (the first trace, or the one you chose). Blue is the latest. A red line marks new loss of 0.15 dB or more since the reference, with its distance from the RTU. Click a red mark to zoom in. Each trace is a short OTDR at 1550 nm with FMS automatic settings (3 s unless you pick another Shot length). The next OTDR starts as soon as FMS has stored the last one. A shorter shot is quicker but noisier towards the far end.</p>
     </div>
   </dialog>
@@ -1041,7 +1131,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v44";
+  const APP_VERSION="v46";
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1200,16 +1290,80 @@
     screen=s;
     $("screen-console").hidden=s!=="console"; $("screen-history").hidden=s!=="history"; $("screen-live").hidden=s!=="live"; $("screen-fibres").hidden=s!=="fibres";
     $("side").hidden=s==="live"||s==="fibres";       // v34: Live uses the full width; the route map replaces the RTU list
-    document.querySelectorAll("nav button").forEach(b=>{ if(b.dataset.nav===s) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+    document.querySelectorAll("nav [data-nav]").forEach(b=>{ b.parentElement.classList.toggle("cur",b.dataset.nav===s); if(b.dataset.nav===s) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     if(s==="history") loadHistory();
     if(s==="live") openLive();
     if(s==="fibres"){ openFibres(); if(!fibT) pollFibres(); }
   }
-  document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav [data-nav]").forEach(b=>b.onclick=()=>{ menusClose(true);
     const n=b.dataset.nav;
     if(n==="history"||n==="live"||n==="fibres") return setScreen(n);
     screen="console"; showTab(tab);
   });
+  // ── v46: top bar drop down menus ──
+  const MI=[...document.querySelectorAll(".mi")]; let mT=null, mSup=null;
+  function menusClose(sup){ clearTimeout(mT); MI.forEach(m=>{ m.classList.remove("open"); const c=m.querySelector(".mcar"); if(c) c.setAttribute("aria-expanded","false"); }); mSup=sup?document.querySelector(".mi:hover"):null; }
+  function menuOpen(m){ menusClose(); if(m.dataset.mi==="cv") paintCableMenu(); if(m.dataset.mi==="tl") $("mPickNote").textContent=pickNote(); if(m.dataset.mi==="me") $("meVer").textContent=$("appv").textContent;
+    m.classList.add("open"); const c=m.querySelector(".mcar"); if(c) c.setAttribute("aria-expanded","true"); }
+  MI.forEach(m=>{
+    const c=m.querySelector(".mcar"); if(c) c.addEventListener("click",e=>{ e.stopPropagation(); m.classList.contains("open")?menusClose():menuOpen(m); });
+    m.addEventListener("mouseenter",()=>{ clearTimeout(mT); if(mSup===m) return; mT=setTimeout(()=>menuOpen(m),220); });
+    m.addEventListener("mouseleave",()=>{ clearTimeout(mT); if(mSup===m) mSup=null; mT=setTimeout(()=>{ if(!m.matches(":hover")) m.classList.remove("open"); },200); });
+  });
+  document.addEventListener("click",e=>{ if(!e.target.closest(".mi")) menusClose(); const b=e.target.closest(".mdd [role=menuitem]"); if(b) menusClose(true); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") menusClose(); });
+  window.rftMenu=k=>{ const m=MI.find(x=>x.dataset.mi===k); if(m) menuOpen(m); };
+  new MutationObserver(()=>{ const n=$("who").textContent.trim(); $("meAv").textContent=n?n.split(/[\s@.]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(""):"·"; }).observe($("who"),{childList:true,characterData:true,subtree:true});
+  const goLive=id=>{ setScreen("live"); setTimeout(()=>{ const el=id&&document.querySelector(id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); },60); };
+  function paintCableMenu(){
+    const P=FB.prog||{};
+    $("mCables").innerHTML=STEMS.map(([k,n])=>{ const p=P[k]; return `<button type="button" role="menuitem" data-act="cable" data-stem="${k}"><b>${esc(n)} · ${esc(k.replace(/-R\d+$/,""))}</b><span>${p?`${p.tested} of ${p.n} continuity · ${p.probs} to check`:"Open to see its progress"}</span>${p?`<i class="pbm"><i style="width:${(100*p.tested/(p.n||1)).toFixed(1)}%"></i></i>`:""}</button>`; }).join("");
+  }
+  // the cable and end the tools start from (remembered)
+  const stemOfCable=c=>(STEMS.find(([k])=>k.startsWith(c.pre))||[c.pre+"-A-R432"])[0];
+  function pickNote(){ const s=jget("rft.pick",null); const c=s&&CABLES.find(x=>x.pre===s.pre); return c?`From ${c.pre} ${(c.rtus.find(r=>r[1]===s.rtu)||c.rtus[0])[0]}`:""; }
+  function pickCable(title,needFibre,go){
+    const s=jget("rft.pick",{pre:(cableOf(selected)||CABLES[1]).pre, rtu:selected, f:1});
+    $("pickTitle").textContent=title; $("pickSub").textContent=needFibre?"Pick the cable, the end to test from and the fibre.":"Pick the cable and the end to start from.";
+    $("pickCable").innerHTML=CABLES.map(c=>`<option value="${c.pre}">${esc(c.name)} · ${c.pre}</option>`).join(""); $("pickCable").value=s.pre;
+    let end=s.rtu;
+    const ends=()=>{ const c=CABLES.find(x=>x.pre===$("pickCable").value); if(!c.rtus.some(r=>r[1]===end)) end=c.rtus[0][1];
+      $("pickEnd").innerHTML=c.rtus.map(([sh,n])=>`<button type="button" data-end="${n}" aria-pressed="${n===end}">${esc(sh)}${rtuState[n]&&rtuState[n].online===false?" (offline)":""}</button>`).join("")
+        +(needFibre?`<label class="note" style="display:flex;gap:6px;align-items:center;margin-left:12px">Fibre <input id="pickF" type="number" min="1" max="432" value="${s.f||1}" style="width:80px"></label>`:"");
+      $("pickEnd").querySelectorAll("[data-end]").forEach(b=>b.onclick=()=>{ end=b.dataset.end; ends(); }); };
+    $("pickCable").onchange=ends; ends();
+    $("pickGo").onclick=()=>{ const c=CABLES.find(x=>x.pre===$("pickCable").value), f=needFibre?Math.max(1,Math.min(432,+($("pickF")||{}).value||1)):s.f;
+      jset("rft.pick",{pre:c.pre, rtu:end, f}); $("pickDlg").close(); go(c,end,f); };
+    const dl=$("pickDlg"); if(dl.showModal) dl.showModal(); else dl.setAttribute("open","");
+  }
+  async function openFibreAt(stem,f,then){
+    if(FB.stem!==stem){ FB.stem=stem; jset("rft.fib.stem",stem); FB.sel=f; }
+    setScreen("fibres");
+    for(let i=0;i<60 && !(FB.data&&FB.data.stem===stem&&(FB.data.fibres||[]).length);i++) await new Promise(r=>setTimeout(r,250));
+    if(FB.data&&FB.data.stem===stem){ await showFibre(f); if(then) then(); }
+  }
+  function doAct(a,ds){
+    const tool=(t,title)=>pickCable(title,false,(c,end)=>{ pickRtu(end); screen="console"; showTab(t); });
+    switch(a){
+      case "live": return goLive();
+      case "route": return goLive(".lmap");
+      case "done": return goLive("#lDone");
+      case "running": return goLive("#lCards");
+      case "rtus": case "tasks": setScreen("console"); return showTab("tasks");
+      case "history": return setScreen("history");
+      case "files": setScreen("history"); return toast("Open a finished FMS Task in the list, then press Download files.");
+      case "csv": setScreen("history"); return setTimeout(()=>{ const b=$("hCsv"); if(b){ b.focus(); toast("Pick the days and filters, then Export CSV."); } },200);
+      case "t-e2e": return tool("e2e","E2E Continuity: which cable?");
+      case "t-uni": return tool("uni","Tone Test: which cable?");
+      case "t-bulk": return tool("bulk","Bulk Test: which cable?");
+      case "t-once": case "t-live": return pickCable(a==="t-once"?"Single Test: which fibre?":"Real Time: which fibre?",true,(c,end,f)=>{
+          const stem=stemOfCable(c); openFibreAt(stem,f,()=>{ if(a==="t-live"){ const id=idOf(end)||((FB.data.ends||[]).find(e=>e.rtu===end)||{}).rtuId; if(id) loStart(stem,f,id); } else fibrePanel("test"); }); });
+      case "cable": { const stem=ds.stem; if(FB.stem!==stem){ FB.stem=stem; jset("rft.fib.stem",stem); FB.sel=0; } return setScreen("fibres"); }
+      case "find": setScreen("fibres"); return setTimeout(()=>$("fFind").focus(),80);
+      case "report": setScreen("fibres"); return (async()=>{ for(let i=0;i<40&&!FB.data;i++) await new Promise(r=>setTimeout(r,250)); if(RELAYV>=36) cableReport(); })();
+    }
+  }
+  document.addEventListener("click",e=>{ const b=e.target.closest("[data-act]"); if(b) doAct(b.dataset.act,b.dataset); });
   function showTab(t){
     tab=t; jset("rft.desktop.tab",t);
     document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
@@ -1950,12 +2104,12 @@
 
   async function health(){
     try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=RELAY===LIVE_RELAY?"":"local relay: "+RELAY; $("appv").textContent=`app ${APP_VERSION} · relay ${h.version}`;
-      RELAYV=parseInt(String(h.version||"").replace(/\D/g,""))||0; const fb=document.querySelector('nav [data-nav="fibres"]'); if(fb) fb.hidden=!(parseInt(String(h.version||"").replace(/\D/g,""))>=31);   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+      RELAYV=parseInt(String(h.version||"").replace(/\D/g,""))||0; const fb=document.querySelector('nav [data-nav="fibres"]'), okv=parseInt(String(h.version||"").replace(/\D/g,""))>=31; if(fb) fb.hidden=!okv; $("miCv").hidden=!okv;   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
   // ── v36: Fibres. Every fibre of a cable with its latest continuity, OTDR and iOLM results from both ends ──
-  const FB={stem:jget("rft.fib.stem","F-RGAC-SNBC-A-R432"), mode:jget("rft.fib.mode","cont"), data:null, sel:0, hits:[], det:{}};
+  const FB={stem:jget("rft.fib.stem","F-RGAC-SNBC-A-R432"), mode:jget("rft.fib.mode","cont"), data:null, sel:0, hits:[], det:{}, testOpen:!!jget("rft.fib.test",false), ftab:jget("rft.fib.tab","sum")};
   const STEMS=[["F-0057-RGAC-A-R432","Slough to Reading"],["F-RGAC-SNBC-A-R432","Reading to Swindon"],["F-SGIC-SNBC-A-R432","Swindon to Stoke Gifford"],["F-0001-SGIC-A-R432","Stoke Gifford to Cardiff"]];
   $("fCable").innerHTML=STEMS.map(([k,n])=>`<option value="${k}">${esc(n)} · ${esc(k.replace(/-R\d+$/,""))}</option>`).join("");
   $("fCable").value=FB.stem;
@@ -2056,6 +2210,7 @@
     const probs=[]; rows.forEach((r,i)=>{ const c=cont[i]; if(c&&c.state==="cross") probs.push([r.f,"Crossed"+(c.found?" to "+fNum(c.found):"")]);
       else if(c&&c.state==="dis") probs.push([r.f,"Dis."]); else if(c&&c.state==="unres") probs.push([r.f,"Not found"]);
       const l=loss1550(r); if(l!=null&&med!=null&&l-med>1.5) probs.push([r.f,`${db(l)} dB, ${db(l-med)} above typical`]); });
+    FB.prog=FB.prog||{}; FB.prog[FB.stem]={tested, n:N, probs:probs.length};
     $("fProg").innerHTML=
       `<div class="prow"><b>Continuity</b><div class="pbar">${seg("ok",cnt("straight"),"Straight")+seg("flip",cnt("flip"),"Flipped")+seg("cross",cnt("cross"),"Crossed")+seg("dis",cnt("dis"),"Dis.")+seg("unres",cnt("unres"),"Not found")}</div><span class="note">${tested} of ${N} tested (${pct(tested)})</span></div>`
       +`<div class="prow"><b>Loss tested</b><div class="pbar">${seg("a0",both,"Both ends")+seg("a2",one,"One end")}</div><span class="note">${both} both ends, ${one} one end</span></div>`
@@ -2112,19 +2267,31 @@
     paintLive();
     $("fNote").textContent=(d.notes&&d.notes.length?d.notes.join(" "):"Latest result for every fibre, from both ends. Click a fibre for its detail and history.")+(d.updated?` Read ${ago(d.updated)==="today"?new Date(d.updated*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):ago(d.updated)}.`:"");
   }
+  // v46: the fibre panel's Test box and tabs (also used by the menus); stays as you left it for the next fibre
+  function fibrePanel(w){
+    if(w==="test"||w==="untest"){ FB.testOpen=w==="test"; jset("rft.fib.test",FB.testOpen); const b=$("fTestBtn"), t=$("fTest"); if(t) t.hidden=!FB.testOpen; if(b){ b.setAttribute("aria-expanded",String(FB.testOpen)); b.textContent="Test this fibre "+(FB.testOpen?"▴":"▾"); } return; }
+    FB.ftab=w; jset("rft.fib.tab",w); document.querySelectorAll("#fDet [data-ft]").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.ft===w))); document.querySelectorAll("#fDet [data-fp]").forEach(p=>p.hidden=p.dataset.fp!==w);
+  }
+  window.rftFibrePanel=fibrePanel;
   async function showFibre(f){
     FB.sel=f; const d=FB.data; if(!d) return; const r=d.fibres.find(x=>x.f===f); if(!r) return;
     $("fGrid").querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.f===f)));
     const ends=d.ends||[], nm=i=>ends[i]?esc(ends[i].short||short(ends[i].rtu)):(i?"B end":"A end"), c=contOf(r);
     const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
     let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
+    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="fTestBtn" aria-expanded="${!!FB.testOpen}" aria-controls="fTest">Test this fibre ${FB.testOpen?"▴":"▾"}</button>${ends.map(e=>`<button class="btn" type="button" data-open="${esc(e.rtu)}">Open ${esc(e.short||short(e.rtu))}</button>`).join("")}<button class="btn" type="button" id="fCopy">Copy name</button></div>`;
+    h+=`<div class="ftest" id="fTest"${FB.testOpen?"":" hidden"}>`;
     h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
     if(RELAYV>=36){ const ok=onceOpts(), io=RELAYV>=37&&ok.k==="iolm";
       h+=`<h4>Test now</h4><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${RELAYV>=37?`<label class="note" style="display:flex;gap:6px;align-items:center">Test <select id="fOnceK"><option value="otdr"${io?"":" selected"}>OTDR</option><option value="iolm"${io?" selected":""}>iOLM</option></select></label>`:""}${ends.map(e=>`<button class="btn" type="button" data-once="${esc(e.rtuId)}">${io?"iOLM":"OTDR"} from ${esc(e.short||short(e.rtu))}</button>`).join("")}
         <label class="note" id="fOnceLen" style="display:${io?"none":"flex"};gap:6px;align-items:center">Length <select id="fOnceS">${[5,10,15,30,60].map(v=>`<option value="${v}"${v===ok.s?" selected":""}>${v} s</option>`).join("")}</select></label>
         <span id="fOnceIo" style="display:${io?"flex":"none"};gap:10px;flex-wrap:wrap;align-items:center" class="note"><label>Setup <select id="fOnceSet"><option value="28898"${ok.set===28898?" selected":""}>iOLM Motion NRS-304</option><option value="1"${ok.set===1?" selected":""}>AdHoc iOLM</option></select></label>${[1310,1550,1625].map(w=>`<label><input type="checkbox" data-wl="${w}"${ok.w.includes(w)?" checked":""}> ${w}</label>`).join("")}</span></div>
         <p class="note" id="fOnceNote" style="margin:6px 0 0">${io?"One Standard iOLM with the chosen FMS setup, no FMS Task. About a minute per wavelength; its result opens when it is done.":"One OTDR at 1550 nm with FMS automatic settings, no FMS Task. The trace opens when it is done."}</p>`; }
-    if(RELAYV>=34) h+=`<h4>OTDR traces</h4><ul class="fhist ftr" id="fTraces"><li><span class="note">Reading…</span></li></ul>`;
+    h+=`</div>`;
+    const ft=FB.ftab||"sum";
+    h+=`<div class="ftabs" role="tablist" aria-label="Fibre detail"><button type="button" role="tab" data-ft="sum" aria-selected="${ft==="sum"}">Summary</button>${RELAYV>=34?`<button type="button" role="tab" data-ft="tr" aria-selected="${ft==="tr"}" id="fTrTab">Traces</button>`:""}<button type="button" role="tab" data-ft="hi" aria-selected="${ft==="hi"}" id="fHiTab">History</button></div>`;
+    h+=`<div data-fp="tr"${ft==="tr"?"":" hidden"}>`+(RELAYV>=34?`<p class="note" style="margin:8px 0 6px">Stored OTDR and iOLM results from both ends. Click one to open it with its event table or Link View.</p><ul class="fhist ftr" id="fTraces"><li><span class="note">Reading…</span></li></ul>`:"")+`</div>`;
+    h+=`<div data-fp="sum"${ft==="sum"?"":" hidden"}>`;
     h+=`<h4>Continuity</h4><div style="margin-bottom:6px">${ctag}</div>`;
     if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found&&r.e2e.state!=="straight"?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
     if(r.uni) h+=`<div class="kv"><span>Uni-dir</span><span>${esc(SWORD[r.uni.state]||r.uni.state)}${r.uni.location?" at "+esc(r.uni.location):""} · ${esc(nice(r.uni.by||""))} · ${when(r.uni.t)}</span></div>`;
@@ -2146,9 +2313,10 @@
     h+=`<h4>OTDR</h4>`;
     if(oa||ob) h+=`<table><tr><th>From</th><th>Length</th><th>Loss</th><th>When</th></tr>`+[[oa,0],[ob,1]].map(([x,i])=>`<tr><td>${nm(i)}</td><td>${x?km(x.len):"–"}</td><td>${x?db(x.loss)+(x.wl?` <span class="note">@${x.wl}</span>`:""):"–"}</td><td>${x?when(x.t):"–"}</td></tr>`).join("")+`</table>`;
     else h+=`<p class="note">No OTDR on this fibre yet.</p>`;
-    h+=`<h4>History</h4><ul class="fhist" id="fHist"><li><span class="note">Reading…</span></li></ul>`;
-    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${ends.map(e=>`<button class="btn" type="button" data-open="${esc(e.rtu)}">Open ${esc(e.short||short(e.rtu))}</button>`).join("")}<button class="btn" type="button" id="fCopy">Copy name</button></div>`;
+    h+=`</div><div data-fp="hi"${ft==="hi"?"":" hidden"}><ul class="fhist" id="fHist" style="margin-top:8px"><li><span class="note">Reading…</span></li></ul></div>`;
     $("fDet").innerHTML=h;
+    $("fTestBtn").onclick=()=>fibrePanel(FB.testOpen?"untest":"test");
+    $("fDet").querySelectorAll("[data-ft]").forEach(b=>b.onclick=()=>fibrePanel(b.dataset.ft));
     $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
     $("fDet").querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>loStart(d.stem,f,b.dataset.lo));
     if($("fTraces")) loadTraces(d.stem,f);
@@ -2163,6 +2331,7 @@
     catch(e){ if(quiet(e)) return; if(FB.sel===f) $("fHist").innerHTML=`<li><span class="note">History not available: ${esc(e.message)}</span></li>`; return; }
     if(FB.sel!==f) return;
     const hs=FB.det[key].history||[];
+    if($("fHiTab")) $("fHiTab").textContent=`History (${hs.length})`;
     $("fHist").innerHTML=hs.length?hs.map(x=>`<li><span class="t">${when(x.t)}</span><span><b>${esc(x.type)}</b>${x.end?" from "+esc(short(x.end)):""}: ${esc(x.summary)}${x.by?` <span class="note">${esc(nice(x.by))}</span>`:""}</span></li>`).join(""):`<li><span class="note">Nothing recorded on this fibre.</span></li>`;
   }
   // fibre lookup: F123, 123, R11 F3, RGAC 123, F-RGAC-SNBC-A-R432-F123
@@ -2196,6 +2365,7 @@
     try{
       const d=await relay("/api/otdr/traces",{stem,fibre:f}); if(TR.key!==key||!$("fTraces")) return;
       TR.rows=d.traces||[];
+      if($("fTrTab")) $("fTrTab").textContent=`Traces (${TR.rows.length})`;
       $("fTraces").innerHTML=TR.rows.length?TR.rows.slice(0,25).map((r,i)=>`<li><button type="button" class="lnk trrow" data-tr="${i}"><span class="t">${whenS(r.t)}</span><span>${r.kind==="iOLM"?'<span class="tag">iOLM</span> ':""}From ${esc(short(r.rtu))} · ${r.len?km(r.len):"–"} · ${r.loss!=null?db(r.loss)+" dB":"–"}${r.wl?" @"+esc(r.wl):""}${r.kind==="iOLM"&&(r.wls||[]).length>1?` <span class="note">(${esc(r.wls.join(", "))})</span>`:""}${r.live?' <span class="tag">live</span>':""}</span></button></li>`).join("")
         +(TR.rows.length>25?`<li><span class="note">${TR.rows.length-25} older not shown.</span></li>`:"")
         :`<li><span class="note">No stored OTDR trace on this fibre yet.</span></li>`;
@@ -2234,11 +2404,8 @@
     $("loCmp").innerHTML=`<option value="">Nothing</option>`+TR.rows.slice(0,25).map((x,j)=>j===i?"":`<option value="${j}">${whenS(x.t)} from ${esc(short(x.rtu))}</option>`).join("");
     loPaint(); $("loInfo").textContent="Reading the trace from FMS…";
     try{ const t=await trGet(r); if(!LO.s||LO.s.row!==r) return;
-      if(!t.trace){   /* v43: an iOLM result FMS gave no trace for: show its events */
-        $("loChart").innerHTML=`<text x="550" y="190" text-anchor="middle">${esc(t.note||"No trace for this result.")}</text>`;
-        $("loFind").innerHTML=(t.events||[]).map(e=>`<button type="button">${esc(e.type||"Event")} ${e.loss!=null?(+e.loss).toFixed(2)+" dB ":""}at ${(e.m/1000).toFixed(2)} km</button>`).join("")||'<span class="note">No events either.</span>';
-        return; }
-      LO.s.ref={t:r.t,len:t.len,trace:t.trace,events:t.events,resultId:r.resultId}; loPaint(); }
+      LO.s.ref={t:r.t,len:t.len,trace:t.trace,events:t.kind==="iOLM"?(t.traceEvents||[]):t.events,resultId:r.resultId,link:t.link||null,note:t.note||"",kind:t.kind||r.kind||"OTDR",wl:t.wl||""};
+      LO.sel=null; LO.lsel=null; loPaint(); }
     catch(e){ if(!quiet(e)){ $("loErr").hidden=false; $("loErr").textContent=e.message; } }
   }
   $("loCmp").onchange=async()=>{
@@ -2278,7 +2445,7 @@
   function loEvery(s){ const t=(s.shots||[]).slice(-5).map(x=>x.t); if(t.length<2) return 0; return Math.round((t[t.length-1]-t[0])/(t.length-1)); }
   function loInfo(){
     const s=LO.s; if(!s) return;
-    if(s.view){ const r=s.row; $("loInfo").textContent=`${r.kind==="iOLM"?"Stored iOLM (its 1550 OTDR trace)":"Stored OTDR"} · ${whenS(r.t)} · from ${short(r.rtu)} · ${r.len?km(r.len):"length not read"}${r.loss!=null?" · "+db(r.loss)+" dB":""}${r.wl?" at "+r.wl+" nm":""}${r.live?" · a live OTDR shot":""}`; return; } const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
+    if(s.view){ const r=s.row; $("loInfo").textContent=`${r.kind==="iOLM"?"Stored iOLM":"Stored OTDR"} · ${whenS(r.t)} · from ${short(r.rtu)} · ${r.len?km(r.len):"length not read"}${r.loss!=null?" · "+db(r.loss)+" dB":""}${r.wl?" at "+r.wl+" nm":""}${r.live?" · a live OTDR shot":""}`; return; } const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
     $("loShot").value=String(s.shotS||3); $("loShot").disabled=s.state!=="running";
     $("loInfo").textContent=s.state==="running"
       ? `${s.count} trace${s.count===1?"":"s"} so far · 1550 nm, automatic settings, ${s.shotS} s shot · ${ev?`a new trace every ${ev} s`:"timing the first traces"} · stops in ${left} min · started by ${s.owner}`
@@ -2287,14 +2454,17 @@
   function loPaint(){
     const s=LO.s; if(!s){ $("loInfo").textContent="Starting…"; return; }
     const words={running:"Running",stopped:"Stopped",done:"Finished"};
-    $("loTitle").textContent=`${s.view?"OTDR trace":"Live OTDR"} · ${fNum(s.fibre)} from ${short(s.rtuName)}`;
+    $("loTitle").textContent=`${s.view?(s.ref&&s.ref.kind==="iOLM"?"iOLM result":"OTDR trace"):"Live OTDR"} · ${fNum(s.fibre)} from ${short(s.rtuName)}`;
     $("loState").className="chip "+(s.state==="running"?"running":"stopped"); $("loState").textContent=s.view?"Stored":(words[s.state]||s.state);
     $("loRef").hidden=!!s.view; $("loShot").parentElement.hidden=!!s.view; $("loCmpL").hidden=!s.view; $("loNote").hidden=!!s.view;
     loInfo();
     $("loErr").hidden=!s.error; $("loErr").textContent=s.error||"";
     $("loStop").hidden=s.state!=="running"; $("loRef").disabled=!s.latest;
     const ref=s.ref&&s.ref.trace, cur=s.latest&&s.latest.trace, svg=$("loChart");
-    if(!ref){ svg.innerHTML=`<text x="550" y="190" text-anchor="middle">${s.view?"Reading the trace…":"Waiting for the first trace…"}</text>`; $("loFind").innerHTML=""; return; }
+    const link=s.view&&s.ref&&s.ref.link&&(s.ref.link.elements||[]).length?s.ref.link:null;
+    $("loLink").hidden=!link; if(link) lvPaint(link); else $("loLink").innerHTML="";
+    svg.style.display=(!ref&&link)?"none":"";
+    if(!ref){ svg.innerHTML=`<text x="550" y="190" text-anchor="middle">${s.view?(s.ref?esc(s.ref.note||"No trace for this result."):"Reading the trace…"):"Waiting for the first trace…"}</text>`; $("loFind").innerHTML=""; $("loEv").hidden=true; return; }
     const W=1100,Hh=380,L=56,Rm=16,T=14,B=34;
     const len=(s.ref.len||s.latest&&s.latest.len||0);
     const xmax0=ref.x0+ref.dx*(ref.y.length-1);
@@ -2311,18 +2481,77 @@
     if(len&&len>=xa&&len<=xb) g+=`<line class="grid" x1="${X(len)}" x2="${X(len)}" y1="${T}" y2="${Hh-B}" style="stroke-dasharray:2 4"/><text x="${X(len)-4}" y="${T+12}" text-anchor="end">end ${(len/1000).toFixed(2)} km</text>`;
     const steps=(s.latest&&s.latest.steps)||[];
     const marks=steps.filter(b=>b.m>=xa&&b.m<=xb).map(b=>`<line class="bend" x1="${X(b.m)}" x2="${X(b.m)}" y1="${T}" y2="${Hh-B}"/><text class="bendt" x="${X(b.m)+5}" y="${T+28}">${b.db.toFixed(2)} dB</text>`).join("");
-    svg.innerHTML=g+`<path class="ref" d="${path(ref)}"/>`+(cur?`<path class="new" d="${path(cur)}"/>`:"")+marks;
+    const evs=((s.view?s.ref:(s.latest||s.ref))||{}).events||[];
+    const evm=evs.filter(e=>e.m>=xa&&e.m<=xb&&e.n!=null).map(e=>`<line class="evm${LO.sel===e.n?" sel":""}" x1="${X(e.m)}" x2="${X(e.m)}" y1="${T+14}" y2="${Hh-B}"/><text class="evn" x="${X(e.m)}" y="${T+10}" text-anchor="middle">${e.n}</text>`).join("");
+    svg.innerHTML=g+evm+`<path class="ref" d="${path(ref)}"/>`+(cur?`<path class="new" d="${path(cur)}"/>`:"")+marks;
+    evPaint(evs, s.ref.kind==="iOLM"?`Events on the ${esc(s.ref.wl||"1550")} nm OTDR trace FMS made from this iOLM`:`Events${s.ref.wl?" at "+esc(s.ref.wl)+" nm":""}`, xmax0, ref.x0);
     const nw=(s.latest&&s.latest.new)||[];
     if(s.view){
-      const ev=(s.ref.events||[]).filter(e=>e.m>=xa&&e.m<=xb&&e.loss!=null&&Math.abs(e.loss)>=0.05).slice(0,8);
-      $("loFind").innerHTML=`<button type="button" class="ok">Grey: ${esc(whenS(s.ref.t))} from ${esc(short(s.row.rtu))}${s.over?` · Blue: ${esc(whenS(s.over.t))} from ${esc(short(s.over.rtu))}`:""}</button>`
-        +ev.map(e=>`<button type="button" data-zm="${e.m}">${esc(e.type||"Event")} ${(+e.loss).toFixed(2)} dB at ${(e.m/1000).toFixed(2)} km</button>`).join("");
+      $("loFind").innerHTML=`<button type="button" class="ok">Grey: ${esc(whenS(s.ref.t))} from ${esc(short(s.row.rtu))}${s.over?` · Blue: ${esc(whenS(s.over.t))} from ${esc(short(s.over.rtu))}`:""}</button>`;
       $("loFind").querySelectorAll("[data-zm]").forEach(b=>b.onclick=()=>{ const m=+b.dataset.zm; LO.zoom=[Math.max(ref.x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
       return;
     }
     $("loFind").innerHTML=steps.length?steps.map(b=>`<button type="button" data-zm="${b.m}">New loss ${b.db.toFixed(2)} dB at ${(b.m/1000).toFixed(2)} km from ${esc(short(s.rtuName))}${nw.some(n=>Math.abs(n.m-b.m)<300)?" (just appeared)":""}</button>`).join("")
       : `<button type="button" class="ok">${s.count>1?"No new loss since the reference":"Reference trace taken. Now handle the fibre and watch for a red mark."}</button>`;
     $("loFind").querySelectorAll("[data-zm]").forEach(b=>b.onclick=()=>{ const m=+b.dataset.zm; LO.zoom=[Math.max(ref.x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
+  }
+
+  // ── v45: OTDR event table (like the instrument's) and iOLM Link View (like EXFO's) ──
+  const f2=(v,k=2)=>v==null||v!==v?"":(+v).toFixed(k);
+  function evClass(e){ if(e.launch||e.end) return ""; const l=e.loss; return l==null?"":l>=0.3?"b":l>=0.15?"w":""; }
+  function rfClass(v){ return v==null?"":v>-35?"b":v>-45?"w":""; }
+  function evType(e){ const t=String(e.type||"Event"); return e.launch?"Launch":e.end?"End of fibre":t.replace(/^Non.?reflective.*/i,"Splice"); }
+  function evPaint(evs,title,xmax0,x0){
+    const box=$("loEv");
+    if(!evs.length){ box.hidden=true; box.innerHTML=""; return; }
+    box.hidden=false;
+    box.innerHTML=`<div class="evhead"><h3>${title}</h3><span class="note">${evs.length} events. Click a row to zoom to it. Amber: loss 0.15 dB or more, or reflectance above −45 dB. Red: 0.30 dB or more, or above −35 dB.</span></div>
+      <div class="evwrap"><table class="evt"><thead><tr><th>#</th><th>Type</th><th>Distance (km)</th><th>Section (km)</th><th>Loss (dB)</th><th>Reflectance (dB)</th><th>Attenuation (dB/km)</th><th>Cumulative (dB)</th></tr></thead><tbody>`+
+      evs.map(e=>`<tr data-ev="${e.n}" data-m="${e.m}"${LO.sel===e.n?' class="sel"':""}><td>${e.n}</td><td>${esc(evType(e))}</td><td>${f2(e.m/1000,4)}</td><td>${e.sec!=null?f2(e.sec/1000,4):'<span class="dim">–</span>'}</td><td class="${evClass(e)}">${e.loss!=null&&!e.launch&&!e.end?f2(e.loss,3):'<span class="dim">–</span>'}</td><td class="${rfClass(e.refl)}">${e.refl!=null?f2(e.refl,1):'<span class="dim">–</span>'}</td><td>${e.att!=null?f2(e.att,3):'<span class="dim">–</span>'}</td><td>${e.cum!=null?f2(e.cum,3):""}</td></tr>`).join("")+`</tbody></table></div>`;
+    box.querySelectorAll("tr[data-ev]").forEach(tr=>tr.onclick=()=>{ const m=+tr.dataset.m; LO.sel=+tr.dataset.ev; LO.zoom=[Math.max(x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
+  }
+  const LVW={wl:""};
+  function lvIcon(e){
+    const t=String(e.type||"").toLowerCase();
+    if(/connector|switch|port/.test(t)||e.status==="LinkStart"||e.status==="LinkEnd") return `<rect class="ic" x="-11" y="-15" width="22" height="30" rx="4"/><line x1="0" y1="-9" x2="0" y2="9" stroke="currentColor" style="stroke:var(--muted);stroke-width:2"/>`;
+    if(/splitter|coupler/.test(t)) return `<path class="ic" d="M-13 -13 L13 0 L-13 13 Z"/>`;
+    if(/bend/.test(t)) return `<path class="ic" d="M-13 6 Q0 -18 13 6 Z"/>`;
+    if(/group/.test(t)) return `<rect class="ic" x="-13" y="-11" width="26" height="22" rx="11"/><text x="0" y="4" text-anchor="middle" style="font-size:10px;font-weight:800;fill:var(--ink)">${e.sub||""}</text>`;
+    if(/splice|fusion|mechanical/.test(t)) return `<circle class="ic" r="9"/>`;
+    return `<path class="ic" d="M0 -12 L12 0 L0 12 L-12 0 Z"/>`;
+  }
+  function vClass(v){ v=String(v||"").toLowerCase(); return v.startsWith("pass")?"p":v.startsWith("fail")?"f":/warn|marg/.test(v)?"m":"u"; }
+  function lvPaint(link){
+    const wls=link.wls&&link.wls.length?link.wls:["1550"];
+    if(!wls.includes(LVW.wl)) LVW.wl=wls.includes("1550")?"1550":wls[0];
+    const w=LVW.wl, els=link.elements, n=els.length, step=118, padL=70, W=Math.max(1100,padL*2+(n-1)*step), H=150, y=78;
+    const xs=els.map((e,i)=>padL+i*step);
+    let sv="";
+    els.forEach((e,i)=>{ if(!i) return; const x1=xs[i-1]+15, x2=xs[i]-15, sec=e.sec||{}, sr=(sec.res||{})[w]||{};
+      sv+=`<line class="fib" x1="${x1}" x2="${x2}" y1="${y}" y2="${y}"/><text x="${(x1+x2)/2}" y="${y-8}" text-anchor="middle">${sec.m!=null?f2(sec.m/1000,3)+" km":""}</text><text x="${(x1+x2)/2}" y="${y+16}" text-anchor="middle">${sr.att!=null?f2(sr.att,3)+" dB/km":""}</text>`; });
+    els.forEach((e,i)=>{ const r=(e.res||{})[w]||{}, v=e.verdict||r.verdict, cls=vClass(v);
+      const nm=e.status==="LinkStart"?"Start":e.status==="LinkEnd"?"End":(e.name||e.type||"Element");
+      sv+=`<g class="el ${cls}${LO.lsel===e.n?" sel":""}" data-el="${e.n}" transform="translate(${xs[i]},${y})"><title>${esc(nm)}${v?" · "+esc(v):""}</title>${LO.lsel===e.n?'<circle class="ring" r="22"/>':""}${lvIcon(e)}
+        <text class="km" x="0" y="-26" text-anchor="middle">${e.m!=null?f2(e.m/1000,3)+" km":""}</text>
+        <text x="0" y="-42" text-anchor="middle">${esc(nm)}</text>
+        <text class="lo" x="0" y="34" text-anchor="middle">${r.loss!=null?f2(r.loss,3)+" dB":"–"}</text>
+        ${r.refl!=null?`<text x="0" y="50" text-anchor="middle">${f2(r.refl,1)} dB refl.</text>`:""}</g>`; });
+    const sum=link.summary||[], s1=sum.find(x=>x.wl===w)||{};
+    const vd=String(link.verdict||"");
+    $("loLink").innerHTML=`<div class="evhead" style="margin-bottom:8px"><h3>Link View</h3><span class="note">iOLM elements in order from the RTU, evenly spaced (not to scale). Loss and reflectance at the wavelength chosen; the fibre length and attenuation of each section sit on the line. Click an element to find it in the table${$("loChart")&&LO.s&&LO.s.ref&&LO.s.ref.trace?" and on the trace":""}.</span></div>
+      <div class="lvsum">${vd?`<span class="k ${vClass(vd)==="p"?"pass":vClass(vd)==="f"?"fail":""}">${esc(vd)}</span>`:""}<span class="k">Length<b>${link.len?f2(link.len/1000,3)+" km":"–"}</b></span>
+        ${sum.map(x=>`<span class="k">${esc(x.wl)} nm<b>${x.loss!=null?f2(x.loss,2)+" dB":"–"}</b>${x.orl!=null?` · ORL ${f2(x.orl,1)} dB`:""}</span>`).join("")}
+        <span class="grow"></span>${wls.length>1?`<label class="note" style="display:flex;gap:6px;align-items:center">Wavelength <select id="lvWl">${wls.map(x=>`<option value="${esc(x)}"${x===w?" selected":""}>${esc(x)} nm</option>`).join("")}</select></label>`:""}</div>
+      <div class="lvscroll" style="margin-top:10px"><svg class="lview" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="iOLM link view">${sv}</svg></div>
+      <div class="evwrap" style="margin-top:10px"><table class="evt"><thead><tr><th>#</th><th>Element</th><th>Position (km)</th><th>Section before (km)</th><th>Loss ${esc(w)} (dB)</th><th>Reflectance ${esc(w)} (dB)</th><th>Section attenuation ${esc(w)} (dB/km)</th><th>Verdict</th></tr></thead><tbody>`+
+      els.map(e=>{ const r=(e.res||{})[w]||{}, sr=((e.sec||{}).res||{})[w]||{}, v=e.verdict||r.verdict||"", nm=e.status==="LinkStart"?"Start "+(e.type||""):e.status==="LinkEnd"?"End "+(e.type||""):(e.name||e.type||"Element")+(e.sub?` (${e.sub})`:"");
+        return `<tr data-el="${e.n}" data-m="${e.m??""}"${LO.lsel===e.n?' class="sel"':""}><td>${e.n}</td><td>${esc(nm)}</td><td>${e.m!=null?f2(e.m/1000,4):""}</td><td>${e.sec&&e.sec.m!=null?f2(e.sec.m/1000,4):'<span class="dim">–</span>'}</td><td class="${vClass(v)==="f"?"b":""}">${r.loss!=null?f2(r.loss,3):'<span class="dim">–</span>'}</td><td class="${rfClass(r.refl)}">${r.refl!=null?f2(r.refl,1):'<span class="dim">–</span>'}</td><td>${sr.att!=null?f2(sr.att,3):'<span class="dim">–</span>'}</td><td class="${vClass(v)==="f"?"b":vClass(v)==="m"?"w":""}">${esc(v)}</td></tr>`; }).join("")+`</tbody></table></div>`;
+    if($("lvWl")) $("lvWl").onchange=()=>{ LVW.wl=$("lvWl").value; loPaint(); };
+    const pick=el=>{ const n=+el.dataset.el, e=els.find(x=>x.n===n); LO.lsel=n;
+      const tr=LO.s&&LO.s.ref&&LO.s.ref.trace; if(tr&&e&&e.m!=null){ const xm=tr.x0+tr.dx*(tr.y.length-1); LO.zoom=[Math.max(tr.x0,e.m-2000),Math.min(xm,e.m+2000)];
+        const near=(LO.s.ref.events||[]).reduce((a,x)=>!a||Math.abs(x.m-e.m)<Math.abs(a.m-e.m)?x:a,null); LO.sel=near&&Math.abs(near.m-e.m)<300?near.n:null; }
+      loPaint(); const row=$("loLink").querySelector(`tr[data-el="${n}"]`); if(row) row.scrollIntoView({block:"nearest"}); };
+    $("loLink").querySelectorAll("[data-el]").forEach(el=>el.onclick=()=>pick(el));
   }
 
   // ── v35: notifications (Web Push from the relay, see push.js) ──

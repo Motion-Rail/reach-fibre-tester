@@ -443,6 +443,37 @@ in one direction.
 
 ---
 
+## v46 (desktop) — 8 October 2026 — top bar menus, cable picker for tools, fibre panel tabs (relay stays v38)
+
+Alkis 8 Oct: "it's getting a messy interface", wanted drop downs from the top bar: Overview, Tasks/run history, Tools, Cable View.
+- Top bar: four menus, each a name (goes to its page) plus ▾ (hover after 0.2 s, or click). Overview (Live now, RTUs, Route map,
+  Finished today); Tasks & runs (Running now, Run history, FMS Tasks on an RTU, Download Task files, Export CSV); Tools (was Console; names only,
+  Alkis 8 Oct: Real Time, Single Test, E2E Continuity, Tone Test, Bulk Test); Cable View (the four cables with progress once seen, Find a fibre,
+  Cable report). Name menu: Alerts, Light or Dark, Help, Mobile view, Sign out, versions. Header from 9 items to 5. Esc closes.
+- Tools ask which cable and end (and fibre, for One test now and Live OTDR) in a small picker, remembered in `rft.pick`.
+- Fibre panel: Test this fibre button (Live OTDR and Test now, shut by default), tabs Summary, Traces (n), History (n); the panel opens
+  the next fibre the way you left it, also after a reload (`rft.fib.test`, `rft.fib.tab`). Open RTU and Copy name moved to the top.
+- Help: Finding your way section; old screen names updated. Test hooks `rftMenu(k)` and `rftFibrePanel(w)`.
+- Tests: ui_nav_v46 19 checks; nine older UI tests open the name menu or the fibre Test box first.
+
+## v45 (desktop) + relay v38 — 8 October 2026 — OTDR event table, iOLM Link View
+
+Alkis 8 Oct: OTDR events need a usable table; iOLM needs a graphic view like EXFO's.
+- **OTDR event table** under the trace (stored traces, Test now and the iOLM's own trace): #, Type, Distance, Section,
+  Loss, Reflectance, Attenuation, Cumulative. Event numbers drawn on the trace; click a row to zoom to it. Amber at
+  0.15 dB loss or reflectance above −45 dB, red at 0.30 dB or above −35 dB. Relay `event_table()`: FMS Events
+  (Position, Loss, Reflectance, Type, TypeCode, Status SpanStart/SpanEnd, all text, NaN dropped), sorted, sections
+  between events, attenuation per section by a straight line fit through the trace clear of the dead zones (or FMS's
+  own figure if it sends one), cumulative loss from the launch (FMS's own if sent). Trace wavelength returned as nm.
+- **iOLM Link View**: relay `link_view()` returns every element (LinkStart and LinkEnd kept), its type, verdict, position,
+  per wavelength loss and reflectance, the fibre section before it (length, attenuation, loss per wavelength), sub elements,
+  plus the link length, verdict and loss and ORL per wavelength. Desktop draws EXFO style: connectors, splices, splitters,
+  bends and groups as icons coloured by verdict, evenly spaced with the section length and attenuation on the line,
+  wavelength choice, element table below, then the 1550 OTDR trace FMS made from the iOLM with its own event table.
+  Clicking an element selects its row, zooms the trace and marks the nearest trace event.
+- Mock FMS: realistic OTDR events and iOLM elements. Tests: ui_fibres_v45 16 checks; relay checks added to
+  test_fibres_v36 and test_fibres_v44.
+
 ## v44 (desktop) + v41 (phone) + relay v37 — 8 October 2026 — iOLM in Test now, keep me signed in
 
 Alkis 7 Oct: capture the FMS on demand iOLM and add it. Captured twice from the FMS screen (SGIC, ad hoc, no Task):
