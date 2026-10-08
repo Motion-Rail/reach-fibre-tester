@@ -443,6 +443,26 @@ in one direction.
 
 ---
 
+## v47 (desktop) + relay v39 — 9 October 2026 — Alkis's clean up list
+
+- Top bar: Overview is a plain link; Tasks (was Tasks & runs: Running now, Run history) and Tools are headers that open their
+  list (the name no longer jumps to a page); Neos logo after the name menu. Test hook `rftGo(screen)`.
+- Run history: an E2E run shows its report (ribbon grid by fibre number, crossed with where it lands, counts, To check list).
+  Relay `POST /api/history/run {path}` returns one run log's results.
+- Real Time from Tools: the window opens at once ("Starting"), the RTU id is found if needed, Cable View opens behind it.
+  Window: title Real Time, "Each trace" length, info says how long each trace measures and how often one arrives, Show whole
+  fibre only after zooming, Start again after Stop, stale status replies ignored.
+- Single Test from Tools: picker asks OTDR (measure time) or iOLM (setup, wavelengths), starts the test, window shows timer then
+  the result. Relay marks the RTU with kind single (Live card, "Single Test" busy label) and logs runs/…_SINGLE_….json, shown in
+  Run history as type Single Test. Real Time marks kind realtime.
+- Cable View: cells show fibre numbers 1 to 432; Colour fibres by above the grid with a line saying what it means; Cable report
+  (Excel) with a one line description; fibre panel drops Open RTU and Copy name (click the fibre name to copy).
+- Pop outs solid in the glass look (all dialogs). Tone Test fibre map moved under the test controls.
+- Bulk Test: Start now or in 5 min to 2 h (relay holds it, `/api/bulk/scheduled`, `/api/bulk/unschedule`, Live card, list under
+  Start with Cancel); Both ends at once: two Tasks, the far end `order: offset` (starts half way round the chosen fibres and
+  wraps), so the ends stay about half the cable apart.
+- Tests: test_fibres_v47 15 checks, ui_fibres_v47 26 checks; nav and older tests updated for the new header.
+
 ## v46 (desktop) — 8 October 2026 — top bar menus, cable picker for tools, fibre panel tabs (relay stays v38)
 
 Alkis 8 Oct: "it's getting a messy interface", wanted drop downs from the top bar: Overview, Tasks/run history, Tools, Cable View.
