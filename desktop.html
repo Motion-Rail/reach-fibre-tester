@@ -536,6 +536,7 @@
     <p>Desktop console. Sign in with your FMS account.</p>
     <label class="f" for="user">FMS username (email)<input id="user" type="email" autocomplete="username" required></label>
     <label class="f" for="pass" style="margin-top:12px">Password<input id="pass" type="password" autocomplete="current-password" required></label>
+    <label class="note" for="keepIn" style="display:flex;gap:8px;align-items:center;margin-top:12px"><input id="keepIn" type="checkbox" checked> Keep me signed in on this computer</label>
     <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
       <button class="btn primary" id="loginBtn" type="submit">Sign in</button>
       <a class="btn" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">Mobile app</a>
@@ -939,6 +940,8 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <h3>v44 (8 Oct 2026)</h3>
+      <ul><li>Keep me signed in: tick it when you sign in and the app stays signed in on this computer for up to 30 days, through restarts and sleep. Sign out ends it.</li><li>Test now can run an iOLM: pick iOLM, the FMS setup (iOLM Motion NRS-304 or AdHoc iOLM) and the wavelengths, then iOLM from either end. Standard iOLM, no FMS Task; the result opens with its trace and events when done. Your choices are remembered.</li></ul>
       <h3>v43 (8 Oct 2026)</h3>
       <ul><li>Stay signed in: a relay update or restart no longer signs you out.</li><li>Cable View: progress bars for continuity and loss, and a To check list of crossed, Dis., not found and high loss fibres (click one to open it).</li><li>Report (Excel) in Cable View: every fibre with continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss.</li><li>Test now: one OTDR on the selected fibre from either end (5 to 60 s), no FMS Task; the trace opens when done.</li><li>iOLM results are in the trace list; opening one shows its 1550 OTDR trace and its events.</li></ul>
       <h3>v42 (8 Oct 2026)</h3>
@@ -1005,7 +1008,7 @@
       <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
 
       <h3>Cable View</h3>
-      <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. The bars under the totals show how much is tested, and To check lists the crossed, Dis., not found and high loss fibres; click one to open it. Report (Excel) saves the whole cable: continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss. Click a fibre for Live OTDR, Test now (one OTDR from either end, 5 to 60 s, no FMS Task), its stored OTDR and iOLM traces from both ends (click one to see the trace, an iOLM shows its 1550 OTDR trace and events; pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
+      <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. The bars under the totals show how much is tested, and To check lists the crossed, Dis., not found and high loss fibres; click one to open it. Report (Excel) saves the whole cable: continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss. Click a fibre for Live OTDR, Test now (one OTDR from either end, 5 to 60 s, or one Standard iOLM with the setup and wavelengths you pick; no FMS Task), its stored OTDR and iOLM traces from both ends (click one to see the trace, an iOLM shows its 1550 OTDR trace and events; pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Live OTDR</h3>
       <p>In Cable View, click a fibre and press Live from one end. The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
       <h3>Run history</h3>
@@ -1038,7 +1041,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v43";
+  const APP_VERSION="v44";
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1053,6 +1056,7 @@
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
   let session=jget(SES,{id:"",user:""})||{id:"",user:""};
   const DEFAULT_USER="alkis.kardasopoulos@motionrail.co.uk";
+  try{ if(localStorage.getItem("rft.keep")==="0") $("keepIn").checked=false; }catch(e){}
   $("appv").textContent="app "+APP_VERSION;
 
   const CABLES=[
@@ -1101,14 +1105,16 @@
     $("loginBtn").disabled=true; $("loginErr").textContent="";
     try{
       const user=$("user").value.trim();
-      const d=await relay("/api/login",{username:user,password:$("pass").value});
+      const keep=$("keepIn").checked; try{ localStorage.setItem("rft.keep",keep?"1":"0"); }catch(e){}
+      const d=await relay("/api/login",{username:user,password:$("pass").value,keep});
       session={id:d.session_id||"",user}; jset(SES,session); jset("rft.lastUser",user); try{ if(d&&d.resume&&session.id) localStorage.setItem("rft.resume",JSON.stringify({sid:session.id,code:d.resume})); }catch(e){}
       $("pass").value="";
+      if(keep&&RELAYV>=37&&d.keep===false) toast("FMS would not allow a long sign in, so you stay signed in while the app is in use.");
       start();
     }catch(err){ if(!quiet(err)) $("loginErr").textContent="Sign in failed: "+err.message; }
     finally{ $("loginBtn").disabled=false; }
   };
-  $("signOut").onclick=async()=>{ try{ await relay("/api/presence/leave",{}); }catch(e){} signedOut(""); };
+  $("signOut").onclick=async()=>{ try{ await relay("/api/presence/leave",{}); }catch(e){} try{ await relay("/api/logout",{}); }catch(e){} signedOut(""); };   /* v44: also ends a keep me signed in */
   $("mobileBtn").onclick=()=>{ location.href="index.html"; };
   $("helpBtn").onclick=()=>{ const d=$("help"); if(d.showModal) d.showModal(); else d.setAttribute("open",""); };
   document.querySelectorAll("[data-ht]").forEach(b=>b.onclick=()=>{ const n=b.dataset.ht==="notes";
@@ -2113,7 +2119,11 @@
     const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
     let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
     h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
-    if(RELAYV>=36) h+=`<h4>Test now</h4><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${ends.map(e=>`<button class="btn" type="button" data-once="${esc(e.rtuId)}">OTDR from ${esc(e.short||short(e.rtu))}</button>`).join("")}<label class="note" style="display:flex;gap:6px;align-items:center">Length <select id="fOnceS"><option value="5">5 s</option><option value="10" selected>10 s</option><option value="15">15 s</option><option value="30">30 s</option><option value="60">60 s</option></select></label></div><p class="note" id="fOnceNote" style="margin:6px 0 0">One OTDR at 1550 nm with FMS automatic settings, no FMS Task. The trace opens when it is done.</p>`;
+    if(RELAYV>=36){ const ok=onceOpts(), io=RELAYV>=37&&ok.k==="iolm";
+      h+=`<h4>Test now</h4><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${RELAYV>=37?`<label class="note" style="display:flex;gap:6px;align-items:center">Test <select id="fOnceK"><option value="otdr"${io?"":" selected"}>OTDR</option><option value="iolm"${io?" selected":""}>iOLM</option></select></label>`:""}${ends.map(e=>`<button class="btn" type="button" data-once="${esc(e.rtuId)}">${io?"iOLM":"OTDR"} from ${esc(e.short||short(e.rtu))}</button>`).join("")}
+        <label class="note" id="fOnceLen" style="display:${io?"none":"flex"};gap:6px;align-items:center">Length <select id="fOnceS">${[5,10,15,30,60].map(v=>`<option value="${v}"${v===ok.s?" selected":""}>${v} s</option>`).join("")}</select></label>
+        <span id="fOnceIo" style="display:${io?"flex":"none"};gap:10px;flex-wrap:wrap;align-items:center" class="note"><label>Setup <select id="fOnceSet"><option value="28898"${ok.set===28898?" selected":""}>iOLM Motion NRS-304</option><option value="1"${ok.set===1?" selected":""}>AdHoc iOLM</option></select></label>${[1310,1550,1625].map(w=>`<label><input type="checkbox" data-wl="${w}"${ok.w.includes(w)?" checked":""}> ${w}</label>`).join("")}</span></div>
+        <p class="note" id="fOnceNote" style="margin:6px 0 0">${io?"One Standard iOLM with the chosen FMS setup, no FMS Task. About a minute per wavelength; its result opens when it is done.":"One OTDR at 1550 nm with FMS automatic settings, no FMS Task. The trace opens when it is done."}</p>`; }
     if(RELAYV>=34) h+=`<h4>OTDR traces</h4><ul class="fhist ftr" id="fTraces"><li><span class="note">Reading…</span></li></ul>`;
     h+=`<h4>Continuity</h4><div style="margin-bottom:6px">${ctag}</div>`;
     if(r.e2e) h+=`<div class="kv"><span>E2E</span><span>${esc(SWORD[c&&c.src==="E2E"?c.state:r.e2e.state]||r.e2e.state)}${r.e2e.found&&r.e2e.state!=="straight"?" to "+fNum(r.e2e.found):""}${r.e2e.loc?" · "+esc(r.e2e.loc):""} · ${esc(nice(r.e2e.by||""))} · ${when(r.e2e.t)}</span></div>`;
@@ -2143,6 +2153,10 @@
     $("fDet").querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>loStart(d.stem,f,b.dataset.lo));
     if($("fTraces")) loadTraces(d.stem,f);
     $("fDet").querySelectorAll("[data-once]").forEach(b=>b.onclick=()=>otdrOnce(d.stem,f,b.dataset.once,b));
+    if($("fOnceK")){ const sync=()=>{ const io=$("fOnceK").value==="iolm"; $("fOnceLen").style.display=io?"none":"flex"; $("fOnceIo").style.display=io?"flex":"none";
+        $("fDet").querySelectorAll("[data-once]").forEach(b=>b.textContent=b.textContent.replace(/^(OTDR|iOLM)/,io?"iOLM":"OTDR"));
+        $("fOnceNote").textContent=io?"One Standard iOLM with the chosen FMS setup, no FMS Task. About a minute per wavelength; its result opens when it is done.":"One OTDR at 1550 nm with FMS automatic settings, no FMS Task. The trace opens when it is done."; onceSave(); };
+      $("fOnceK").onchange=sync; ["fOnceS","fOnceSet"].forEach(id=>$(id)&&($(id).onchange=onceSave)); $("fOnceIo").querySelectorAll("[data-wl]").forEach(c=>c.onchange=onceSave); }
     $("fCopy").onclick=()=>{ try{ navigator.clipboard.writeText(d.stem+"-"+fNum(f)); toast("Copied "+d.stem+"-"+fNum(f)); }catch(e){} };
     const key=d.stem+"|"+f, had=!!FB.det[key];
     try{ if(!FB.det[key]){ FB.det[key]=await relay("/api/fibre",{stem:d.stem,fibre:f}); if(FB.sel===f && Object.keys(FB.det[key].iolm||{}).length) return showFibre(f); } }
@@ -2189,15 +2203,25 @@
     }catch(e){ if(!quiet(e)&&$("fTraces")) $("fTraces").innerHTML=`<li><span class="note">Traces not available: ${esc(e.message)}</span></li>`; }
   }
   // v43: one OTDR now on the selected fibre; the trace opens in the trace window and joins the list
+  // v44: Test now remembers OTDR or iOLM, the length, the iOLM setup and wavelengths
+  function onceOpts(){ let o={}; try{ o=JSON.parse(localStorage.getItem("rft.once")||"{}")||{}; }catch(e){}
+    const w=(Array.isArray(o.w)?o.w:[1550]).filter(x=>[1310,1550,1625].includes(x));
+    return {k:o.k==="iolm"?"iolm":"otdr", s:[5,10,15,30,60].includes(o.s)?o.s:10, set:o.set===1?1:28898, w:w.length?w:[1550]}; }
+  function onceSave(){ const k=$("fOnceK")?$("fOnceK").value:"otdr", w=[...document.querySelectorAll("#fOnceIo [data-wl]")].filter(c=>c.checked).map(c=>+c.dataset.wl);
+    try{ localStorage.setItem("rft.once",JSON.stringify({k, s:+($("fOnceS")||{}).value||10, set:+($("fOnceSet")||{}).value||28898, w})); }catch(e){} }
   async function otdrOnce(stem,f,rtuId,btn){
     const secs=+($("fOnceS")||{}).value||10, note=$("fOnceNote"), all=$("fDet").querySelectorAll("[data-once]");
+    const io=!!$("fOnceK")&&$("fOnceK").value==="iolm";
+    const wls=[...document.querySelectorAll("#fOnceIo [data-wl]")].filter(c=>c.checked).map(c=>+c.dataset.wl);
+    if(io&&!wls.length){ if(note) note.textContent="Tick at least one wavelength."; return; }
+    const body=io?{stem,fibre:f,rtuId,kind:"iolm",setupId:+$("fOnceSet").value||28898,mode:"standard",wavelengths:wls}:{stem,fibre:f,rtuId,seconds:secs};
     all.forEach(b=>b.disabled=true); const t0=Date.now();
-    const tick=setInterval(()=>{ if(note) note.textContent=`Testing ${fNum(f)}… ${Math.round((Date.now()-t0)/1000)} s`; },500);
+    const tick=setInterval(()=>{ if(note) note.textContent=`Testing ${fNum(f)}${io?" (iOLM)":""}… ${Math.round((Date.now()-t0)/1000)} s`; },500);
     try{
-      const t=await relay("/api/otdr/once",{stem,fibre:f,rtuId,seconds:secs});
+      const t=await relay("/api/otdr/once",body);
       clearInterval(tick); if(note) note.textContent=`Done in ${Math.round(t.secs)} s: ${t.len?km(t.len):"length not read"}.`;
       TR.cache[t.resultId]=t;
-      const row={resultId:t.resultId,t:t.t,rtuId:t.rtuId,rtu:t.rtu,len:t.len,loss:null,wl:"1550",live:false};
+      const row={resultId:t.resultId,t:t.t,rtuId:t.rtuId,rtu:t.rtu,len:t.len,loss:null,wl:"1550",live:false,kind:t.kind==="iOLM"?"iOLM":"OTDR",wls:(t.wavelengths||[]).map(String)};
       if(FB.sel===f){ TR.rows=[row,...TR.rows.filter(x=>x.resultId!==t.resultId)]; trOpen(0); setTimeout(()=>{ if(FB.sel===f&&$("fTraces")) loadTraces(stem,f); },2500); }
     }catch(e){ clearInterval(tick); if(!quiet(e)&&note) note.textContent=e.message; }
     finally{ all.forEach(b=>b.disabled=false); }

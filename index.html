@@ -485,6 +485,8 @@
     <input type="email" id="inUser" autocomplete="username" placeholder="name@motionrail.co.uk" autocapitalize="off">
     <label class="fld" for="inPass">FMS password</label>
     <input type="password" id="inPass" autocomplete="current-password" placeholder="••••••••">
+    <label class="fld" for="inKeep" style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="inKeep" checked style="width:auto" onclick="try{localStorage.setItem('rft.keep',this.checked?'1':'0')}catch(e){}"> Keep me signed in on this phone</label>
+    <script>try{ if(localStorage.getItem("rft.keep")==="0") document.getElementById("inKeep").checked=false; }catch(e){}</script>
 
     <div style="height:16px"></div>
     <button class="primary" id="loginBtn">Sign in</button>
@@ -929,8 +931,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v40";
+const APP_VERSION="v41";
 const APP_VERSIONS=[
+  ["v41","8 Oct 2026","Keep me signed in: tick it when you sign in and the app stays signed in on this phone for up to 30 days. Sign out ends it. Needs service v37."],
   ["v40","8 Oct 2026","Stay signed in: a relay update or restart no longer signs you out. Needs service v36."],
   ["v39","8 Oct 2026","E2E continuity uses EXFO's recommended settings: tone 4 s at 1550 nm with 330 Hz modulation, OTDR 1 s (was tone 10 s, OTDR 3 s, unmodulated). Runs should be much quicker. Auto pacing still lengthens the tone if fibres are missed. Needs service v35."],
   ["v38","7 Oct 2026","The relay (service) version now shows next to the app version at the bottom of the start and E2E screens, so you can see what you are on. The sign in page shows the app version only."],
@@ -1074,7 +1077,8 @@ let crosses={};                              // index -> "crossed with ..."
   }
 
   async function doLogin(user,pass){
-    const d=await relay("/api/login",{username:user,password:pass});
+    let keep=true; try{ keep=$("inKeep")?$("inKeep").checked:true; localStorage.setItem("rft.keep",keep?"1":"0"); }catch(e){}
+    const d=await relay("/api/login",{username:user,password:pass,keep});
     session={id:d.session_id||d.sessionId||"", user:user}; saveSes();
     try{ if(d&&d.resume&&session.id) localStorage.setItem("rft.resume",JSON.stringify({sid:session.id,code:d.resume})); }catch(e){}
     if(!session.id) throw new Error("Sign in failed. Try again.");
@@ -1563,7 +1567,7 @@ let crosses={};                              // index -> "crossed with ..."
     }catch(e){ el.className="conn bad"; el.lastElementChild.textContent="Can't reach the service. Check signal; retrying…"; setTimeout(checkConn,15000); }
   }
   checkConn();
-  $("backToLogin").onclick=()=>{ session={id:"",user:""}; saveSes(); try{ localStorage.removeItem("rft.resume"); }catch(e){} show("screen-login"); };
+  $("backToLogin").onclick=()=>{ try{ if(session.id) relay("/api/logout",{}).catch(()=>{}); }catch(e){} session={id:"",user:""}; saveSes(); try{ localStorage.removeItem("rft.resume"); }catch(e){} show("screen-login"); };
 
   // ── route screen ──
   $("searchBtn").onclick=()=>doSearch();
@@ -1656,7 +1660,7 @@ let crosses={};                              // index -> "crossed with ..."
   window.gotoMode = gotoMode;
   $("modeUni").onclick=()=>gotoRoute();
   $("modeE2E").onclick=()=>{ if(window.openCont) window.openCont(); };
-  $("modeSignOut").onclick=()=>{ if(window.rftLeave) window.rftLeave(); session={id:"",user:""}; saveSes(); try{ localStorage.removeItem("rft.resume"); }catch(e){} show("screen-login"); };
+  $("modeSignOut").onclick=()=>{ if(window.rftLeave) window.rftLeave(); try{ if(session.id) relay("/api/logout",{}).catch(()=>{}); }catch(e){} session={id:"",user:""}; saveSes(); try{ localStorage.removeItem("rft.resume"); }catch(e){} show("screen-login"); };
   $("modeHist").onclick=()=>{ if(window.openHistory) window.openHistory(); };
   $("routeToMode").onclick=()=>gotoMode();
   function gotoRoute(){

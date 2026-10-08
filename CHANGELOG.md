@@ -443,6 +443,24 @@ in one direction.
 
 ---
 
+## v44 (desktop) + v41 (phone) + relay v37 — 8 October 2026 — iOLM in Test now, keep me signed in
+
+Alkis 7 Oct: capture the FMS on demand iOLM and add it. Captured twice from the FMS screen (SGIC, ad hoc, no Task):
+FMS reads `GET /api/topology/testconfigurations/{setupId}` and posts
+`POST /api/topology/control/remotetestunits/{rtu}/command/opticalroutes/{route}/iolm`
+`{"name":"iOLM test parameters","payload":"<setup payLoad as text>"}` with MeasurementType set, OtdrParameters cut to
+the chosen wavelengths and WavelengthsUsed []. The reply is a promise id, like the ad hoc OTDR.
+- Relay: `fc.iolm_body()`, `IOLM_URL`, `TESTCONFIG_URL`; `/api/otdr/once` takes `kind "iolm"`, `setupId` (28898 NRS-304
+  default, 1 AdHoc iOLM), `mode` (standard), `wavelengths` (1310, 1550, 1625). Waits up to 300 s by promise id (push or
+  results with TestType iOLM), then reads it like any iOLM (extract, 1550 trace, events). RTU busy check as for OTDR.
+- Desktop: Test now has OTDR or iOLM, setup and wavelength ticks, remembered in `rft.once`.
+- **Keep me signed in** (Alkis 7 Oct, "I have to keep signing in"): a tick box on both sign in screens (on by default,
+  remembered in `rft.keep`). Login sends `keep`; the relay asks FMS Keycloak for `scope offline_access` (an offline sign in
+  outlives the FMS session idle and maximum times) and falls back to a normal sign in if FMS refuses that scope.
+  Resume codes carry `keep` and are accepted for 30 days (12 h otherwise). New `POST /api/logout` ends the FMS sign in;
+  both apps call it on Sign out. The password is passed to FMS only, never stored. Login returns `keep` (granted or not).
+- Mock FMS: test setups 1 and 28898, the iolm call, ad hoc iOLM results with elements, offline scope and logout.
+
 ## v43 (desktop) + v40 (phone) + relay v36 — 8 October 2026 — signed in through restarts, reports, Test now, iOLM traces
 
 Alkis 8 Oct: "Do 1, 2, 3, 4, 5, 7" from the improvement list (1 was v42).
