@@ -672,7 +672,7 @@
           <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="4"></div>
           <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="1" max="30" value="1"></div>
         </div>
-        <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Auto pacing</label>
+        <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Retry missed fibres at the same short settings (3 goes)</label>
         <label class="ct-check"><input type="checkbox" id="ctSound" checked> Sound when a run ends</label>
         <div class="ct-note">The defaults suit normal runs. Only change these if asked to.</div>
         <button class="linkbtn" id="ctResetAdv" style="padding-left:0;">Reset to defaults</button>
@@ -931,8 +931,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="v41";
+const APP_VERSION="Brunel";   /* Brunel: releases named after railway engineers */
 const APP_VERSIONS=[
+  ["Brunel","9 Oct 2026","Releases are now named after great railway engineers. E2E continuity retries a fibre that does not light at the same short settings (tone 4 s, OTDR 1 s), up to 3 goes, instead of stepping up to a 20 s tone, so runs are much quicker."],
   ["v41","8 Oct 2026","Keep me signed in: tick it when you sign in and the app stays signed in on this phone for up to 30 days. Sign out ends it. Needs service v37."],
   ["v40","8 Oct 2026","Stay signed in: a relay update or restart no longer signs you out. Needs service v36."],
   ["v39","8 Oct 2026","E2E continuity uses EXFO's recommended settings: tone 4 s at 1550 nm with 330 Hz modulation, OTDR 1 s (was tone 10 s, OTDR 3 s, unmodulated). Runs should be much quicker. Auto pacing still lengthens the tone if fibres are missed. Needs service v35."],
@@ -1906,9 +1907,9 @@ let crosses={};                              // index -> "crossed with ..."
         }
         return; } }
     const body={toneRtu:ends.a.rtuName, testRtu:ends.b.rtuName, stem:ends.stem, ribbons:[...ribbons].sort((a,b)=>a-b),
-                toneS, otdrS, autoPace:$("ctAuto").checked, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:330,
+                toneS, otdrS, autoPace:!$("ctAuto").checked, fast:$("ctAuto").checked, shortTries:3, appVersion:APP_VERSION, wavelengthNm:1550, freqHz:330,
                 simulate:null, user:(jget("toneTester.session",{})||{}).user||""};
-    jset(LASTKEY,{search:$("ctSearch").value.trim(), stem:ends.stem, tone:ends.a.rtuName, ribbons:body.ribbons, toneS, otdrS, auto:body.autoPace, adv});
+    jset(LASTKEY,{search:$("ctSearch").value.trim(), stem:ends.stem, tone:ends.a.rtuName, ribbons:body.ribbons, toneS, otdrS, auto:body.fast, adv});
     try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
     $("ctStart").disabled=true; $("ctStart").textContent="Starting…";
     try{ const d=await relay("/api/continuity/start",body); jobId=d.jobId; jset(JOBKEY,jobId); attach(jobId); }
@@ -2094,7 +2095,7 @@ let crosses={};                              // index -> "crossed with ..."
     const s=snap; if(!s||!s.settings) return;
     const st=s.settings;
     const body={toneRtu:st.toneRtu, testRtu:st.testRtu, stem:st.stem, ribbons:st.ribbons, toneS:st.toneS, otdrS:st.otdrS,
-                autoPace:st.autoPace, appVersion:APP_VERSION, wavelengthNm:st.wavelengthNm||1550, freqHz:st.freqHz||0,
+                autoPace:st.autoPace, fast:st.fast!==false, shortTries:st.shortTries||3, appVersion:APP_VERSION, wavelengthNm:st.wavelengthNm||1550, freqHz:st.freqHz||0,
                 simulate:null, prior:s.results||{}, resumeOf:(s.state==="interrupted"||s.state==="lost")?s.id:(s.resumeOf||s.id),
                 user:(jget("toneTester.session",{})||{}).user||""};
     $("ctResumeRun").disabled=true; $("ctResumeRun").textContent="Resuming…";

@@ -107,6 +107,24 @@
   #meBtn .who{display:inline}
   dialog.pickdlg{border:0;border-radius:16px;padding:22px 24px;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(23,26,32,.25)}
   dialog.pickdlg::backdrop{background:rgba(23,26,32,.35)}
+  dialog.askdlg{width:min(520px,calc(100vw - 32px))}
+  details.tfib{margin-top:4px} details.tfib summary{cursor:pointer;min-height:28px;font-weight:600;font-size:13px}
+  .tfg{display:flex;flex-direction:column;gap:3px;margin-top:6px;max-height:360px;overflow:auto}
+  .tfr{display:grid;grid-template-columns:36px repeat(12,minmax(0,1fr));gap:3px;align-items:center}
+  .tfc{display:inline-flex;align-items:center;justify-content:center;min-width:14px;height:20px;border-radius:4px;background:var(--soft2,#e6e6ee);font-size:10px;font-style:normal;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .fkey .tfc{width:14px;height:12px;margin-right:4px;vertical-align:middle}
+  .tfc.off{background:transparent} .tfc.ok{background:#BFE8D2;color:#135C38} .tfc.now{background:#D9C6FF;color:#4A2A99;box-shadow:inset 0 0 0 2px var(--live,#8E44C9)} .tfc.dis{background:#FFC9CE;color:#8A1F2A}
+  table.ckt{width:100%} table.ckt tbody tr{cursor:pointer}
+  .mdd.mcab{min-width:300px} .mdd.mcab [role=menuitem] b{white-space:nowrap}
+  dialog.ftdlg{width:min(600px,calc(100vw - 32px))}
+  .ftsec{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)} .ftsec h4{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .ftrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px} dialog.pickdlg .ftrow select{width:auto;min-width:180px}
+  .spstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .spst{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--soft)}
+  .spst b{font-size:24px;font-variant-numeric:tabular-nums}
+  table.sptab{border-collapse:collapse;font-size:13px} table.sptab th,table.sptab td{text-align:left;padding:4px 14px 4px 0}
+  .spd{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:4px;vertical-align:middle}
+  .spd.y{background:var(--ok,#1F9A5F)} .spd.n{background:#C9CCD6} :root[data-theme=dark] .spd.n{background:rgba(255,255,255,.22)} .spd.e{background:#E3A008}
   dialog.pickdlg h2{margin:0 0 4px;font-size:18px}
   dialog.pickdlg select{width:100%}
   #pickEnd button{padding:8px 14px}
@@ -319,6 +337,13 @@
   .umap .gap{width:8px;min-width:8px;background:none;cursor:default;padding:0}
   .umap td.done{background:#E5F4EC;color:var(--ok)}.umap td.dis{background:var(--bad-tint);color:var(--bad)}.umap td.cross{background:#FCEFD9;color:#8A5208}
   .umap td.oos{opacity:.28;cursor:default}
+  .umap td.flip{background:#E3EBFF;color:#2B55C8}
+  .umarkbox{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .umarks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:6px}
+  .umarks .btn{width:100%;justify-content:center}
+  #uFlip[aria-pressed=true]{background:#E3EBFF;color:#2B55C8}
+  .ukey{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;margin-top:8px;font-size:12px;color:var(--muted)}
+  :root[data-theme=dark] .umap td.flip{background:rgba(120,150,255,.28);color:#C9D6FF}
   .umap td.here{box-shadow:inset 0 0 0 2px var(--live);background:var(--live-tint)}
   .umap td.flag::after{content:"";position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--warn)}
   label.f.dk{color:var(--muted)}
@@ -376,7 +401,7 @@
   svg.lview .el.m .ic{fill:var(--warn-tint);stroke:var(--warn)} svg.lview .el.u .ic{fill:var(--surface);stroke:var(--muted)}
   svg.lview .el.sel .ring{stroke:var(--brand);stroke-width:2;fill:none}
   svg.lview .el.f .lo{fill:var(--bad)}
-  .lochart .evm{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3} .lochart .evm.sel{stroke:var(--brand);stroke-width:2;stroke-dasharray:none}
+  .lochart .evm{stroke:var(--muted);stroke-width:1.5} .lochart .evm.sel{stroke:var(--brand);stroke-width:2;stroke-dasharray:none}
   .lochart .evn{fill:var(--ink);font-size:10px;font-weight:700}
   .lochart .ref{fill:none;stroke:var(--faint);stroke-width:1.4}
   .lochart .new{fill:none;stroke:var(--brand);stroke-width:1.6}
@@ -556,6 +581,10 @@
   :root[data-look=glass][data-theme=dark] header .logo,:root[data-look=glass][data-theme=dark] .brandrow img{filter:brightness(0) invert(1) opacity(.92)}
   :root[data-look=glass][data-theme=dark] .toast{background:rgba(238,236,250,.92);color:#15132B}
   :root[data-look=glass][data-theme=dark] .dot.off{background:#5D5A78} :root[data-look=glass][data-theme=dark] .dot.idle{border-color:#5D5A78}
+  /* Brunel: chosen options in a clear colour, and chosen ribbons easy to see in dark */
+  .seg button[aria-pressed=true],:root[data-look=glass] .seg button[aria-pressed=true],:root[data-look=glass][data-theme=dark] .seg button[aria-pressed=true]{background:var(--brand,#5B5BD6);color:#fff;box-shadow:0 2px 8px rgba(91,91,214,.35)}
+  :root[data-look=glass][data-theme=dark] .ribs button[aria-pressed=true]{background:linear-gradient(135deg,#8A8AFF,#B48CFF);color:#fff;box-shadow:0 0 0 2px #EEECFA inset,0 4px 14px rgba(140,120,255,.45)}
+  :root[data-look=glass][data-theme=dark] .ribs button.part{background:rgba(160,140,255,.3);color:#fff}
   /* light / dark switch */
   .themesw{display:inline-flex;gap:2px;background:var(--soft);border:var(--edge,1px solid var(--line));border-radius:999px;padding:3px}
   .themesw button{border:0;background:none;color:var(--muted);border-radius:999px;padding:5px 11px;font:inherit;font-weight:600;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
@@ -648,9 +677,9 @@
       <div class="mi hdr" data-mi="tr"><button data-nav="history" aria-haspopup="menu">Tasks</button><button type="button" class="mcar" aria-label="Tasks menu" aria-haspopup="menu" aria-expanded="false">▾</button>
         <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="running"><b>Running now</b></button><button type="button" role="menuitem" data-act="history"><b>Run history</b></button></div></div>
       <div class="mi hdr" data-mi="tl"><button data-nav="console" aria-haspopup="menu">Tools</button><button type="button" class="mcar" aria-label="Tools menu" aria-haspopup="menu" aria-expanded="false">▾</button>
-        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="t-live"><b>Real Time</b></button><button type="button" role="menuitem" data-act="t-once"><b>Single Test</b></button><button type="button" role="menuitem" data-act="t-e2e"><b>E2E Continuity</b></button><button type="button" role="menuitem" data-act="t-uni"><b>Tone Test</b></button><button type="button" role="menuitem" data-act="t-bulk"><b>Bulk Test</b></button><div class="mfoot" id="mPickNote"></div></div></div></div>
+        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="t-live"><b>Real Time</b></button><button type="button" role="menuitem" data-act="t-once"><b>Single Test</b></button><button type="button" role="menuitem" data-act="t-e2e"><b>E2E Continuity</b></button><button type="button" role="menuitem" data-act="t-uni"><b>Tone Test</b></button><button type="button" role="menuitem" data-act="t-bulk"><b>Bulk Test</b></button><div id="mPickNote" hidden></div></div></div></div>
       <div class="mi" data-mi="cv" id="miCv" hidden><button data-nav="fibres">Cable View</button><button type="button" class="mcar" aria-label="Cable View menu" aria-haspopup="menu" aria-expanded="false">▾</button>
-        <div class="mdd" role="menu"><div id="mCables"></div><div class="msec">Across cables</div><button type="button" role="menuitem" data-act="find"><b>Find a fibre</b><span>Type F123, R11 F3 or RGAC 123</span></button><button type="button" role="menuitem" data-act="report"><b>Cable report (Excel)</b><span>The cable on screen, both ends</span></button></div></div>
+        <div class="mdd mcab" role="menu"><div id="mCables"></div></div></div>
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
@@ -671,6 +700,15 @@
     <label class="f">Cable<select id="pickCable"></select></label>
     <div class="note" style="margin:12px 0 6px">From</div><div class="seg" id="pickEnd"></div><div id="pickOpts"></div>
     <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end"><button class="btn" value="cancel" type="submit">Cancel</button><button class="btn primary" id="pickGo" type="button">Open</button></div>
+  </form></dialog>
+  <dialog class="pickdlg ftdlg" id="ftDlg" aria-labelledby="ftTitle"><form method="dialog">
+    <h2 id="ftTitle">Test this fibre</h2><p class="note" id="ftSub" style="margin:0 0 6px"></p>
+    <div id="ftBody"></div>
+    <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end"><button class="btn" value="close" type="submit">Close</button></div>
+  </form></dialog>
+  <dialog class="pickdlg askdlg" id="askDlg" aria-labelledby="askTitle"><form method="dialog">
+    <h2 id="askTitle"></h2><p id="askText" style="margin:8px 0 0;white-space:pre-line;line-height:1.5"></p>
+    <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end"><button class="btn" value="no" type="submit" id="askNo">Cancel</button><button class="btn primary" value="yes" type="submit" id="askYes">OK</button></div>
   </form></dialog>
   <div class="online" id="onlinePanel" hidden></div>
   <div class="online" id="alertPanel" hidden>
@@ -741,7 +779,7 @@
         <div class="bgrid">
           <div class="bmain">
             <section class="panel">
-              <h2>1 · Fibres on <span class="mono" id="bStem">…</span></h2>
+              <h2>1 · Fibres on <span id="bStem">…</span></h2>
               <div class="row" style="margin-bottom:10px">
                 <div class="seg" role="group" aria-label="Quick picks">
                   <button type="button" data-q="all">All 432</button><button type="button" data-q="odd">Odd</button><button type="button" data-q="even">Even</button><button type="button" data-q="clear">Clear</button>
@@ -823,7 +861,7 @@
         <div id="eSetup" class="bgrid">
           <div class="bmain">
             <section class="panel">
-              <h2>1 · Ends of <span class="mono" id="eStem">…</span></h2>
+              <h2>1 · Ends of <span id="eStem">…</span></h2>
               <div class="ends">
                 <div class="end"><div class="lbl">Tone from</div><div class="endname mono" id="eTone">…</div><div class="note" id="eToneSt"></div></div>
                 <button class="btn" id="eSwap" type="button" aria-label="Swap ends">⇄ Swap</button>
@@ -834,7 +872,7 @@
             <section class="panel">
               <h2>2 · Ribbons</h2>
               <div class="row" style="margin-bottom:10px">
-                <div class="seg" role="group" aria-label="Quick picks"><button type="button" data-eq="r1">Ribbon 1</button><button type="button" data-eq="b1">Bundle 1</button><button type="button" data-eq="all">All 36</button><button type="button" data-eq="clear">Clear</button></div>
+                <div class="seg" role="group" aria-label="Quick picks"><button type="button" data-eq="all">All</button><button type="button" data-eq="clear">Clear</button></div>
               </div>
               <div class="ribs" id="eRibs"></div>
               <div class="note" id="eRibSum" style="margin-top:8px"></div>
@@ -842,8 +880,13 @@
                 <div class="row" style="margin-top:10px">
                   <label class="f">Tone (s)<input type="number" id="eToneS" min="4" max="20" value="4" style="width:100px"></label>
                   <label class="f">OTDR (s)<input type="number" id="eOtdrS" min="1" max="30" value="1" style="width:100px"></label>
-                  <label class="chk"><input type="checkbox" id="eAuto" checked> Auto pacing</label>
+                  <label class="f">Goes per fibre<input type="number" id="eTries" min="1" max="5" value="3" style="width:100px"></label>
                   <button class="btn" type="button" id="eResetAdv">Proven defaults</button>
+                </div>
+                <p class="note" style="margin:8px 0 0">A fibre that does not light is tried again at the same short settings, up to the number of goes, before the search moves on. No long 20 s tone.</p>
+                <div class="row" style="margin-top:10px;align-items:center">
+                  <button class="btn" type="button" id="eSpeed">Speed test the chosen ribbons</button>
+                  <span class="note">Tries every fibre 5 times on its own position at these settings and reports how often one go finds it and how long a go takes. Nothing is recorded on the cable.</span>
                 </div>
               </details>
             </section>
@@ -887,7 +930,13 @@
               <div id="eNow" class="nowline"></div>
               <div id="eStep" class="note"></div>
             </section>
-            <section class="panel">
+            <section class="panel" id="eSpeedBox" hidden>
+              <h2>Speed test</h2>
+              <div class="spstats" id="eSpStats"></div>
+              <div id="eSpGrid" style="margin-top:12px"></div>
+              <p class="note" id="eSpNote" style="margin:10px 0 0"></p>
+            </section>
+            <section class="panel" id="eResBox">
               <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px"><h2 style="margin:0" class="grow">Results</h2>
                 <div class="legend"><span><i class="lg st"></i>Straight</span><span><i class="lg cx"></i>Crossed (shows where it lands)</span><span><i class="lg nf"></i>DIS or not found</span><span><i class="lg now"></i>Testing now</span></div></div>
               <div id="eGrid" style="overflow-x:auto"></div>
@@ -922,7 +971,7 @@
           <div class="bmain">
             <section class="panel">
               <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
-                <div class="grow" style="min-width:220px"><div class="lbl2">Cable</div><div class="mono" style="font-size:16px;font-weight:600" id="uStem">…</div><div class="note" id="uFrom"></div></div>
+                <div class="grow" style="min-width:220px"><div class="lbl2">Cable</div><div style="font-size:16px;font-weight:600" id="uStem">…</div><div class="note" id="uFrom"></div></div>
                 <label class="f" style="min-width:240px;flex:1 1 240px">Your location (joint, chamber or cabinet)<input type="text" id="uLoc" maxlength="80" placeholder="e.g. Joint 23, Didcot"></label>
               </div>
               <div class="warnbox" id="uOffline" hidden style="margin-top:12px"></div>
@@ -942,16 +991,22 @@
                 <button class="btn" id="uBack" type="button">◂ Back</button>
                 <button class="btn" id="uRepeat" type="button">Repeat tone</button>
                 <button class="btn primary big" id="uNext" type="button"><span>START ▸</span><small id="uNextTo"></small></button>
-                <span class="grow"></span>
-                <button class="btn mark" id="uDis" type="button" aria-pressed="false">DIS</button>
-                <button class="btn mark" id="uCross" type="button" aria-pressed="false">Crossed…</button>
-                <button class="btn mark" id="uNote" type="button">Note…</button>
+              </div>
+              <div class="umarkbox">
+                <div class="lbl2">Mark an issue on this fibre</div>
+                <div class="umarks">
+                  <button class="btn mark" id="uDis" type="button" aria-pressed="false" title="D">Dis.</button>
+                  <button class="btn mark" id="uCross" type="button" aria-pressed="false" title="X">Crossed…</button>
+                  <button class="btn mark" id="uFlip" type="button" aria-pressed="false" title="F">Flipped</button>
+                  <button class="btn mark" id="uNote" type="button">Note…</button>
+                </div>
+                <div class="ukey"><span><b>Dis.</b> no tone heard at the far end</span><span><b>Crossed</b> heard on a different fibre (type which)</span><span><b>Flipped</b> the ribbon is reversed, so this fibre lands on its mirror (F1 on F12)</span><span><b>Note</b> anything else, saved with the run</span></div>
               </div>
               <div class="edit" id="uEdit" hidden>
                 <label class="f grow" id="uEditLbl">Crossed with<input type="text" id="uEditIn" maxlength="80"></label>
                 <button class="btn primary" id="uEditOk" type="button">Save</button><button class="btn" id="uEditNo" type="button">Cancel</button>
               </div>
-              <div class="note" id="uHint" style="margin-top:8px">Keys: Space or → Next · ← Back · R Repeat · D DIS · X Crossed</div>
+              <div class="note" id="uHint" style="margin-top:8px">Keys: Space or → Next · ← Back · R Repeat · D Dis. · X Crossed · F Flipped</div>
               <div class="note" id="uLink" style="margin-top:4px"></div>
             </section>
             <section class="panel" style="margin-top:16px">
@@ -960,7 +1015,7 @@
                 <div class="seg" role="group" aria-label="Fibres under test" id="uScope"><button type="button" data-sc="all">All</button><button type="button" data-sc="odd">Odd</button><button type="button" data-sc="even">Even</button><button type="button" data-sc="range">Range</button></div>
                 <span id="uRangeBox" hidden><input type="number" id="uFromN" min="1" max="432" style="width:80px" aria-label="From fibre"> to <input type="number" id="uToN" min="1" max="432" style="width:80px" aria-label="To fibre"></span>
               </div>
-              <div class="legend" style="margin-bottom:8px"><span><i class="lg st"></i>Confirmed</span><span><i class="lg nf"></i>DIS</span><span><i class="lg cx"></i>Crossed</span><span><i class="lg now"></i>Current</span><span>Ribbons across, fibres 1 to 12 down. Hover for the fibre number, click to pick it, then START.</span></div>
+              <div class="legend" style="margin-bottom:8px"><span><i class="lg st"></i>Confirmed</span><span><i class="lg nf"></i>Dis.</span><span><i class="lg cx"></i>Crossed</span><span><i class="lg" style="background:#E3EBFF"></i>Flipped</span><span><i class="lg now"></i>Current</span><span>Ribbons across, fibres 1 to 12 down. Hover for the fibre number, click to pick it, then START.</span></div>
               <div class="umap" id="uMap"></div>
             </section>
           </div>
@@ -996,8 +1051,8 @@
           <h2 style="margin:0">Cable View</h2>
           <select id="fCable" aria-label="Cable"></select>
           <span class="grow"></span>
-          <input id="fFind" type="search" placeholder="Find a fibre: F123, R11 F3, RGAC 123" aria-label="Find a fibre">
-          <span class="frep"><button class="btn" type="button" id="fReport" hidden title="Excel workbook of this cable: a Summary sheet, then one row per fibre with continuity, iOLM loss from each end and the both ways average per wavelength, lengths and OTDR loss">Cable report (Excel)</button><small class="note" id="fRepNote" hidden>Every fibre: continuity, loss each end and both ways, length</small></span>
+          <input id="fFind" type="search" hidden aria-hidden="true">
+          <span class="frep" hidden><button class="btn" type="button" id="fReport" hidden title="Excel workbook of this cable: a Summary sheet, then one row per fibre with continuity, iOLM loss from each end and the both ways average per wavelength, lengths and OTDR loss">Cable report (Excel)</button><small class="note" id="fRepNote" hidden>Every fibre: continuity, loss each end and both ways, length</small></span>
         </div>
         <div id="fHits" class="fhits" hidden></div>
         <div class="flive" id="fLive" hidden></div>
@@ -1017,6 +1072,10 @@
         </section>
         <aside class="panel fdet" id="fDet"><p class="note">Pick a fibre.</p></aside>
       </div>
+      <section class="panel" id="fCheck" style="margin-top:16px">
+        <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><h2 style="margin:0">To check</h2><span class="note" id="fCheckN"></span></div>
+        <div id="fCheckT" style="margin-top:10px"></div>
+      </section>
     </main>
     <main id="screen-history" hidden>
       <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px">
@@ -1047,6 +1106,9 @@
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
+      <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel (9 Oct 2026)</h3>
+      <ul><li>E2E Continuity: a fibre that does not light is tried again at the same short settings (tone 4 s, OTDR 1 s), up to 3 goes, instead of stepping up to a 20 s tone. Goes per fibre is under Pace (advanced).</li><li>E2E speed test: tries every fibre of the chosen ribbons 5 times and reports how often one go finds it and how long a go takes, so the settings can be tuned. Nothing is recorded on the cable.</li><li>E2E ribbons: All or Clear, and chosen ribbons stand out in dark mode.</li><li>Cable View: Test this fibre opens a pop out with Real Time from either end and a Single Test (OTDR with its measure time, or iOLM with its setup and wavelengths). Ends are named by place (Reading, Swindon) once the cable is chosen. The To check list is a table under the fibres. Find a fibre and the simple cable report are gone; the full FMS report comes next.</li><li>Bulk Test: chosen options are coloured, the comment says when both ends are tested, the check before starting is a themed box in the middle of the screen, and a running Task can show its fibres (Show fibres).</li><li>Tone Test: Mark an issue with Dis., Crossed, Flipped (ribbon reversed) and Note, all the same size with a key.</li><li>OTDR trace: each event has a short marker above the trace instead of a line down the whole chart.</li></ul>
       <h3>v47 (9 Oct 2026)</h3>
       <ul><li>Simpler top bar: Overview goes straight to its page; Tasks (Running now, Run history) and Tools open their lists. Neos logo at the top right.</li><li>Run history: click an E2E run to see its report, every fibre coloured by what it found, the counts and a To check list.</li><li>Real Time from Tools starts straight away once you pick the cable, end and fibre, with a Starting message while the RTU gets going. Start again after Stop; Show whole fibre only appears after you zoom in.</li><li>Single Test from Tools asks OTDR or iOLM and the settings, runs at once, shows in Running now and keeps a line in Run history.</li><li>Cable View: each cell shows its fibre number (1 to 432); Colour fibres by sits right above the grid; the fibre panel is down to Test this fibre (click the fibre name to copy it).</li><li>Bulk Test: start now or later (5 minutes to 2 hours), and Both ends at once, with the far end starting half the cable away so the ends never test the same fibre together.</li><li>Tone Test: the fibre map sits right under the test controls. Pop outs are solid.</li></ul>
       <h3>v46 (8 Oct 2026)</h3>
@@ -1162,7 +1224,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="v47";
+  const APP_VERSION="Brunel";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1178,7 +1240,7 @@
   let session=jget(SES,{id:"",user:""})||{id:"",user:""};
   const DEFAULT_USER="alkis.kardasopoulos@motionrail.co.uk";
   try{ if(localStorage.getItem("rft.keep")==="0") $("keepIn").checked=false; }catch(e){}
-  $("appv").textContent="app "+APP_VERSION;
+  $("appv").textContent=APP_VERSION;
 
   const CABLES=[
     {name:"Slough to Reading", pre:"F-0057-RGAC", rtus:[["0057","RTU2-0057-1991132"],["RGAC","RTU2-RGAC-1991133"]]},
@@ -1204,6 +1266,9 @@
   }
   const quiet=e=>e && (e.message==="signed out"||e.message==="blocked");
   let RELAYV=0;   /* v40: relay version number from /health */
+  /* Brunel: themed question in the centre of the screen instead of the browser's own confirm box */
+  function ask(title,text,yes){ const d=$("askDlg"); $("askTitle").textContent=title; $("askText").textContent=text; $("askYes").textContent=yes||"OK";
+    return new Promise(res=>{ d.returnValue=""; d.onclose=()=>res(d.returnValue==="yes"); d.showModal(); $("askYes").focus(); }); }
   function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),5000); }
 
   // ── sign in, lock ──
@@ -1334,7 +1399,7 @@
   // ── v46: top bar drop down menus ──
   const MI=[...document.querySelectorAll(".mi")]; let mT=null, mSup=null;
   function menusClose(sup){ clearTimeout(mT); MI.forEach(m=>{ m.classList.remove("open"); const c=m.querySelector(".mcar"); if(c) c.setAttribute("aria-expanded","false"); }); mSup=sup?document.querySelector(".mi:hover"):null; }
-  function menuOpen(m){ menusClose(); if(m.dataset.mi==="cv") paintCableMenu(); if(m.dataset.mi==="tl") $("mPickNote").textContent=pickNote(); if(m.dataset.mi==="me") $("meVer").textContent=$("appv").textContent;
+  function menuOpen(m){ menusClose(); if(m.dataset.mi==="cv") paintCableMenu(); if(m.dataset.mi==="me") $("meVer").textContent=$("appv").textContent;
     m.classList.add("open"); const c=m.querySelector(".mcar"); if(c) c.setAttribute("aria-expanded","true"); }
   MI.forEach(m=>{
     const c=m.querySelector(".mcar"); if(c) c.addEventListener("click",e=>{ e.stopPropagation(); m.classList.contains("open")?menusClose():menuOpen(m); });
@@ -1349,7 +1414,7 @@
   const goLive=id=>{ setScreen("live"); setTimeout(()=>{ const el=id&&document.querySelector(id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); },60); };
   function paintCableMenu(){
     const P=FB.prog||{};
-    $("mCables").innerHTML=STEMS.map(([k,n])=>{ const p=P[k]; return `<button type="button" role="menuitem" data-act="cable" data-stem="${k}"><b>${esc(n)} · ${esc(k.replace(/-R\d+$/,""))}</b><span>${p?`${p.tested} of ${p.n} continuity · ${p.probs} to check`:"Open to see its progress"}</span>${p?`<i class="pbm"><i style="width:${(100*p.tested/(p.n||1)).toFixed(1)}%"></i></i>`:""}</button>`; }).join("");
+    $("mCables").innerHTML=STEMS.map(([k,n])=>{ const p=P[k]; return `<button type="button" role="menuitem" data-act="cable" data-stem="${k}"><b>${esc(n)}</b><span>${p?`${p.tested} of ${p.n} continuity · ${p.probs} to check`:"Open to see its progress"}</span>${p?`<i class="pbm"><i style="width:${(100*p.tested/(p.n||1)).toFixed(1)}%"></i></i>`:""}</button>`; }).join("");
   }
   // the cable and end the tools start from (remembered)
   const stemOfCable=c=>(STEMS.find(([k])=>k.startsWith(c.pre))||[c.pre+"-A-R432"])[0];
@@ -1357,10 +1422,10 @@
   function pickCable(title,needFibre,go,mode){
     const s=jget("rft.pick",{pre:(cableOf(selected)||CABLES[1]).pre, rtu:selected, f:1});
     $("pickTitle").textContent=title; $("pickSub").textContent=needFibre?"Pick the cable, the end to test from and the fibre.":"Pick the cable and the end to start from.";
-    $("pickCable").innerHTML=CABLES.map(c=>`<option value="${c.pre}">${esc(c.name)} · ${c.pre}</option>`).join(""); $("pickCable").value=s.pre;
+    $("pickCable").innerHTML=CABLES.map(c=>`<option value="${c.pre}">${esc(c.name)}</option>`).join(""); $("pickCable").value=s.pre;
     let end=s.rtu;
     const ends=()=>{ const c=CABLES.find(x=>x.pre===$("pickCable").value); if(!c.rtus.some(r=>r[1]===end)) end=c.rtus[0][1];
-      $("pickEnd").innerHTML=c.rtus.map(([sh,n])=>`<button type="button" data-end="${n}" aria-pressed="${n===end}">${esc(sh)}${rtuState[n]&&rtuState[n].online===false?" (offline)":""}</button>`).join("")
+      $("pickEnd").innerHTML=c.rtus.map(([sh,n])=>`<button type="button" data-end="${n}" aria-pressed="${n===end}">${esc(placeOf(n))}${rtuState[n]&&rtuState[n].online===false?" (offline)":""}</button>`).join("")
         +(needFibre?`<label class="note" style="display:flex;gap:6px;align-items:center;margin-left:12px">Fibre <input id="pickF" type="number" min="1" max="432" value="${s.f||1}" style="width:80px"></label>`:"");
 
       $("pickEnd").querySelectorAll("[data-end]").forEach(b=>b.onclick=()=>{ end=b.dataset.end; ends(); }); };
@@ -1385,10 +1450,10 @@
   // v47: Single Test from Tools: the window opens at once with a timer, then shows the result (trace, events or Link View)
   async function singleFromTools(c,end,f,opt){
     const stem=stemOfCable(c), io=opt&&opt.k==="iolm", what=io?`iOLM ${opt.w.join(", ")}`:`OTDR ${opt?opt.s:10} s`;
-    loStarting(stem,f,end); $("loTitle").textContent=`Single Test · ${fNum(f)} from ${short(end)}`; $("loState").textContent="Running";
+    loStarting(stem,f,end); $("loTitle").textContent=`Single Test · ${fNum(f)} from ${placeOf(end)}`; $("loState").textContent="Running";
     $("loInfo").textContent=`${what} starting…`;
     const t0=Date.now(), tick=setInterval(()=>{ if(!LO.s) $("loInfo").textContent=`${what} running… ${Math.round((Date.now()-t0)/1000)} s${io?" (about a minute per wavelength)":""}`; },500);
-    $("loChart").innerHTML=`<text x="550" y="180" text-anchor="middle">${esc(what)} on ${esc(fNum(f))} from ${esc(short(end))}…</text><text x="550" y="206" text-anchor="middle">It shows in Running now; the result opens here when FMS has it.</text>`;
+    $("loChart").innerHTML=`<text x="550" y="180" text-anchor="middle">${esc(what)} on ${esc(fNum(f))} from ${esc(placeOf(end))}…</text><text x="550" y="206" text-anchor="middle">It shows in Running now; the result opens here when FMS has it.</text>`;
     openFibreAt(stem,f);
     try{
       let id=idOf(end); if(!id){ const fd=await relay("/api/fibres",{stem}); id=((fd.ends||[]).find(e=>e.rtu===end)||{}).rtuId; }
@@ -1457,7 +1522,7 @@
   let confirming=null;
   function renderMain(){
     const cab=cableOf(selected), site=cab?cab.rtus.find(r=>r[1]===selected)[0]:"", L=light(selected), st=rtuState[selected];
-    $("crumb").textContent=cab?`${cab.name} · ${cab.pre} · ${site} end`:"";
+    $("crumb").textContent=cab?`${cab.name} · ${placeOf(selected)} end`:"";
     $("rtuName").textContent=short(selected); $("rtuName").title=selected; $("rtuDot").className="dot "+L.dot; $("rtuDot").setAttribute("aria-label",L.word);
     $("rtuState").textContent=st?(st.found?nice(L.word):"Not found in FMS"):"Checking FMS…";
     paintFree(L);
@@ -1478,11 +1543,26 @@
       return `<div class="task"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="chip ${t.testing?"testing":"queued"}">${chip}</span><span class="note">${esc(t.kind)} · ${esc(t.setting)}</span><span class="grow"></span><span class="note">started ${new Date(t.started*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span></div>
         <b>${esc(who)}</b><span class="note">${esc(t.comment)}</span>
         <div class="bar"><i style="width:${pct}%"></i></div>
-        <span class="mono note">${t.done} of ${t.total} fibres done</span>${ask}</div>`;
+        <span class="mono note">${t.done} of ${t.total} fibres done</span>${taskFibres(t)}${ask}</div>`;
     }).join("");
+    $("tasks").querySelectorAll("details[data-tf]").forEach(d=>d.ontoggle=()=>{ d.open?TFOPEN.add(d.dataset.tf):TFOPEN.delete(d.dataset.tf); });
     $("tasks").querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>{ confirming=b.dataset.ask; renderMain(); });
     $("tasks").querySelectorAll("[data-keep]").forEach(b=>b.onclick=()=>{ confirming=null; renderMain(); });
     $("tasks").querySelectorAll("[data-do]").forEach(b=>b.onclick=()=>{ b.disabled=true; b.textContent="Cancelling…"; const t=ts.find(x=>x.id===b.dataset.do); if(t) doCancel(t); });
+  }
+  /* Brunel: which fibres of a running Task are done, as a small cable view you can open */
+  const TFOPEN=new Set();
+  function taskFibres(t){
+    const fs=(t.fibres||[]).map(x=>{ const m=String(x.name||"").match(/F(\d{1,3})$/i); return {f:m?+m[1]:0, s:x.state}; }).filter(x=>x.f);
+    if(!fs.length) return "";
+    const by={}; fs.forEach(x=>by[x.f]=x.s);
+    const cls=s=>["COMPLETED","COMPLETED_WITH_ERRORS"].includes(s)?"ok":["IN_PROGRESS","SCHEDULED"].includes(s)?"now":["FAILED","TIMED_OUT","CANCELED","TERMINATED","FAILED_WITH_TERMINAL_ERROR"].includes(s)?"dis":"";
+    const word=s=>({ok:"done",now:"testing",dis:"failed","":"waiting"})[cls(s)];
+    const ribs=[...new Set(fs.map(x=>Math.ceil(x.f/12)))].sort((a,b)=>a-b);
+    const grid=ribs.map(r=>`<div class="tfr"><span class="note">R${r}</span>${[...Array(12)].map((_,i)=>{ const f=(r-1)*12+i+1, s=by[f]; return s===undefined?`<i class="tfc off"></i>`:`<i class="tfc ${cls(s)}" title="F${String(f).padStart(3,"0")} ${word(s)}">${f}</i>`; }).join("")}</div>`).join("");
+    const fail=fs.filter(x=>cls(x.s)==="dis").length;
+    return `<details class="tfib" data-tf="${esc(t.id)}"${TFOPEN.has(t.id)?" open":""}><summary>Show fibres <span class="note">${fs.filter(x=>cls(x.s)==="ok").length} done${fs.some(x=>cls(x.s)==="now")?", 1 testing":""}${fail?`, ${fail} failed`:""}</span></summary>
+      <div class="tfg">${grid}</div><div class="fkey" style="margin-top:6px"><span><i class="tfc ok"></i>Done</span><span><i class="tfc now"></i>Testing</span><span><i class="tfc"></i>Waiting</span><span><i class="tfc dis"></i>Failed</span></div></details>`;
   }
   async function doCancel(t){
     const mine=tasksData && tasksData.me && nice(t.creator).toLowerCase()===nice(tasksData.me.name).toLowerCase();
@@ -1534,7 +1614,9 @@
   ["bSplice","bRefl","bEof"].forEach(id=>$(id).oninput=()=>{ renderBulkSide(); });
   let commentOwn=false;
   $("bComment").oninput=()=>{ commentOwn=$("bComment").value.trim()!==""&&$("bComment").value!==autoComment(); };
-  function autoComment(){ const site=(cableOf(selected)||{rtus:[]}).rtus.find(r=>r[1]===selected)?.[0]||""; const f=fibreText().split(", ").map(x=>x.split("-").map(n=>"F"+String(n).padStart(3,"0")).join("-")).join(", "); return fibres.size?`${site} ${f}`:site; }
+  function autoComment(end){ const me=end||selected, site=siteOf(me)||""; const f=fibreText().split(", ").map(x=>x.split("-").map(n=>"F"+String(n).padStart(3,"0")).join("-")).join(", ");
+    const both=$("bBoth")&&$("bBoth").checked&&farEnd(), other=both?siteOf(me===selected?farEnd():selected):"";
+    return (fibres.size?`${site} ${f}`:site)+(both?` (both ends with ${other})`:""); }
   function stem(){ const st=rtuState[selected]; return st&&st.stem?st.stem:null; }
   function payload(){
     const b={rtu:selected, cable:stem(), fibres:[...fibres].sort((x,y)=>x-y), kind:B.kind, comment:$("bComment").value.trim()};
@@ -1545,7 +1627,7 @@
   }
   function estimate(){ const n=fibres.size; return B.kind==="otdr"? n*(B.dur+17)*B.wls.length : n*73; }
   const farEnd=()=>((cableOf(selected)||{rtus:[]}).rtus.find(r=>r[1]!==selected)||[])[1]||"";
-  $("bDelay").onchange=()=>renderBulkSide(); $("bBoth").onchange=()=>renderBulkSide();
+  $("bDelay").onchange=()=>renderBulkSide(); $("bBoth").onchange=()=>{ if(!commentOwn) $("bComment").value=autoComment(); renderBulkSide(); };
   let schedAt=0;
   async function paintSched(force){
     if(!force&&Date.now()-schedAt<8000) return; schedAt=Date.now();
@@ -1557,7 +1639,7 @@
   const hms=s=>{ s=Math.round(s); const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return h?`${h} h ${m} min`:m?`${m} min ${x} s`:`${x} s`; };
   function renderBulk(syncText=true){
     const st=stem();
-    $("bStem").textContent=st||(rtuState[selected]?"(no routes found for this RTU)":"(finding the cable…)");
+    $("bStem").textContent=st?cableName(st):(rtuState[selected]?"(no routes found for this RTU)":"(finding the cable…)");
     document.querySelectorAll("[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===B.kind)));
     $("bWls").innerHTML=[1310,1550,1625].map(w=>`<button type="button" data-wl="${w}" aria-pressed="${B.wls.includes(w)}" class="mono">${w}</button>`).join("");
     $("bWls").querySelectorAll("[data-wl]").forEach(b=>b.onclick=()=>{ const w=+b.dataset.wl; const s=new Set(B.wls); s.has(w)?s.delete(w):s.add(w); if(!s.size) return; B.wls=[...s].sort(); saveB(); changed(); });
@@ -1586,7 +1668,7 @@
     $("bBusy").innerHTML=warn;
     $("bStart").disabled=!n||!stem()||L.dot==="off";
     const both=$("bBoth").checked, dl=+$("bDelay").value||0, far=farEnd();
-    $("bBothNote").textContent=far?`(${siteOf(selected)} and ${siteOf(far)})`:"";
+    $("bBothNote").textContent=far?`(${placeOf(selected)} and ${placeOf(far)})`:"";
     $("bStart").textContent=n?`${dl?"Schedule":"Start"} ${n} fibre${n>1?"s":""}${B.kind==="otdr"&&B.wls.length>1?" × "+B.wls.length+" wavelengths":""}${both?" from both ends":""}${dl?" in "+(dl>=60?dl/60+" h":dl+" min"):""}`:"Pick fibres to start";
     paintSched();
   }
@@ -1602,7 +1684,7 @@
     const site=(cableOf(selected)||{rtus:[]}).rtus.find(r=>r[1]===selected)?.[0]||selected;
     const busyTxt=p.busy&&p.busy.length?`\n\nRTU busy: ${p.busy.map(b=>nice(b.owner)+"'s "+b.kind+" ("+b.done+"/"+b.total+")").join(", ")}. FMS will share the RTU, so it will take longer.`:"";
     const what=B.kind==="otdr"?`OTDR ${B.wls.join(" / ")} nm, ${B.dur} s, ${B.auto?"automatic pulse and range":"pulse "+(PULSES.find(x=>x[0]===B.pulse)||[0,""])[1]+", range "+B.range+" km"}`:`iOLM ${MODES.find(m=>m[0]===B.mode)[1]}, ${B.wls.join(" / ")} nm`;
-    const ok=confirm(`FMS check passed: all ${p.fibres} fibres found on ${site} (${stem()}).\n\n${what}\n${p.tasks} FMS Task${p.tasks>1?"s":""}, about ${hms(p.estimateS)}.${busyTxt}\n\nComment: ${payload().comment}\n\nStart now?`);
+    const ok=await ask("Start Bulk Test?", `FMS check passed: all ${p.fibres} fibres found on ${site} (${cableId(stem())}).\n\n${what}\n${p.tasks} FMS Task${p.tasks>1?"s":""}, about ${hms(p.estimateS)}.${busyTxt}\n\nComment: ${payload().comment}`, "Start now");
     if(!ok){ renderBulkSide(); return; }
     $("bStart").textContent="Starting…";
     try{ const r=await relay("/api/bulk/start",payload()); toast(`Started ${r.ids.length} FMS Task${r.ids.length>1?"s":""}. Follow it in the Tasks tab.`); showTab("tasks"); refreshTasks(true); }
@@ -1614,18 +1696,18 @@
   async function startBothOrLater(both,dl){
     $("bStart").disabled=true; $("bStart").textContent="Checking with FMS…";
     const far=farEnd(), A={...payload(), order:"asc", delayMin:dl};
-    const Bp=both?{...payload(), rtu:far, cable:(rtuState[far]&&rtuState[far].stem)||stem(), order:"offset", delayMin:dl, comment:(payload().comment.replace(siteOf(selected),siteOf(far)))}:null;
+    const Bp=both?{...payload(), rtu:far, cable:(rtuState[far]&&rtuState[far].stem)||stem(), order:"offset", delayMin:dl, comment:(commentOwn?payload().comment+" (far end)":autoComment(far))}:null;
     let pa=null, pb=null;
     try{ pa=await relay("/api/bulk/plan",A); if(Bp) pb=await relay("/api/bulk/plan",Bp); }
     catch(e){ if(!quiet(e)) toast("Not started. FMS check failed: "+e.message); renderBulkSide(); return; }
     const what=B.kind==="otdr"?`OTDR ${B.wls.join(" / ")} nm, ${B.dur} s`:`iOLM ${MODES.find(m=>m[0]===B.mode)[1]}, ${B.wls.join(" / ")} nm`;
     const when=dl?`Starts at ${hm(Date.now()/1000+dl*60)} (in ${dl>=60?dl/60+" h":dl+" min"}). Keep this browser signed in until then.`:"Starts now.";
-    const ends=Bp?`${siteOf(selected)}: F${String(A.fibres[0]).padStart(3,"0")} upwards\n${siteOf(far)}: starts half way, F${String(A.fibres[Math.floor(A.fibres.length/2)]).padStart(3,"0")} upwards, then wraps round`:`${siteOf(selected)} only`;
-    if(!confirm(`FMS check passed: all ${pa.fibres} fibres found${Bp?" at both ends":""}.\n\n${what}\n${ends}\nAbout ${hms(pa.estimateS)} per end.\n\n${when}\n\nGo ahead?`)){ renderBulkSide(); return; }
+    const ends=Bp?`${placeOf(selected)}: F${String(A.fibres[0]).padStart(3,"0")} upwards\n${placeOf(far)}: starts half way, F${String(A.fibres[Math.floor(A.fibres.length/2)]).padStart(3,"0")} upwards, then wraps round`:`${placeOf(selected)} only`;
+    if(!await ask(dl?"Schedule Bulk Test?":"Start Bulk Test?", `FMS check passed: all ${pa.fibres} fibres found${Bp?" at both ends":""}.\n\n${what}\n${ends}\nAbout ${hms(pa.estimateS)} per end.\n\n${when}\n\nComment: ${A.comment}${Bp?"\nFar end comment: "+Bp.comment:""}`, dl?"Schedule":"Start now")){ renderBulkSide(); return; }
     $("bStart").textContent=dl?"Scheduling…":"Starting…";
     try{
       const ra=await relay("/api/bulk/start",A); const rb=Bp?await relay("/api/bulk/start",Bp):null;
-      toast(dl?`Scheduled for ${hm(ra.at)}${Bp?" from both ends":""}. It shows under the Start button until then.`:`Started from ${Bp?"both ends":siteOf(selected)}. Follow it in Running now.`);
+      toast(dl?`Scheduled for ${hm(ra.at)}${Bp?" from both ends":""}. It shows under the Start button until then.`:`Started from ${Bp?"both ends":placeOf(selected)}. Follow it in Running now.`);
       if(!dl){ showTab("tasks"); refreshTasks(true); }
     }catch(e){ if(!quiet(e)) toast("Not started: "+e.message); }
     renderBulkSide(); paintSched(true);
@@ -1644,6 +1726,9 @@
   const rangeText=rs=>{ rs=(rs||[]).slice().sort((a,b)=>a-b); const out=[]; let i=0; while(i<rs.length){ let j=i; while(j+1<rs.length&&rs[j+1]===rs[j]+1) j++; out.push(i===j?"R"+rs[i]:"R"+rs[i]+"-"+rs[j]); i=j+1; } return out.join(", "); };
   const SIM=(()=>{ try{ return new URLSearchParams(location.search).get("sim")||""; }catch(e){ return ""; } })();
   const siteOf=full=>{ const c=cableOf(full); const r=c&&c.rtus.find(x=>x[1]===full); return r?r[0]:nodeOf(full); };
+  /* Brunel: once the cable is chosen, an end is named by its place (Reading), not its RTU (RGAC2) */
+  const placeOf=full=>{ const c=cableOf(full); if(!c) return siteOf(full); const i=c.rtus.findIndex(x=>x[1]===full), ps=c.name.split(" to "); return i>=0&&ps[i]?ps[i]:siteOf(full); };
+  function cableName(stem){ const c=CABLES.find(x=>String(stem||"").toUpperCase().startsWith(x.pre)); return c?c.name:cableId(stem); }
   const otherEnd=full=>{ const c=cableOf(full); const r=c&&c.rtus.find(x=>x[1]!==full); return r?r[1]:""; };
 
   // The cable this RTU serves: the stem from /api/rtus when it matches the cable, else search FMS by the RTU name
@@ -1670,14 +1755,14 @@
 
   // ── E2E Continuity ──
   const E={tone:"", test:"", stem:"", ribbons:new Set(jget("rft.desktop.e2eRibs",[1])), jobId:"", snap:null, pollT:null, last:{}, notified:{}};
-  const EDEF={toneS:4, otdrS:1};   /* v42: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz */
+  const EDEF={toneS:4, otdrS:1, tries:3};   /* Brunel: up to 3 short goes, no long tone */   /* v42: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz */
   (function buildERibs(){
     $("eRibs").innerHTML=[...Array(NRIB)].map((_,i)=>`<button type="button" data-er="${i+1}" title="Ribbon ${i+1}, fibres ${fname(i*12+1)}-${fname(i*12+12)}">${i+1}</button>`).join("");
     $("eRibs").querySelectorAll("[data-er]").forEach(b=>b.onclick=()=>{ const r=+b.dataset.er; E.ribbons.has(r)?E.ribbons.delete(r):E.ribbons.add(r); eSetupPaint(); });
     document.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{ const q=b.dataset.eq; E.ribbons.clear();
-      if(q==="r1") E.ribbons.add(1); if(q==="b1") for(let r=1;r<=6;r++) E.ribbons.add(r); if(q==="all") for(let r=1;r<=36;r++) E.ribbons.add(r); eSetupPaint(); });
+      if(q==="all") for(let r=1;r<=36;r++) E.ribbons.add(r); eSetupPaint(); });
   })();
-  $("eResetAdv").onclick=()=>{ $("eToneS").value=EDEF.toneS; $("eOtdrS").value=EDEF.otdrS; $("eAuto").checked=true; eSetupPaint(); };
+  $("eResetAdv").onclick=()=>{ $("eToneS").value=EDEF.toneS; $("eOtdrS").value=EDEF.otdrS; $("eTries").value=EDEF.tries; eSetupPaint(); };
   $("eToneS").oninput=()=>eSetupPaint();
   $("eSwap").onclick=()=>{ [E.tone,E.test]=[E.test,E.tone]; eSetupPaint(); };
 
@@ -1690,7 +1775,7 @@
     let info=null; try{ info=await cableFor(me) || (far? await cableFor(far):null); }catch(e){ return; }
     if(selected!==me) return;
     E.stem=info?info.stem:"";
-    $("eStem").textContent=E.stem?cableId(E.stem):"(no routes found in FMS for this cable)";
+    $("eStem").textContent=E.stem?cableName(E.stem):"(no routes found in FMS for this cable)";
     // a run already going on this cable opens straight away
     try{
       const js=(await relay("/api/continuity/jobs",{})).jobs||[];
@@ -1713,8 +1798,8 @@
   function eSetupPaint(){
     jset("rft.desktop.e2eRibs",[...E.ribbons]);
     const st=n=>{ const s=rtuState[n]; return !s?"checking FMS…":!s.online?(s.found?"offline in FMS":"not in FMS"):"available"; };
-    $("eTone").textContent=E.tone?siteOf(E.tone):"–"; $("eTone").title=E.tone; $("eToneSt").textContent=E.tone?st(E.tone):"";
-    $("eTest").textContent=E.test?siteOf(E.test):"–"; $("eTest").title=E.test; $("eTestSt").textContent=E.test?st(E.test):"";
+    $("eTone").textContent=E.tone?placeOf(E.tone):"–"; $("eTone").title=E.tone; $("eToneSt").textContent=E.tone?st(E.tone):"";
+    $("eTest").textContent=E.test?placeOf(E.test):"–"; $("eTest").title=E.test; $("eTestSt").textContent=E.test?st(E.test):"";
     $("eRibs").querySelectorAll("[data-er]").forEach(b=>b.setAttribute("aria-pressed",String(E.ribbons.has(+b.dataset.er))));
     const n=E.ribbons.size*PER, tone=Math.max(4,+$("eToneS").value||EDEF.toneS);
     $("eN").textContent=n; $("eR").textContent=E.ribbons.size?rangeText([...E.ribbons]):"–";
@@ -1727,21 +1812,26 @@
     $("eStart").disabled=!E.stem||!E.ribbons.size||!E.test;
     if(off.length) $("eBusy").innerHTML+=`<div class="warnbox" style="margin-top:8px">${esc(off.join(" and "))} offline in FMS. The run will fail until ${off.length>1?"they are":"it is"} back.</div>`;
   }
-  $("eStart").onclick=async()=>{
+  $("eStart").onclick=()=>eGo(false);
+  $("eSpeed").onclick=()=>eGo(true);
+  async function eGo(speed){
     $("eErr").textContent="";
     if(!E.stem){ $("eErr").textContent="The cable was not found in FMS."; return; }
     if(!E.ribbons.size){ $("eErr").textContent="Pick at least one ribbon."; return; }
     const toneS=Math.min(20,Math.max(4,+$("eToneS").value||EDEF.toneS)), otdrS=Math.min(30,Math.max(1,+$("eOtdrS").value||EDEF.otdrS));
     const b=busyText([E.tone,E.test]);
-    if(b && !confirm(b+".\n\nTwo tests on one RTU will clash. Start anyway?")) return;
-    const body={toneRtu:E.tone, testRtu:E.test, stem:E.stem, ribbons:[...E.ribbons].sort((a,b)=>a-b), toneS, otdrS, autoPace:$("eAuto").checked,
+    if(b && !await ask("RTU busy", b+". Two tests on one RTU will clash.", "Start anyway")) return;
+    const tries=Math.min(5,Math.max(1,+$("eTries").value||EDEF.tries));
+    if(speed && !await ask("Speed test", `Tone ${toneS} s, OTDR ${otdrS} s. Every fibre in ${rangeText([...E.ribbons])} (${E.ribbons.size*PER}) is tried 5 times on its own position, from ${placeOf(E.tone)} to ${placeOf(E.test)}. About ${mins(E.ribbons.size*PER*5*12)}. Nothing is recorded on the cable.`, "Start speed test")) return;
+    const body={toneRtu:E.tone, testRtu:E.test, stem:E.stem, ribbons:[...E.ribbons].sort((a,b)=>a-b), toneS, otdrS, autoPace:false, fast:true, shortTries:tries,
+                speedTest:!!speed, speedTries:5,
                 appVersion:"desktop "+APP_VERSION, wavelengthNm:1550, freqHz:330, simulate:(SIM&&RELAY!==LIVE_RELAY)?SIM:null, user:session.user||""};
     try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
     $("eStart").disabled=true; $("eStart").textContent="Starting…";
     try{ const d=await relay("/api/continuity/start",body); eAttach(d.jobId); heartbeat(); }
     catch(e){ if(!quiet(e)) $("eErr").textContent=e.message; }
     finally{ $("eStart").disabled=false; $("eStart").textContent="Start continuity run"; }
-  };
+  }
 
   function eAttach(id){
     E.jobId=id; const cab=cableOf(selected); if(cab){ const m=jget("rft.desktop.e2eJob",{}); m[cab.pre]=id; jset("rft.desktop.e2eJob",m); }
@@ -1764,7 +1854,7 @@
   }
   function eNotify(s){
     const c=s.counts||{}, title=`${cableId(s.stem)} ${rangeText(s.ribbons)}: ${({done:"complete",stopped:"stopped",error:"failed"})[s.state]||s.state}`;
-    const body=`${c.straight} straight, ${c.cross} crossed, ${c.dis||0} DIS. ${mins((s.ended||s.now)-s.started)}.`;
+    const sp=s.kind==="speed"&&s.speed, body=sp?`Speed test: one go finds a fibre ${sp.oneGoPct}%, within 3 goes ${(sp.withinPct||[])[2]}%. ${mins((s.ended||s.now)-s.started)}.`:`${c.straight} straight, ${c.cross} crossed, ${c.dis||0} DIS. ${mins((s.ended||s.now)-s.started)}.`;
     toast(title+". "+body);
     if(window.RFTPush && RFTPush.isOn()) return;        // v35: the relay sends it to every device
     try{ if(window.Notification && Notification.permission==="granted"){
@@ -1798,10 +1888,24 @@
     $("ePause").hidden=!live; $("eStop").hidden=!live; $("eNew").hidden=live;
     $("eResume").hidden=!( !live && s.state!=="done" && s.done<s.targets && s.settings );
     $("ePace").textContent="";
+    eSpeedPaint(s);
     eGrid(); eFindings();
     const lg=$("eLog"), atEnd=lg.scrollTop+lg.clientHeight>=lg.scrollHeight-8;
     lg.textContent=(s.log||[]).map(line=>String(line).replace(/^(\d\d):(\d\d):(\d\d)/,(m,h,mi,se)=>{ const d=new Date(); d.setUTCHours(+h,+mi,+se,0); return d.toLocaleTimeString("en-GB",{hour12:false}); })).join("\n")||"-";
     if(atEnd) lg.scrollTop=lg.scrollHeight;
+  }
+  /* Brunel: speed test result. Each fibre's goes in order: lit, dark, or error. */
+  function eSpeedPaint(s){
+    const sp=s.kind==="speed"?s.speed:null; $("eSpeedBox").hidden=!sp; $("eResBox").hidden=!!sp; if(!sp) return;
+    const n=s.targets||0, w=sp.withinPct||[];
+    $("eDone").textContent=sp.fibres+" / "+n;
+    $("eBar").style.width=(n?100*sp.fibres/n:0)+"%";
+    $("eProg").textContent=`${sp.fibres} of ${n} fibres · ${sp.goes} goes · tone ${s.settings?.toneS??"?"} s, OTDR ${s.settings?.otdrS??"?"} s`;
+    const box=(v,l,sub)=>`<div class="spst"><b>${v}</b><span>${l}</span>${sub?`<span class="note">${sub}</span>`:""}</div>`;
+    $("eSpStats").innerHTML=sp.goes?box(sp.oneGoPct+"%","one go finds it")+box((w[1]??"–")+"%","within 2 goes")+box((w[2]??"–")+"%","within 3 goes")+box(sp.avgGoS!=null?sp.avgGoS+" s":"–","average go",sp.late?sp.late+" late FMS starts":""):'<span class="note">First results in about a minute.</span>';
+    const pf=sp.perFibre||{};
+    $("eSpGrid").innerHTML=Object.keys(pf).length?`<table class="sptab"><thead><tr><th>Fibre</th><th>Goes (in order)</th><th>First lit</th></tr></thead><tbody>${Object.entries(pf).map(([f,str])=>{ const i=str.indexOf("Y"); return `<tr><td class="mono">${fname(+f)}</td><td>${[...str].map(c=>`<i class="spd ${c==="Y"?"y":c==="n"?"n":"e"}" title="${c==="Y"?"lit":c==="n"?"dark":"error"}"></i>`).join("")}</td><td>${i<0?'<b style="color:var(--bad)">never</b>':"go "+(i+1)}</td></tr>`; }).join("")}</tbody></table>`:"";
+    $("eSpNote").textContent=sp.goes?`Green lit, grey dark, amber error. ${sp.never&&sp.never.length?"Never lit: "+sp.never.map(fname).join(", ")+". These are dark at these settings or not connected. ":""}A normal run uses up to ${s.settings?.shortTries||3} goes on each fibre before searching.`:"";
   }
   function eGrid(){
     const s=E.snap, res=s.results||{};
@@ -1848,7 +1952,8 @@
   $("eNew").onclick=()=>{ E.jobId=""; const cab=cableOf(selected); if(cab){ const m=jget("rft.desktop.e2eJob",{}); delete m[cab.pre]; jset("rft.desktop.e2eJob",m); } openE2E(); };
   $("eResume").onclick=async()=>{
     const s=E.snap; if(!s||!s.settings) return; const st=s.settings;
-    const body={toneRtu:st.toneRtu, testRtu:st.testRtu, stem:st.stem, ribbons:st.ribbons, toneS:st.toneS, otdrS:st.otdrS, autoPace:st.autoPace,
+    const body={toneRtu:st.toneRtu, testRtu:st.testRtu, stem:st.stem, ribbons:st.ribbons, toneS:st.toneS, otdrS:st.otdrS, autoPace:false, fast:true, shortTries:st.shortTries||EDEF.tries,
+                speedTest:!!st.speedTest, speedTries:st.speedTries||5,
                 appVersion:"desktop "+APP_VERSION, wavelengthNm:st.wavelengthNm||1550, freqHz:st.freqHz||0, simulate:st.simulate||null,
                 prior:s.results||{}, resumeOf:s.state==="interrupted"?s.id:(s.resumeOf||s.id), user:session.user||""};
     $("eResume").disabled=true;
@@ -1893,7 +1998,7 @@
   async function openUni(){
     clearTimeout(U.retryT); clearInterval(U.cdT); $("uHero").classList.remove("toning");
     const me=selected; U.ready=false; U.stem=""; U.rtu=me;
-    $("uStem").textContent="(finding the cable…)"; $("uFrom").textContent="Tone from "+siteOf(me)+" · "+me; uState("","Opening…"); $("uLink").textContent="";
+    $("uStem").textContent="(finding the cable…)"; $("uFrom").textContent="Tone from "+placeOf(me); uState("","Opening…"); $("uLink").textContent="";
     let info=null; try{ info=await cableFor(me); }catch(e){ return; }
     if(selected!==me) return;
     if(!info){ $("uStem").textContent="(no routes found in FMS for this RTU)"; uState("bad","This RTU has no routes in FMS, so it cannot tone."); uRender(); return; }
@@ -1903,7 +2008,7 @@
     else Object.assign(U,{status:new Array(TOTAL).fill("pending"),crosses:{},issues:{},current:0,scope:"all",from:1,to:TOTAL,id:"",t0:0});
     if(!U.id){ U.id=Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); U.t0=Date.now()/1000; }
     U.started=false; U.toneOk=false; uSave();
-    $("uStem").textContent=cableId(U.stem); $("uFrom").textContent=`Tone from ${siteOf(me)}`;
+    $("uStem").textContent=cableName(U.stem); $("uFrom").textContent=`Tone from ${placeOf(me)}`;
     $("uOffline").hidden=U.online; $("uOffline").textContent=`${siteOf(me)} is ${info.attach||"offline"} in FMS. An offline RTU cannot send light; tones will be refused until it is back.`;
     $("uSummary").textContent=""; $("uCopy").hidden=true;
     uRender(); uState("","Loading the cable from FMS…");
@@ -1938,7 +2043,7 @@
     $("uHero").classList.add("toning"); uState("toning",(sim?"Simulated ":"Toning ")+fname(U.current+1));
     U.cdT=setInterval(()=>{ const el=Date.now()-t0; $("uCd").style.width=Math.max(0,100*(1-el/total))+"%";
       if(el>=total){ clearInterval(U.cdT); $("uHero").classList.remove("toning"); const s=U.status[U.current];
-        uState(s==="dis"?"bad":s==="cross"?"bad":"good", s==="dis"?"Marked DIS":s==="cross"?"Crossed"+(U.crosses[U.current]?" with "+U.crosses[U.current]:""):s==="done"?"Confirmed":"Tone ended. Next if heard, Repeat if not."); } },100);
+        uState(s==="dis"?"bad":s==="cross"||s==="flip"?"bad":"good", s==="dis"?"Marked Dis.":s==="flip"?"Flipped, lands on "+(U.crosses[U.current]||""):s==="cross"?"Crossed"+(U.crosses[U.current]?" with "+U.crosses[U.current]:""):s==="done"?"Confirmed":"Tone ended. Next if heard, Repeat if not."); } },100);
   }
   function uLock(){
     clearInterval(U.lockT);
@@ -1955,7 +2060,7 @@
   function uNextFn(){
     if(busyMs()>0) return uNudge(); if(!U.ready) return;
     if(!U.started){ uTone(); return; }
-    if(U.status[U.current]!=="dis" && U.status[U.current]!=="cross"){
+    if(U.status[U.current]!=="dis" && U.status[U.current]!=="cross" && U.status[U.current]!=="flip"){
       if(!U.toneOk){ uState("bad","No tone was sent for "+fname(U.current+1)+". Press Repeat."); return; }
       U.status[U.current]="done"; }
     const nx=uNext(U.current);
@@ -1968,6 +2073,9 @@
   $("uDis").onclick=()=>{ U.status[U.current]=U.status[U.current]==="dis"?"pending":"dis"; uRender(); uSave(); };
   $("uCross").onclick=()=>{ if(U.status[U.current]==="cross"){ U.status[U.current]="pending"; delete U.crosses[U.current]; uRender(); uSave(); return; } uEditOpen("cross"); };
   $("uNote").onclick=()=>uEditOpen("note");
+  /* Brunel: Flipped, the ribbon is reversed so this fibre lands on its mirror position (F1 on F12) */
+  const uMirror=i=>{ const r=Math.floor(i/PER), p=i%PER; return r*PER+(PER-1-p); };
+  $("uFlip").onclick=()=>{ const i=U.current; if(U.status[i]==="flip"){ U.status[i]="pending"; delete U.crosses[i]; } else { U.status[i]="flip"; U.crosses[i]=fname(uMirror(i)+1); } uRender(); uSave(); };
   function uEditOpen(kind){ U.edit=kind; $("uEdit").hidden=false; $("uEditLbl").firstChild.textContent=kind==="cross"?`${fname(U.current+1)} crossed with (fibre or where it was heard)`:`Note for ${fname(U.current+1)}`; $("uEditIn").value=kind==="cross"?(U.crosses[U.current]||""):(U.issues[U.current]||""); $("uEditIn").focus(); }
   $("uEditNo").onclick=()=>{ U.edit=""; $("uEdit").hidden=true; };
   $("uEditOk").onclick=()=>{ const v=$("uEditIn").value.trim();
@@ -1987,13 +2095,14 @@
     else if(k==="r"||k==="R") $("uRepeat").click();
     else if(k==="d"||k==="D") $("uDis").click();
     else if(k==="x"||k==="X") $("uCross").click();
+    else if(k==="f"||k==="F") $("uFlip").click();
   });
   function uRender(){
     const i=U.current, f=i+1, p=i%PER, col=IEC[p];
     $("uFib").textContent=fname(f); $("uWhere").textContent=`Ribbon ${Math.ceil(f/PER)} · fibre ${p+1} · ${f} of ${TOTAL}`;
     $("uSwatch").textContent=col[0]; $("uSwatch").style.background=col[1]; $("uSwatch").style.color=DARKTXT.has(p)?"#000":"#fff";
-    $("uDis").setAttribute("aria-pressed",String(U.status[i]==="dis")); $("uCross").setAttribute("aria-pressed",String(U.status[i]==="cross"));
-    const marks=[]; if(U.status[i]==="cross") marks.push("Crossed"+(U.crosses[i]?" with "+U.crosses[i]:"")); if(U.issues[i]) marks.push("Note: "+U.issues[i]);
+    $("uDis").setAttribute("aria-pressed",String(U.status[i]==="dis")); $("uCross").setAttribute("aria-pressed",String(U.status[i]==="cross")); $("uFlip").setAttribute("aria-pressed",String(U.status[i]==="flip"));
+    const marks=[]; if(U.status[i]==="cross") marks.push("Crossed"+(U.crosses[i]?" with "+U.crosses[i]:"")); if(U.status[i]==="flip") marks.push("Flipped, lands on "+(U.crosses[i]||"")); if(U.issues[i]) marks.push("Note: "+U.issues[i]);
     $("uMarks").textContent=marks.join(" · ");
     if(busyMs()<=0){ const nx=uNext(i);
       $("uNext").querySelector("span").textContent=!U.started?"START ▸":nx===-1?"FINISH ✓":"NEXT ▸";
@@ -2006,18 +2115,18 @@
     for(let q=0;q<PER;q++){
       h+=`<tr><th><span class="pband" style="background:${IEC[q][1]}"></span>${q+1}</th>`;
       for(let r=0;r<NRIB;r++){ const g=r*PER+q, oos=!inScope(g), st=U.status[g];
-        h+=`<td class="${st}${g===i?" here":""}${oos?" oos":""}${U.issues[g]?" flag":""}" data-uf="${g}" title="${fname(g+1)} · R${r+1} ${IEC[q][0]}${st==="done"?" · confirmed":st==="dis"?" · DIS":st==="cross"?" · crossed"+(U.crosses[g]?" with "+esc(U.crosses[g]):""):""}${U.issues[g]?" · "+esc(U.issues[g]):""}">${st==="done"?"✓":st==="dis"?"D":st==="cross"?"✕":""}</td>`+(r%6===5&&r<NRIB-1?'<td class="gap"></td>':""); }
+        h+=`<td class="${st}${g===i?" here":""}${oos?" oos":""}${U.issues[g]?" flag":""}" data-uf="${g}" title="${fname(g+1)} · R${r+1} ${IEC[q][0]}${st==="done"?" · confirmed":st==="dis"?" · DIS":st==="cross"?" · crossed"+(U.crosses[g]?" with "+esc(U.crosses[g]):""):st==="flip"?" · flipped to "+esc(U.crosses[g]||""):""}${U.issues[g]?" · "+esc(U.issues[g]):""}">${st==="done"?"✓":st==="dis"?"D":st==="cross"?"✕":st==="flip"?"⇅":""}</td>`+(r%6===5&&r<NRIB-1?'<td class="gap"></td>':""); }
       h+="</tr>"; }
     h+="</tbody></table>";
     $("uMap").innerHTML=h;
     $("uMap").querySelectorAll("[data-uf]").forEach(td=>{ if(!td.classList.contains("oos")) td.onclick=()=>uGo(+td.dataset.uf); });
-    let done=0,dis=0,cx=0,tot=0; for(let k=0;k<TOTAL;k++){ if(!inScope(k)) continue; tot++; const s=U.status[k]; if(s==="done")done++; else if(s==="dis")dis++; else if(s==="cross")cx++; }
+    let done=0,dis=0,cx=0,tot=0; for(let k=0;k<TOTAL;k++){ if(!inScope(k)) continue; tot++; const s=U.status[k]; if(s==="done")done++; else if(s==="dis")dis++; else if(s==="cross"||s==="flip")cx++; }
     $("uNDone").textContent=done; $("uNDis").textContent=dis; $("uNCx").textContent=cx; $("uNLeft").textContent=tot-done-dis-cx;
     $("uDoneBig").textContent=`${done+dis+cx} / ${tot}`; $("uBar").style.width=(tot?100*(done+dis+cx)/tot:0)+"%";
   }
   function uReport(){
     const offs=[],crs=[],iss=[]; let done=0;
-    U.status.forEach((s,i)=>{ if(s==="done")done++; if(s==="dis")offs.push(fname(i+1)); if(s==="cross")crs.push(fname(i+1)+(U.crosses[i]?" with "+U.crosses[i]:"")); });
+    U.status.forEach((s,i)=>{ if(s==="done")done++; if(s==="dis")offs.push(fname(i+1)); if(s==="cross")crs.push(fname(i+1)+(U.crosses[i]?" with "+U.crosses[i]:"")); if(s==="flip")crs.push(fname(i+1)+" with "+(U.crosses[i]||fname(uMirror(i)+1))+" (flipped)"); });
     Object.keys(U.issues).forEach(i=>iss.push(fname(+i+1)+": "+U.issues[i]));
     return {done,offs,crs,iss};
   }
@@ -2041,7 +2150,7 @@
     const txt=["FIBRE TONE TEST REPORT","Cable:      "+cableId(U.stem),"Toned from: "+U.rtu+(U.site?" ("+U.site+")":""),"Location:   "+($("uLoc").value.trim()||"not recorded"),
       "Under test: "+scopeLabel(),"Confirmed:  "+done,"DIS:        "+(offs.join(", ")||"none"),"Crossed:    "+(crs.join("; ")||"none"),"Notes:      "+(iss.join("; ")||"none"),"Date:       "+new Date().toLocaleString("en-GB")].join("\n");
     navigator.clipboard.writeText(txt).then(()=>toast("Report copied."),()=>toast("Could not copy.")); };
-  $("uReset").onclick=()=>{ if(!U.stem||!confirm(`Clear all progress for ${cableId(U.stem)} from ${siteOf(U.rtu)}?`)) return;
+  $("uReset").onclick=async()=>{ if(!U.stem||!await ask("Clear progress?", `Clear all progress for ${cableId(U.stem)} from ${siteOf(U.rtu)}?`, "Clear")) return;
     const all=jget(UKEY,{}); delete all[U.stem+"|"+U.rtuId]; jset(UKEY,all); U.id=""; openUni(); };
   function openModule(t){ if(t==="e2e") openE2E(); if(t==="uni") openUni(); }
 
@@ -2188,7 +2297,7 @@
     const r=H.sel;
     $("hDetail").innerHTML="<h2>Run detail</h2>"+(r?`<div style="display:flex;flex-direction:column;gap:8px"><b>${esc(r.type)} · ${esc(r.scope)}</b><span class="note">${esc(when(r.started))} · ${esc(nice(r.owner))} · ${esc(r.rtu)}</span><span class="res ${esc(String(r.result).split(" ")[0])}" style="align-self:flex-start">${esc(r.result)}</span><div>${esc(r.summary)}</div>${r.location?`<div class="note">Location: ${esc(r.location)}</div>`:""}${r.source==="fms"&&r.id&&r.result!=="Running"&&RELAYV>=33?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px"><button class="btn primary" type="button" id="hFiles">Download files</button><span class="note" id="hFilesNote">The .sor file of every fibre in this Task, in one zip.</span></div>`:""}</div>`:"<div class='note'>Pick a run.</div>");
     if($("hFiles")) $("hFiles").onclick=()=>taskFiles(r.id,$("hFiles"),$("hFilesNote"));
-    if(r&&r.type==="E2E"&&r.path&&RELAYV>=39){ const box=document.createElement("div"); box.id="hRep"; box.className="hrep"; box.innerHTML='<p class="note">Reading the report…</p>'; $("hDetail").appendChild(box); e2eReport(r,box); }
+    if(r&&(r.type==="E2E"||r.type==="Speed test")&&r.path&&RELAYV>=39){ const box=document.createElement("div"); box.id="hRep"; box.className="hrep"; box.innerHTML='<p class="note">Reading the report…</p>'; $("hDetail").appendChild(box); e2eReport(r,box); }
   }
   // v47: an E2E run's report in Run history: every fibre it tested, coloured by what it found
   const REP={};
@@ -2196,6 +2305,8 @@
     try{
       const d=REP[r.path]||(REP[r.path]=await relay("/api/history/run",{path:r.path}));
       if(H.sel!==r) return;
+      if(d.kind==="speed"&&d.speed){ const sp=d.speed, w=sp.withinPct||[];
+        box.innerHTML=`<h3 style="margin:14px 0 6px">Speed test</h3><div class="spstats"><div class="spst"><b>${sp.oneGoPct}%</b><span>one go finds it</span></div><div class="spst"><b>${w[1]??"–"}%</b><span>within 2 goes</span></div><div class="spst"><b>${w[2]??"–"}%</b><span>within 3 goes</span></div><div class="spst"><b>${sp.avgGoS??"–"} s</b><span>average go</span></div></div><p class="note">${sp.fibres} fibres, ${sp.goes} goes, tone ${d.settings?.toneS??"?"} s, OTDR ${d.settings?.otdrS??"?"} s.${sp.never&&sp.never.length?" Never lit: "+sp.never.map(fname).join(", ")+".":""}</p>`; return; }
       const res=d.results||{}, rbs=(d.ribbons&&d.ribbons.length?d.ribbons:[...new Set(Object.keys(res).map(f=>Math.ceil(+f/12)))]).sort((a,b)=>a-b);
       const cnt=k=>Object.values(res).filter(x=>x.state===k).length;
       const cls=x=>!x?"":x.state==="straight"?"ok":x.state==="cross"?"cross":x.state==="dis"?"dis":"unres";
@@ -2247,15 +2358,15 @@
   };
 
   async function health(){
-    try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=RELAY===LIVE_RELAY?"":"local relay: "+RELAY; $("appv").textContent=`app ${APP_VERSION} · relay ${h.version}`;
-      RELAYV=parseInt(String(h.version||"").replace(/\D/g,""))||0; const fb=document.querySelector('nav [data-nav="fibres"]'), okv=parseInt(String(h.version||"").replace(/\D/g,""))>=31; if(fb) fb.hidden=!okv; $("miCv").hidden=!okv;   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+    try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=RELAY===LIVE_RELAY?"":"local relay: "+RELAY; $("appv").textContent=h.version===APP_VERSION?`${APP_VERSION} (app and relay)`:`app ${APP_VERSION} · relay ${h.version}`;
+      RELAYV=h.build||parseInt(String(h.version||"").replace(/\D/g,""))||0; const fb=document.querySelector('nav [data-nav="fibres"]'), okv=RELAYV>=31;   /* Brunel: named versions, so the number comes from build */ if(fb) fb.hidden=!okv; $("miCv").hidden=!okv;   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
   // ── v36: Fibres. Every fibre of a cable with its latest continuity, OTDR and iOLM results from both ends ──
   const FB={stem:jget("rft.fib.stem","F-RGAC-SNBC-A-R432"), mode:jget("rft.fib.mode","cont"), data:null, sel:0, hits:[], det:{}, testOpen:!!jget("rft.fib.test",false), ftab:jget("rft.fib.tab","sum")};
   const STEMS=[["F-0057-RGAC-A-R432","Slough to Reading"],["F-RGAC-SNBC-A-R432","Reading to Swindon"],["F-SGIC-SNBC-A-R432","Swindon to Stoke Gifford"],["F-0001-SGIC-A-R432","Stoke Gifford to Cardiff"]];
-  $("fCable").innerHTML=STEMS.map(([k,n])=>`<option value="${k}">${esc(n)} · ${esc(k.replace(/-R\d+$/,""))}</option>`).join("");
+  $("fCable").innerHTML=STEMS.map(([k,n])=>`<option value="${k}">${esc(n)}</option>`).join("");
   $("fCable").value=FB.stem;
   $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; loadFibres(true); };
   document.querySelectorAll("[data-fm]").forEach(b=>b.onclick=()=>{ FB.mode=b.dataset.fm; jset("rft.fib.mode",FB.mode); paintFibres(); });
@@ -2351,15 +2462,19 @@
     const both=rows.filter(r=>["a","b"].every(k=>(r.iolm&&r.iolm[k])||(r.otdr&&r.otdr[k]))).length;
     const one=rows.filter(r=>["a","b"].some(k=>(r.iolm&&r.iolm[k])||(r.otdr&&r.otdr[k]))).length-both;
     const tested=N-none;
-    const probs=[]; rows.forEach((r,i)=>{ const c=cont[i]; if(c&&c.state==="cross") probs.push([r.f,"Crossed"+(c.found?" to "+fNum(c.found):"")]);
-      else if(c&&c.state==="dis") probs.push([r.f,"Dis."]); else if(c&&c.state==="unres") probs.push([r.f,"Not found"]);
-      const l=loss1550(r); if(l!=null&&med!=null&&l-med>1.5) probs.push([r.f,`${db(l)} dB, ${db(l-med)} above typical`]); });
+    const probs=[]; rows.forEach((r,i)=>{ const c=cont[i]; if(c&&c.state==="cross") probs.push([r.f,"Crossed",c.found?"Arrives on "+fNum(c.found):"",c,"cross"]);
+      else if(c&&c.state==="dis") probs.push([r.f,"Dis.",c.loc||"No light at the far end",c,"dis"]); else if(c&&c.state==="unres") probs.push([r.f,"Not found","Searched but not found at the far end",c,"unres"]);
+      const l=loss1550(r); if(l!=null&&med!=null&&l-med>1.5) probs.push([r.f,"High loss",`${db(l)} dB at 1550, ${db(l-med)} dB above typical`,null,"loss"]); });
     FB.prog=FB.prog||{}; FB.prog[FB.stem]={tested, n:N, probs:probs.length};
     $("fProg").innerHTML=
       `<div class="prow"><b>Continuity</b><div class="pbar">${seg("ok",cnt("straight"),"Straight")+seg("flip",cnt("flip"),"Flipped")+seg("cross",cnt("cross"),"Crossed")+seg("dis",cnt("dis"),"Dis.")+seg("unres",cnt("unres"),"Not found")}</div><span class="note">${tested} of ${N} tested (${pct(tested)})</span></div>`
       +`<div class="prow"><b>Loss tested</b><div class="pbar">${seg("a0",both,"Both ends")+seg("a2",one,"One end")}</div><span class="note">${both} both ends, ${one} one end</span></div>`
-      +`<div class="prow" style="align-items:start"><b>To check</b><div class="probs">${probs.length?probs.slice(0,40).map(([f,t])=>`<button type="button" data-pf="${f}">${fNum(f)} · ${esc(t)}</button>`).join("")+(probs.length>40?`<span class="note">and ${probs.length-40} more</span>`:""):`<span class="note">${tested?"Nothing to check so far.":"Nothing tested yet."}</span>`}</div><span class="note">${probs.length} fibre${probs.length===1?"":"s"}</span></div>`;
-    $("fProg").querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>showFibre(+b.dataset.pf));
+      ;
+    /* Brunel: the To check list is a table under the fibres */
+    $("fCheckN").textContent=probs.length?`${probs.length} fibre${probs.length===1?"":"s"} · click one to open it`:"";
+    $("fCheckT").innerHTML=probs.length?`<table class="hist ckt"><thead><tr><th>Fibre</th><th>Ribbon</th><th>Issue</th><th>Detail</th><th>Found by</th></tr></thead><tbody>${probs.map(([f,issue,det,c,cls])=>`<tr data-pf="${f}" tabindex="0"><td class="mono"><b>${fNum(f)}</b></td><td>R${ribOf(f)} f${posOf(f)}</td><td><span class="tag ${cls==="cross"?"warn":cls==="loss"?"warn":"bad"}">${esc(issue)}</span></td><td>${esc(det)}</td><td class="note">${c&&c.src?esc(c.src==="E2E"?"E2E":"Tone Test"):cls==="loss"?"iOLM / OTDR":""}</td></tr>`).join("")}</tbody></table>`
+      :`<p class="note" style="margin:0">${tested?"Nothing to check so far.":"Nothing tested yet."}</p>`;
+    $("fCheckT").querySelectorAll("[data-pf]").forEach(b=>{ const go=()=>{ showFibre(+b.dataset.pf); const c=$("fGrid").querySelector(`[data-f="${b.dataset.pf}"]`); if(c) c.scrollIntoView({block:"center",behavior:"smooth"}); }; b.onclick=go; b.onkeydown=e=>{ if(e.key==="Enter") go(); }; });
   }
   // v43: Excel report of the cable from the relay
   async function cableReport(){
@@ -2378,7 +2493,7 @@
   $("fReport").onclick=cableReport;
   function paintFibres(){
     const d=FB.data; if(!d) return;
-    $("fReport").hidden=!(RELAYV>=36); $("fRepNote").hidden=!(RELAYV>=36);
+    /* Brunel: Find a fibre and the simple Cable report are gone from Cable View (full report comes back under Tools) */
     $("fColNote").textContent=FB.mode==="cont"?"Straight, flipped, crossed or Dis. from the latest E2E or Tone Test":FB.mode==="loss"?"1550 loss against the cable's typical figure":"How recently each fibre was tested";
     document.querySelectorAll("[data-fm]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.fm===FB.mode)));
     const rows=d.fibres, med=median(rows.map(loss1550)), cont=rows.map(contOf);
@@ -2412,27 +2527,55 @@
     paintLive();
     $("fNote").textContent=(d.notes&&d.notes.length?d.notes.join(" "):"Latest result for every fibre, from both ends. Click a fibre for its detail and history.")+(d.updated?` Read ${ago(d.updated)==="today"?new Date(d.updated*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):ago(d.updated)}.`:"");
   }
-  // v46: the fibre panel's Test box and tabs (also used by the menus); stays as you left it for the next fibre
+  /* Brunel: Test this fibre is a pop out: Real Time from either end, or a Single Test (OTDR or iOLM) with its settings */
+  const ONCE_NOTE={otdr:"One OTDR at 1550 nm with FMS automatic pulse and range, no FMS Task. The trace and its event table open when it is done.",
+    iolm:"One Standard iOLM with the chosen FMS setup, no FMS Task. About a minute per wavelength; the Link View opens when it is done."};
+  function fibreTest(d,f,ends){
+    const ok=onceOpts(), io=RELAYV>=37&&ok.k==="iolm", nm=e=>esc(placeOf(e.rtu)||e.short||short(e.rtu));
+    $("ftTitle").textContent="Test "+fNum(f); $("ftSub").textContent=`${(STEMS.find(x=>x[0]===d.stem)||[0,cableId(d.stem)])[1]} · ribbon ${ribOf(f)}, fibre ${posOf(f)}`;
+    let h=`<div class="ftsec" style="border:0;margin-top:6px;padding-top:0"><h4>Real Time</h4><div class="ftrow" style="margin-top:0">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Real Time from ${nm(e)}</button>`).join("")}</div>
+      <p class="note" style="margin:8px 0 0">A short OTDR again and again so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p></div>`;
+    if(RELAYV>=36){
+      h+=`<div class="ftsec"><h4>Single Test</h4>
+        <div class="ftrow" style="margin-top:0"><span class="note" style="min-width:90px">Test</span><div class="seg" role="group" aria-label="Test type" id="fOnceKs">${RELAYV>=37?`<button type="button" data-ok="otdr" aria-pressed="${!io}">OTDR</button><button type="button" data-ok="iolm" aria-pressed="${io}">iOLM</button>`:`<button type="button" data-ok="otdr" aria-pressed="true">OTDR</button>`}</div><input type="hidden" id="fOnceK" value="${io?"iolm":"otdr"}"></div>
+        <div class="ftrow" id="fOnceLen" style="display:${io?"none":"flex"}"><span class="note" style="min-width:90px">Measure time</span><select id="fOnceS">${[5,10,15,30,60].map(v=>`<option value="${v}"${v===ok.s?" selected":""}>${v} s</option>`).join("")}</select><span class="note">1550 nm, automatic pulse and range</span></div>
+        <div id="fOnceIo" style="display:${io?"block":"none"}">
+          <div class="ftrow"><span class="note" style="min-width:90px">Setup</span><select id="fOnceSet"><option value="28898"${ok.set===28898?" selected":""}>iOLM Motion NRS-304</option><option value="1"${ok.set===1?" selected":""}>AdHoc iOLM</option></select></div>
+          <div class="ftrow"><span class="note" style="min-width:90px">Wavelengths</span>${[1310,1550,1625].map(w=>`<label class="chk"><input type="checkbox" data-wl="${w}"${ok.w.includes(w)?" checked":""}> ${w} nm</label>`).join("")}</div>
+        </div>
+        <div class="ftrow">${ends.map(e=>`<button class="btn primary" type="button" data-once="${esc(e.rtuId)}" data-place="${nm(e)}">${io?"iOLM":"OTDR"} from ${nm(e)}</button>`).join("")}</div>
+        <p class="note" id="fOnceNote" style="margin:8px 0 0">${io?ONCE_NOTE.iolm:ONCE_NOTE.otdr}</p></div>`;
+    }
+    $("ftBody").innerHTML=h;
+    const B=$("ftBody");
+    B.querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>{ $("ftDlg").close(); loStart(d.stem,f,b.dataset.lo,(ends.find(e=>String(e.rtuId)===b.dataset.lo)||{}).rtu); });
+    B.querySelectorAll("[data-once]").forEach(b=>b.onclick=()=>{ const e=ends.find(x=>String(x.rtuId)===b.dataset.once)||{}, io=$("fOnceK").value==="iolm";
+      const w=[...B.querySelectorAll("#fOnceIo [data-wl]")].filter(c=>c.checked).map(c=>+c.dataset.wl);
+      if(io&&!w.length){ $("fOnceNote").textContent="Tick at least one wavelength."; return; }
+      onceSave(); $("ftDlg").close();
+      singleFromTools(cableOf(e.rtu), e.rtu, f, {k:io?"iolm":"otdr", s:+$("fOnceS").value||10, set:+$("fOnceSet").value||28898, w}); });
+    const sync=()=>{ const io=$("fOnceK").value==="iolm"; $("fOnceLen").style.display=io?"none":"flex"; $("fOnceIo").style.display=io?"block":"none";
+      B.querySelectorAll("[data-ok]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.ok===$("fOnceK").value)));
+      B.querySelectorAll("[data-once]").forEach(x=>x.textContent=(io?"iOLM":"OTDR")+" from "+x.dataset.place);
+      $("fOnceNote").textContent=io?ONCE_NOTE.iolm:ONCE_NOTE.otdr; onceSave(); };
+    B.querySelectorAll("[data-ok]").forEach(x=>x.onclick=()=>{ $("fOnceK").value=x.dataset.ok; sync(); });
+    ["fOnceS","fOnceSet"].forEach(id=>$(id)&&($(id).onchange=onceSave)); B.querySelectorAll("#fOnceIo [data-wl]").forEach(c=>c.onchange=onceSave);
+    if(!$("ftDlg").open) $("ftDlg").showModal();
+  }
+  window.rftFibreTest=()=>$("fTestBtn")&&$("fTestBtn").click();
+  // v46: the fibre panel's tabs (also used by the menus); stays as you left it for the next fibre
   function fibrePanel(w){
-    if(w==="test"||w==="untest"){ FB.testOpen=w==="test"; jset("rft.fib.test",FB.testOpen); const b=$("fTestBtn"), t=$("fTest"); if(t) t.hidden=!FB.testOpen; if(b){ b.setAttribute("aria-expanded",String(FB.testOpen)); b.textContent="Test this fibre "+(FB.testOpen?"▴":"▾"); } return; }
+    if(w==="test"||w==="untest") return;   /* Brunel: the Test box is now a pop out */
     FB.ftab=w; jset("rft.fib.tab",w); document.querySelectorAll("#fDet [data-ft]").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.ft===w))); document.querySelectorAll("#fDet [data-fp]").forEach(p=>p.hidden=p.dataset.fp!==w);
   }
   window.rftFibrePanel=fibrePanel;
   async function showFibre(f){
     FB.sel=f; const d=FB.data; if(!d) return; const r=d.fibres.find(x=>x.f===f); if(!r) return;
     $("fGrid").querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.f===f)));
-    const ends=d.ends||[], nm=i=>ends[i]?esc(ends[i].short||short(ends[i].rtu)):(i?"B end":"A end"), c=contOf(r);
+    const ends=d.ends||[], nm=i=>ends[i]?esc(placeOf(ends[i].rtu)||ends[i].short||short(ends[i].rtu)):(i?"B end":"A end"), c=contOf(r);
     const ctag=c?`<span class="tag ${c.state==="straight"?"ok":c.state==="cross"?"warn":c.state==="flip"?"flip":"bad"}">${esc(c.state==="straight"?"Straight":c.state==="cross"?"Crossed to "+fNum(c.found||0):c.state==="flip"?"Flipped, goes to "+fNum(c.found||0):c.state==="dis"?"Dis.":"Not found")}</span>`:'<span class="tag">No continuity yet</span>';
-    let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc(d.stem.replace(/-R\d+$/,""))} · ${nm(0)} to ${nm(1)}</p>`;
-    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="fTestBtn" aria-expanded="${!!FB.testOpen}" aria-controls="fTest">Test this fibre ${FB.testOpen?"▴":"▾"}</button></div>`;
-    h+=`<div class="ftest" id="fTest"${FB.testOpen?"":" hidden"}>`;
-    h+=`<h4>Live OTDR</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${ends.map(e=>`<button class="btn primary" type="button" data-lo="${esc(e.rtuId)}">Live from ${esc(e.short||short(e.rtu))}</button>`).join("")}</div><p class="note" style="margin:6px 0 0">Repeats a short OTDR so you can watch the trace while someone works on the fibre. Stops by itself after 10 minutes.</p>`;
-    if(RELAYV>=36){ const ok=onceOpts(), io=RELAYV>=37&&ok.k==="iolm";
-      h+=`<h4>Test now</h4><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${RELAYV>=37?`<label class="note" style="display:flex;gap:6px;align-items:center">Test <select id="fOnceK"><option value="otdr"${io?"":" selected"}>OTDR</option><option value="iolm"${io?" selected":""}>iOLM</option></select></label>`:""}${ends.map(e=>`<button class="btn" type="button" data-once="${esc(e.rtuId)}">${io?"iOLM":"OTDR"} from ${esc(e.short||short(e.rtu))}</button>`).join("")}
-        <label class="note" id="fOnceLen" style="display:${io?"none":"flex"};gap:6px;align-items:center">Length <select id="fOnceS">${[5,10,15,30,60].map(v=>`<option value="${v}"${v===ok.s?" selected":""}>${v} s</option>`).join("")}</select></label>
-        <span id="fOnceIo" style="display:${io?"flex":"none"};gap:10px;flex-wrap:wrap;align-items:center" class="note"><label>Setup <select id="fOnceSet"><option value="28898"${ok.set===28898?" selected":""}>iOLM Motion NRS-304</option><option value="1"${ok.set===1?" selected":""}>AdHoc iOLM</option></select></label>${[1310,1550,1625].map(w=>`<label><input type="checkbox" data-wl="${w}"${ok.w.includes(w)?" checked":""}> ${w}</label>`).join("")}</span></div>
-        <p class="note" id="fOnceNote" style="margin:6px 0 0">${io?"One Standard iOLM with the chosen FMS setup, no FMS Task. About a minute per wavelength; its result opens when it is done.":"One OTDR at 1550 nm with FMS automatic settings, no FMS Task. The trace opens when it is done."}</p>`; }
-    h+=`</div>`;
+    let h=`<h3>${fNum(f)} <span class="note" style="font-size:14px">ribbon ${ribOf(f)}, fibre ${posOf(f)}</span></h3><p class="note" style="margin:4px 0 0">${esc((STEMS.find(x=>x[0]===d.stem)||[0,cableId(d.stem)])[1])}</p>`;
+    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" type="button" id="fTestBtn" aria-haspopup="dialog">Test this fibre</button></div>`;
     const ft=FB.ftab||"sum";
     h+=`<div class="ftabs" role="tablist" aria-label="Fibre detail"><button type="button" role="tab" data-ft="sum" aria-selected="${ft==="sum"}">Summary</button>${RELAYV>=34?`<button type="button" role="tab" data-ft="tr" aria-selected="${ft==="tr"}" id="fTrTab">Traces</button>`:""}<button type="button" role="tab" data-ft="hi" aria-selected="${ft==="hi"}" id="fHiTab">History</button></div>`;
     h+=`<div data-fp="tr"${ft==="tr"?"":" hidden"}>`+(RELAYV>=34?`<p class="note" style="margin:8px 0 6px">Stored OTDR and iOLM results from both ends. Click one to open it with its event table or Link View.</p><ul class="fhist ftr" id="fTraces"><li><span class="note">Reading…</span></li></ul>`:"")+`</div>`;
@@ -2460,16 +2603,10 @@
     else h+=`<p class="note">No OTDR on this fibre yet.</p>`;
     h+=`</div><div data-fp="hi"${ft==="hi"?"":" hidden"}><ul class="fhist" id="fHist" style="margin-top:8px"><li><span class="note">Reading…</span></li></ul></div>`;
     $("fDet").innerHTML=h;
-    $("fTestBtn").onclick=()=>fibrePanel(FB.testOpen?"untest":"test");
+    $("fTestBtn").onclick=()=>fibreTest(d,f,ends);
     $("fDet").querySelectorAll("[data-ft]").forEach(b=>b.onclick=()=>fibrePanel(b.dataset.ft));
     $("fDet").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ selected=b.dataset.open; jset("rft.desktop.rtu",selected); screen="console"; setScreen("console"); showTab("tasks"); renderSide(); renderMain(); });
-    $("fDet").querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>loStart(d.stem,f,b.dataset.lo,(ends.find(e=>String(e.rtuId)===b.dataset.lo)||{}).rtu));
     if($("fTraces")) loadTraces(d.stem,f);
-    $("fDet").querySelectorAll("[data-once]").forEach(b=>b.onclick=()=>otdrOnce(d.stem,f,b.dataset.once,b));
-    if($("fOnceK")){ const sync=()=>{ const io=$("fOnceK").value==="iolm"; $("fOnceLen").style.display=io?"none":"flex"; $("fOnceIo").style.display=io?"flex":"none";
-        $("fDet").querySelectorAll("[data-once]").forEach(b=>b.textContent=b.textContent.replace(/^(OTDR|iOLM)/,io?"iOLM":"OTDR"));
-        $("fOnceNote").textContent=io?"One Standard iOLM with the chosen FMS setup, no FMS Task. About a minute per wavelength; its result opens when it is done.":"One OTDR at 1550 nm with FMS automatic settings, no FMS Task. The trace opens when it is done."; onceSave(); };
-      $("fOnceK").onchange=sync; ["fOnceS","fOnceSet"].forEach(id=>$(id)&&($(id).onchange=onceSave)); $("fOnceIo").querySelectorAll("[data-wl]").forEach(c=>c.onchange=onceSave); }
     $("fDet").querySelector("h3").title="Click to copy the FMS name "+d.stem+"-"+fNum(f); $("fDet").querySelector("h3").style.cursor="copy";
     $("fDet").querySelector("h3").onclick=()=>{ try{ navigator.clipboard.writeText(d.stem+"-"+fNum(f)); toast("Copied "+d.stem+"-"+fNum(f)); }catch(e){} };
     const key=d.stem+"|"+f, had=!!FB.det[key];
@@ -2512,7 +2649,7 @@
       const d=await relay("/api/otdr/traces",{stem,fibre:f}); if(TR.key!==key||!$("fTraces")) return;
       TR.rows=d.traces||[];
       if($("fTrTab")) $("fTrTab").textContent=`Traces (${TR.rows.length})`;
-      $("fTraces").innerHTML=TR.rows.length?TR.rows.slice(0,25).map((r,i)=>`<li><button type="button" class="lnk trrow" data-tr="${i}"><span class="t">${whenS(r.t)}</span><span>${r.kind==="iOLM"?'<span class="tag">iOLM</span> ':""}From ${esc(short(r.rtu))} · ${r.len?km(r.len):"–"} · ${r.loss!=null?db(r.loss)+" dB":"–"}${r.wl?" @"+esc(r.wl):""}${r.kind==="iOLM"&&(r.wls||[]).length>1?` <span class="note">(${esc(r.wls.join(", "))})</span>`:""}${r.live?' <span class="tag">live</span>':""}</span></button></li>`).join("")
+      $("fTraces").innerHTML=TR.rows.length?TR.rows.slice(0,25).map((r,i)=>`<li><button type="button" class="lnk trrow" data-tr="${i}"><span class="t">${whenS(r.t)}</span><span>${r.kind==="iOLM"?'<span class="tag">iOLM</span> ':""}From ${esc(placeOf(r.rtu))} · ${r.len?km(r.len):"–"} · ${r.loss!=null?db(r.loss)+" dB":"–"}${r.wl?" @"+esc(r.wl):""}${r.kind==="iOLM"&&(r.wls||[]).length>1?` <span class="note">(${esc(r.wls.join(", "))})</span>`:""}${r.live?' <span class="tag">live</span>':""}</span></button></li>`).join("")
         +(TR.rows.length>25?`<li><span class="note">${TR.rows.length-25} older not shown.</span></li>`:"")
         :`<li><span class="note">No stored OTDR trace on this fibre yet.</span></li>`;
       $("fTraces").querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>trOpen(+b.dataset.tr));
@@ -2526,7 +2663,7 @@
   function onceSave(){ const k=$("fOnceK")?$("fOnceK").value:"otdr", w=[...document.querySelectorAll("#fOnceIo [data-wl]")].filter(c=>c.checked).map(c=>+c.dataset.wl);
     try{ localStorage.setItem("rft.once",JSON.stringify({k, s:+($("fOnceS")||{}).value||10, set:+($("fOnceSet")||{}).value||28898, w})); }catch(e){} }
   async function otdrOnce(stem,f,rtuId,btn){
-    const secs=+($("fOnceS")||{}).value||10, note=$("fOnceNote"), all=$("fDet").querySelectorAll("[data-once]");
+    const secs=+($("fOnceS")||{}).value||10, note=$("fOnceNote"), all=$("ftBody").querySelectorAll("[data-once]");
     const io=!!$("fOnceK")&&$("fOnceK").value==="iolm";
     const wls=[...document.querySelectorAll("#fOnceIo [data-wl]")].filter(c=>c.checked).map(c=>+c.dataset.wl);
     if(io&&!wls.length){ if(note) note.textContent="Tick at least one wavelength."; return; }
@@ -2547,7 +2684,7 @@
     const r=TR.rows[i]; if(!r) return; clearTimeout(LO.t); LO.id=""; LO.zoom=null;
     const d=$("loDlg"); if(!d.open){ if(d.showModal) d.showModal(); else d.setAttribute("open",""); }
     LO.s={view:true, fibre:FB.sel, rtuName:r.rtu, row:r, state:"view", count:1, ref:null, latest:null, shots:[], over:null};
-    $("loCmp").innerHTML=`<option value="">Nothing</option>`+TR.rows.slice(0,25).map((x,j)=>j===i?"":`<option value="${j}">${whenS(x.t)} from ${esc(short(x.rtu))}</option>`).join("");
+    $("loCmp").innerHTML=`<option value="">Nothing</option>`+TR.rows.slice(0,25).map((x,j)=>j===i?"":`<option value="${j}">${whenS(x.t)} from ${esc(placeOf(x.rtu))}</option>`).join("");
     loPaint(); $("loInfo").textContent="Reading the trace from FMS…";
     try{ const t=await trGet(r); if(!LO.s||LO.s.row!==r) return;
       LO.s.ref={t:r.t,len:t.len,trace:t.trace,events:t.kind==="iOLM"?(t.traceEvents||[]):t.events,resultId:r.resultId,link:t.link||null,note:t.note||"",kind:t.kind||r.kind||"OTDR",wl:t.wl||""};
@@ -2570,7 +2707,7 @@
   function loStarting(stem,f,rtuName){
     clearTimeout(LO.t); LO.id=""; LO.zoom=null; LO.s=null;
     const d=$("loDlg"); if(!d.open){ if(d.showModal) d.showModal(); else d.setAttribute("open",""); }
-    $("loTitle").textContent=`Real Time · ${fNum(f)}${rtuName?" from "+short(rtuName):""}`; $("loState").className="chip running"; $("loState").textContent="Starting";
+    $("loTitle").textContent=`Real Time · ${fNum(f)}${rtuName?" from "+placeOf(rtuName):""}`; $("loState").className="chip running"; $("loState").textContent="Starting";
     ["loRef","loStop","loAgain","loWhole","loCmpL","loLink","loEv"].forEach(k=>$(k)&&($(k).hidden=true)); $("loErr").hidden=true; $("loFind").innerHTML="";
     $("loChart").style.display=""; $("loChart").innerHTML=`<text x="550" y="180" text-anchor="middle">Starting Real Time on ${esc(fNum(f))}…</text><text x="550" y="206" text-anchor="middle">The first trace takes about 10 to 20 seconds.</text>`;
     $("loInfo").textContent="Asking the RTU for the first trace…";
@@ -2603,7 +2740,7 @@
   function loEvery(s){ const t=(s.shots||[]).slice(-5).map(x=>x.t); if(t.length<2) return 0; return Math.round((t[t.length-1]-t[0])/(t.length-1)); }
   function loInfo(){
     const s=LO.s; if(!s) return;
-    if(s.view){ const r=s.row; $("loInfo").textContent=`${r.kind==="iOLM"?"Stored iOLM":"Stored OTDR"} · ${whenS(r.t)} · from ${short(r.rtu)} · ${r.len?km(r.len):"length not read"}${r.loss!=null?" · "+db(r.loss)+" dB":""}${r.wl?" at "+r.wl+" nm":""}${r.live?" · a live OTDR shot":""}`; return; } const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
+    if(s.view){ const r=s.row; $("loInfo").textContent=`${r.kind==="iOLM"?"Stored iOLM":"Stored OTDR"} · ${whenS(r.t)} · from ${placeOf(r.rtu)} · ${r.len?km(r.len):"length not read"}${r.loss!=null?" · "+db(r.loss)+" dB":""}${r.wl?" at "+r.wl+" nm":""}${r.live?" · a live OTDR shot":""}`; return; } const left=Math.max(0,Math.round((s.until-Date.now()/1000)/60)), ev=loEvery(s);
     $("loShot").value=String(s.shotS||3); $("loShot").disabled=s.state!=="running";
     $("loInfo").textContent=s.state==="running"
       ? `${s.count} trace${s.count===1?"":"s"} so far · each trace measures for ${s.shotS} s at 1550 nm · ${ev?`a new one arrives about every ${ev} s`:"timing the first traces"} · stops by itself in ${left} min · started by ${s.owner}`
@@ -2612,7 +2749,7 @@
   function loPaint(){
     const s=LO.s; if(!s){ $("loInfo").textContent="Starting…"; return; }
     const words={running:"Running",stopped:"Stopped",done:"Finished"};
-    $("loTitle").textContent=`${s.view?(s.ref&&s.ref.kind==="iOLM"?"iOLM result":"OTDR trace"):"Real Time"} · ${fNum(s.fibre)} from ${short(s.rtuName)}`;
+    $("loTitle").textContent=`${s.view?(s.ref&&s.ref.kind==="iOLM"?"iOLM result":"OTDR trace"):"Real Time"} · ${fNum(s.fibre)} from ${placeOf(s.rtuName)}`;
     $("loState").className="chip "+(s.state==="running"?"running":"stopped"); $("loState").textContent=s.view?"Stored":(words[s.state]||s.state);
     $("loRef").hidden=!!s.view; $("loShot").parentElement.hidden=!!s.view; $("loCmpL").hidden=!s.view; $("loNote").hidden=!!s.view;
     loInfo();
@@ -2641,16 +2778,18 @@
     const steps=(s.latest&&s.latest.steps)||[];
     const marks=steps.filter(b=>b.m>=xa&&b.m<=xb).map(b=>`<line class="bend" x1="${X(b.m)}" x2="${X(b.m)}" y1="${T}" y2="${Hh-B}"/><text class="bendt" x="${X(b.m)+5}" y="${T+28}">${b.db.toFixed(2)} dB</text>`).join("");
     const evs=((s.view?s.ref:(s.latest||s.ref))||{}).events||[];
-    const evm=evs.filter(e=>e.m>=xa&&e.m<=xb&&e.n!=null).map(e=>`<line class="evm${LO.sel===e.n?" sel":""}" x1="${X(e.m)}" x2="${X(e.m)}" y1="${T+14}" y2="${Hh-B}"/><text class="evn" x="${X(e.m)}" y="${T+10}" text-anchor="middle">${e.n}</text>`).join("");
+    /* Brunel: a short marker just above the trace at each event, not a line down the whole chart */
+    const yAt=m=>{ const i=Math.round((m-ref.x0)/ref.dx); let v=-1e9; for(let k=Math.max(0,i-3);k<=Math.min(ref.y.length-1,i+3);k++) v=Math.max(v,ref.y[k]); return v>-1e9?Y(v):Hh-B; };
+    const evm=evs.filter(e=>e.m>=xa&&e.m<=xb&&e.n!=null).map(e=>{ const yy=Math.max(T+30,Math.min(Hh-B,yAt(e.m))); return `<line class="evm${LO.sel===e.n?" sel":""}" x1="${X(e.m)}" x2="${X(e.m)}" y1="${yy-26}" y2="${yy-5}"/><text class="evn" x="${X(e.m)}" y="${yy-30}" text-anchor="middle">${e.n}</text>`; }).join("");
     svg.innerHTML=g+evm+`<path class="ref" d="${path(ref)}"/>`+(cur?`<path class="new" d="${path(cur)}"/>`:"")+marks;
     evPaint(evs, s.ref.kind==="iOLM"?`Events on the ${esc(s.ref.wl||"1550")} nm OTDR trace FMS made from this iOLM`:`Events${s.ref.wl?" at "+esc(s.ref.wl)+" nm":""}`, xmax0, ref.x0);
     const nw=(s.latest&&s.latest.new)||[];
     if(s.view){
-      $("loFind").innerHTML=`<button type="button" class="ok">Grey: ${esc(whenS(s.ref.t))} from ${esc(short(s.row.rtu))}${s.over?` · Blue: ${esc(whenS(s.over.t))} from ${esc(short(s.over.rtu))}`:""}</button>`;
+      $("loFind").innerHTML=`<button type="button" class="ok">Grey: ${esc(whenS(s.ref.t))} from ${esc(placeOf(s.row.rtu))}${s.over?` · Blue: ${esc(whenS(s.over.t))} from ${esc(placeOf(s.over.rtu))}`:""}</button>`;
       $("loFind").querySelectorAll("[data-zm]").forEach(b=>b.onclick=()=>{ const m=+b.dataset.zm; LO.zoom=[Math.max(ref.x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
       return;
     }
-    $("loFind").innerHTML=steps.length?steps.map(b=>`<button type="button" data-zm="${b.m}">New loss ${b.db.toFixed(2)} dB at ${(b.m/1000).toFixed(2)} km from ${esc(short(s.rtuName))}${nw.some(n=>Math.abs(n.m-b.m)<300)?" (just appeared)":""}</button>`).join("")
+    $("loFind").innerHTML=steps.length?steps.map(b=>`<button type="button" data-zm="${b.m}">New loss ${b.db.toFixed(2)} dB at ${(b.m/1000).toFixed(2)} km from ${esc(placeOf(s.rtuName))}${nw.some(n=>Math.abs(n.m-b.m)<300)?" (just appeared)":""}</button>`).join("")
       : `<button type="button" class="ok">${s.count>1?"No new loss since the reference":"Reference trace taken. Now handle the fibre and watch for a red mark."}</button>`;
     $("loFind").querySelectorAll("[data-zm]").forEach(b=>b.onclick=()=>{ const m=+b.dataset.zm; LO.zoom=[Math.max(ref.x0,m-2000),Math.min(xmax0,m+2000)]; loPaint(); });
   }
@@ -2774,7 +2913,7 @@
     navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(hadSW && !reloaded){ reloaded=true; location.reload(); } });
     navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
   }
-  $("signVer").textContent="app "+APP_VERSION;
+  $("signVer").textContent=APP_VERSION;
   if(session.id) start(); else signedOut("");
 })();
 </script>

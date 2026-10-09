@@ -1013,3 +1013,30 @@ F005/F007 found; stop at 14 then resume finished the other 10 in 11 tests.
   the phone or PC's local time, in the Activity panel and in the debug email summary.
 - Relay unchanged (v15). Deployed during a full-cable run; a static app update does not affect
   runs on the relay.
+
+## Brunel (desktop, phone and relay) — 9 October 2026 — first named release
+
+Releases are now named after great railway engineers, in this order: Brunel, Stephenson, Telford, Gresley, Locke,
+Fowler, Hackworth, Trevithick, Churchward, Stanier. A minor update adds .1, .2 (Brunel.1). The relay's `/health`
+gives `version: "Brunel"` and `build: 40` (the build number keeps counting for checks; the app reads it).
+
+- E2E Continuity (relay): `fast` (default on) never steps up to the 20 s cover tone. A fibre that does not light is
+  tried again at the same short settings, `shortTries` goes in all (default 3, 1 to 5), via the engine's new
+  `straight_tries`. Auto pacing is off on fast runs. Old behaviour with `fast: false`.
+- E2E speed test (relay): `speedTest: true` tries every chosen fibre `speedTries` times (default 5) on its own
+  position at the short settings, whatever the result, and records nothing on the cable. Status and the run log carry
+  `kind: "speed"` and `speed` (one go %, within 1 to 5 goes %, average go, never lit, per fibre Y/n/e). Run history
+  lists it as "Speed test"; `/api/history/run` returns `kind` and `speed`.
+- Desktop E2E: quick picks All and Clear only; Goes per fibre and Speed test the chosen ribbons under Pace; speed
+  result panel; chosen ribbons clear in dark mode.
+- Desktop Cable View: Test this fibre is a pop out (Real Time from either end; Single Test OTDR with measure time or
+  iOLM with setup and wavelengths, coloured buttons). Ends named by place (Reading, Swindon) where the cable is clear;
+  cable names without the FMS id in menus and pickers. To check is a table under the fibres. Find a fibre, the simple
+  Cable report and the cable note at the foot of Tools are gone.
+- Desktop Bulk Test: chosen options in the brand colour; comment says "(both ends with …)"; themed centred question
+  (`ask()`) replaces the browser confirm everywhere; Show fibres on each running Task (done, testing, waiting, failed).
+- Desktop Tone Test: Mark an issue with Dis., Crossed, Flipped (ribbon reversed: lands on the mirror fibre, saved as a
+  cross "(flipped)") and Note, equal size, with a key. Key F marks Flipped.
+- OTDR trace: short event markers above the trace.
+- Phone: version Brunel; the pacing tick box is now "Retry missed fibres at the same short settings (3 goes)".
+- Next (Brunel.1): the full FMS puller report in the app, under Tools.
