@@ -931,8 +931,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="Brunel.2";   /* Brunel: releases named after railway engineers */
+const APP_VERSION="Brunel.3";   /* Brunel: releases named after railway engineers */
 const APP_VERSIONS=[
+  ["Brunel.3","9 Oct 2026","The full FMS report can now be run from the desktop console (Reports). No change on the phone."],
   ["Brunel.2","9 Oct 2026","E2E tone is now 10 s by default: FMS starts the OTDR late, so a 4 s tone had often ended. Runs are quicker overall."],
   ["Brunel.1","9 Oct 2026","Small update: the E2E speed test times each whole go, including rechecks."],
   ["Brunel","9 Oct 2026","Releases are now named after great railway engineers. E2E continuity retries a fibre that does not light at the same short settings (tone 4 s, OTDR 1 s), up to 3 goes, instead of stepping up to a 20 s tone, so runs are much quicker."],

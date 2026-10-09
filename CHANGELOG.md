@@ -1060,3 +1060,17 @@ gives `version: "Brunel"` and `build: 40` (the build number keeps counting for c
   3 min 24 s for 12 fibres with 9 late FMS start rechecks (FMS started the OTDR 9 to 14 s after the tone call); tone 10 s
   took 2 min 58 s including a 21 s FMS blip, no rechecks, about 13 s a fibre. Full 432 cable about 1 h 35 min.
 - Relay `/health` version Brunel.2, build 42. The full FMS puller report moves to Brunel.3.
+
+## Brunel.3 (desktop and relay) — 9 October 2026 — the full FMS report in the app
+
+- Relay `relay_fullreport.py` and `report_job.py`: the PC tool's engine (`fms_report/fms_pull.py` and
+  `bidir_report.py`, v1.6, copied unchanged, with its logo, CHANGELOG and the NRS-304 Distances.xlsx) runs in its own
+  process, one report at a time (others queue). It signs in with the app user's token, asked over stdin each time it
+  needs one, so no password is ever stored. Progress comes from the puller's run log (fibre n of N per end).
+  Measured on the test FMS: full cable, both ends, 864 results, peak 150 MB in the report process.
+- Endpoints `/api/fullreport/start|status|cancel|list|get` and `/api/fullreport/locations[/upload|/get]`. Reports
+  and run logs are kept in LOG_REPO `reports/<YYYY-MM>/` with `reports/index.json`; location schedules in
+  `config/locations/<cable>.xlsx`; the remedial tracking history in `config/remedial_history.json`.
+- Run history FMS rows carry `ribbons` and `kind`. Relay `/health` Brunel.3, build 43. Pillow added (logo on the Cover).
+- Desktop: Reports menu (New report, Report history, Locations) and page; Report button on a finished FMS Task in
+  Run history (that Task's ribbons, both ends, latest results); a message when a report you started is ready.

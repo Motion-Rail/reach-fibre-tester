@@ -114,6 +114,8 @@
   .tfc{display:inline-flex;align-items:center;justify-content:center;min-width:14px;height:20px;border-radius:4px;background:var(--soft2,#e6e6ee);font-size:10px;font-style:normal;font-variant-numeric:tabular-nums;color:var(--muted)}
   .fkey .tfc{width:14px;height:12px;margin-right:4px;vertical-align:middle}
   .tfc.off{background:transparent} .tfc.ok{background:#BFE8D2;color:#135C38} .tfc.now{background:#D9C6FF;color:#4A2A99;box-shadow:inset 0 0 0 2px var(--live,#8E44C9)} .tfc.dis{background:#FFC9CE;color:#8A1F2A}
+  table.rpt{width:100%} table.rpt td{vertical-align:middle}
+  .lnk2{background:none;border:0;padding:0;color:var(--brand);cursor:pointer;font:inherit;font-weight:600}
   table.ckt{width:100%} table.ckt tbody tr{cursor:pointer}
   .mdd.mcab{min-width:300px} .mdd.mcab [role=menuitem] b{white-space:nowrap}
   dialog.ftdlg{width:min(600px,calc(100vw - 32px))}
@@ -690,6 +692,8 @@
         <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="t-live"><b>Real Time</b></button><button type="button" role="menuitem" data-act="t-once"><b>Single Test</b></button><button type="button" role="menuitem" data-act="t-e2e"><b>E2E Continuity</b></button><button type="button" role="menuitem" data-act="t-uni"><b>Tone Test</b></button><button type="button" role="menuitem" data-act="t-bulk"><b>Bulk Test</b></button><div id="mPickNote" hidden></div></div></div></div>
       <div class="mi" data-mi="cv" id="miCv" hidden><button data-nav="fibres">Cable View</button><button type="button" class="mcar" aria-label="Cable View menu" aria-haspopup="menu" aria-expanded="false">▾</button>
         <div class="mdd mcab" role="menu"><div id="mCables"></div></div></div>
+      <div class="mi hdr" data-mi="rp" id="miRp" hidden><button data-nav="reports" aria-haspopup="menu">Reports</button><button type="button" class="mcar" aria-label="Reports menu" aria-haspopup="menu" aria-expanded="false">▾</button>
+        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="r-new"><b>New report</b></button><button type="button" role="menuitem" data-act="r-history"><b>Report history</b></button><button type="button" role="menuitem" data-act="r-locs"><b>Locations</b></button></div></div>
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
@@ -1115,6 +1119,66 @@
         <section class="panel" style="flex:1 1 300px" id="hDetail"><h2>Run detail</h2><div class="note">Pick a run.</div></section>
       </div>
     </main>
+    <main id="screen-reports" hidden>
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px">
+        <h1 style="margin:0;font-size:24px" class="grow">Reports</h1>
+        <span class="note">The full FMS Test Results Report: the same workbook as the PC tool, built on the relay.</span>
+      </div>
+      <div class="bgrid" id="rpNew" style="margin-top:16px">
+        <div class="bmain">
+          <section class="panel">
+            <h2>1 · Cable and ends</h2>
+            <div class="row"><label class="f" style="min-width:260px">Cable<select id="rpCable"></select></label>
+              <div><div class="note" style="margin-bottom:6px">Ends</div><div class="seg" role="group" aria-label="Ends" id="rpEnds"></div></div></div>
+            <p class="note" id="rpEndsNote" style="margin:8px 0 0"></p>
+          </section>
+          <section class="panel">
+            <h2>2 · Ribbons</h2>
+            <div class="row" style="margin-bottom:10px">
+              <div class="seg" role="group" aria-label="Quick picks"><button type="button" data-rq="all">All</button><button type="button" data-rq="clear">Clear</button></div>
+              <label class="f grow" style="min-width:220px">Ribbons (e.g. 1-2, 19-20)<input type="text" id="rpRibTxt" placeholder="all"></label>
+            </div>
+            <div class="ribs" id="rpRibs"></div>
+            <div class="note" id="rpRibSum" style="margin-top:8px"></div>
+          </section>
+          <section class="panel">
+            <h2>3 · Results to use</h2>
+            <div class="row"><div><div class="note" style="margin-bottom:6px">Test</div><div class="seg" role="group" aria-label="Test type" id="rpTest"><button type="button" data-rt="auto">Latest (iOLM or OTDR)</button><button type="button" data-rt="iOLM">iOLM only</button><button type="button" data-rt="OTDR">OTDR only</button></div></div></div>
+            <div class="row" style="margin-top:12px;align-items:flex-end"><label class="f">From<input type="date" id="rpFrom"></label><label class="f">To<input type="date" id="rpTo"></label><button class="btn" type="button" id="rpDateClear">Latest</button><span class="note">Blank dates use the latest test of each fibre.</span></div>
+          </section>
+          <section class="panel">
+            <h2>4 · Settings</h2>
+            <div class="row" style="align-items:flex-end">
+              <label class="f">Splice nominal (dB)<input type="number" id="rpNom" min="0" max="1" step="0.01" value="0.02" style="width:110px"></label>
+              <div><div class="note" style="margin-bottom:6px">Cable view wavelengths</div><div class="seg" role="group" aria-label="Wavelengths" id="rpWl"><button type="button" data-rw="1550">1550</button><button type="button" data-rw="1310,1550">1310 and 1550</button><button type="button" data-rw="1310,1550,1625">All three</button></div></div>
+            </div>
+            <p class="note" style="margin:12px 0 0">Locations: <b id="rpLoc">…</b> · <button class="lnk2" type="button" data-act="r-locs">Locations</button></p>
+            <label class="f" style="margin-top:12px">EXFO customer report, for the Client Verify sheet (optional)<input type="file" id="rpClient" accept=".xlsx"></label>
+          </section>
+        </div>
+        <aside class="bside" aria-live="polite">
+          <div class="lbl">PREVIEW</div>
+          <div class="big" id="rpEst">–</div>
+          <div class="note" id="rpEstNote"></div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;font-size:13px">
+            <div><div class="lbl">Fibres</div><div class="mono" id="rpN">0</div></div>
+            <div><div class="lbl">Ends</div><div id="rpE">–</div></div>
+          </div>
+          <button class="btn primary" id="rpGo" type="button">Run report</button>
+          <div class="err" id="rpErr" role="alert"></div>
+          <div class="note">It runs on the relay, so you can close this page. It shows below and in Report history when it is ready.</div>
+        </aside>
+      </div>
+      <section class="panel" id="rpHist" style="margin-top:16px">
+        <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><h2 style="margin:0" class="grow">Report history</h2><span class="note" id="rpHistNote"></span><button class="btn" type="button" id="rpRefresh">Refresh</button></div>
+        <div id="rpRows" style="margin-top:10px"><p class="note">Loading…</p></div>
+      </section>
+      <section class="panel" id="rpLocs" style="margin-top:16px">
+        <h2>Locations</h2>
+        <p class="note" style="margin:0 0 10px">The joint and backsplice distances each cable's report names its locations from: the Distances workbook layout used by the PC tool. Without one, joints are named by distance.</p>
+        <div id="rpLocRows"><p class="note">Loading…</p></div>
+      </section>
+    </main>
   </div>
   <dialog class="help" id="help" aria-labelledby="helpTitle">
     <div class="helphead"><h2 id="helpTitle">Help</h2>
@@ -1122,6 +1186,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel.3 (9 Oct 2026)</h3>
+      <ul><li>Reports on the top bar: the full FMS Test Results Report, the same workbook as the PC tool (Cover, Summary, Remedials, All Events, Bidir E2E, Cable_View, Detailed Cable View, Splices, ODF, Raw A-B and B-A, Config, and Client Verify when you add the EXFO customer report).</li><li>New report: pick the cable, both ends or one, ribbons, latest or a date window, splice nominal (0.02) and the cable view wavelengths. It runs on the relay with progress; you get a message when it is ready.</li><li>Report next to a finished FMS Task in Run history: one click for that Task's ribbons, both ends, latest results.</li><li>Report history keeps every report and its run log to download again. Locations: upload a Distances workbook per cable so joints get their names.</li></ul>
       <h3>Brunel.2 (9 Oct 2026)</h3>
       <ul><li>Tools: the page shows only the test you picked (E2E Continuity, Tone Test or Bulk Test); the tab bar is gone.</li><li>Tasks running on the chosen RTU sit in the left panel under Cables and RTUs, with Show fibres and Cancel.</li><li>E2E tone is now 10 s by default. On 9 Oct a 4 s tone ended before FMS started the OTDR on 9 of 12 fibres (17 s a fibre); 10 s needed no rechecks (about 13 s a fibre).</li></ul>
       <h3>Brunel.1 (9 Oct 2026)</h3>
@@ -1243,7 +1309,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel.2";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel.3";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1403,8 +1469,9 @@
   let tab=jget("rft.desktop.tab","tasks"), frameFor={};
   function setScreen(s){
     screen=s;
-    $("screen-console").hidden=s!=="console"; $("screen-history").hidden=s!=="history"; $("screen-live").hidden=s!=="live"; $("screen-fibres").hidden=s!=="fibres";
-    $("side").hidden=s==="live"||s==="fibres";       // v34: Live uses the full width; the route map replaces the RTU list
+    $("screen-console").hidden=s!=="console"; $("screen-history").hidden=s!=="history"; $("screen-live").hidden=s!=="live"; $("screen-fibres").hidden=s!=="fibres"; $("screen-reports").hidden=s!=="reports";
+    $("side").hidden=s==="live"||s==="fibres"||s==="reports";
+    if(s==="reports") rpOpen();       // v34: Live uses the full width; the route map replaces the RTU list
     document.querySelectorAll("nav [data-nav]").forEach(b=>{ b.parentElement.classList.toggle("cur",b.dataset.nav===s); if(b.dataset.nav===s) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
     if(s==="history") loadHistory();
     if(s==="live") openLive();
@@ -1503,6 +1570,9 @@
       case "running": return goLive("#lCards");
       case "rtus": case "tasks": setScreen("console"); return showTab("tasks");
       case "history": return setScreen("history");
+      case "r-new": setScreen("reports"); return $("rpNew").scrollIntoView({behavior:"smooth",block:"start"});
+      case "r-history": setScreen("reports"); return setTimeout(()=>$("rpHist").scrollIntoView({behavior:"smooth",block:"start"}),60);
+      case "r-locs": setScreen("reports"); return setTimeout(()=>$("rpLocs").scrollIntoView({behavior:"smooth",block:"start"}),60);
       case "files": setScreen("history"); return toast("Open a finished FMS Task in the list, then press Download files.");
       case "csv": setScreen("history"); return setTimeout(()=>{ const b=$("hCsv"); if(b){ b.focus(); toast("Pick the days and filters, then Export CSV."); } },200);
       case "t-e2e": return tool("e2e","E2E Continuity: which cable?");
@@ -2322,6 +2392,10 @@
     const r=H.sel;
     $("hDetail").innerHTML="<h2>Run detail</h2>"+(r?`<div style="display:flex;flex-direction:column;gap:8px"><b>${esc(r.type)} · ${esc(r.scope)}</b><span class="note">${esc(when(r.started))} · ${esc(nice(r.owner))} · ${esc(r.rtu)}</span><span class="res ${esc(String(r.result).split(" ")[0])}" style="align-self:flex-start">${esc(r.result)}</span><div>${esc(r.summary)}</div>${r.location?`<div class="note">Location: ${esc(r.location)}</div>`:""}${r.source==="fms"&&r.id&&r.result!=="Running"&&RELAYV>=33?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px"><button class="btn primary" type="button" id="hFiles">Download files</button><span class="note" id="hFilesNote">The .sor file of every fibre in this Task, in one zip.</span></div>`:""}</div>`:"<div class='note'>Pick a run.</div>");
     if($("hFiles")) $("hFiles").onclick=()=>taskFiles(r.id,$("hFiles"),$("hFilesNote"));
+    if(r&&r.source==="fms"&&r.result!=="Running"&&r.ribbons&&RELAYV>=43){ const d=document.createElement("div"); d.style.cssText="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px";
+      d.innerHTML=`<button class="btn primary" type="button" id="hReport">Report</button><span class="note" id="hReportNote">The full FMS report for R${esc(r.ribbons.replace(/,/g,", R"))}, both ends, latest results.</span>`;
+      ($("hFiles")?$("hFiles").parentElement:$("hDetail").firstElementChild.nextElementSibling||$("hDetail")).after(d);
+      $("hReport").onclick=()=>reportFromTask(r,$("hReport"),$("hReportNote")); }
     if(r&&(r.type==="E2E"||r.type==="Speed test")&&r.path&&RELAYV>=39){ const box=document.createElement("div"); box.id="hRep"; box.className="hrep"; box.innerHTML='<p class="note">Reading the report…</p>'; $("hDetail").appendChild(box); e2eReport(r,box); }
   }
   // v47: an E2E run's report in Run history: every fibre it tested, coloured by what it found
@@ -2374,6 +2448,129 @@
     }catch(e){ if(!quiet(e)) say(e.message); }
     finally{ btn.disabled=false; }
   }
+  // ════════ Brunel.3: Reports, the full FMS Test Results Report from the app ════════
+  const RP={cable:"F-RGAC-SNBC", ends:"both", ribs:new Set(), test:"auto", wl:"1550", items:[], saved:[], locs:[], pollT:null, watch:{}};
+  try{ const s=JSON.parse(localStorage.getItem("rft.rp")||"null"); if(s){ RP.cable=s.cable||RP.cable; RP.ends=s.ends||RP.ends; RP.test=s.test||RP.test; RP.wl=s.wl||RP.wl; } }catch(e){}
+  const rpSave=()=>{ try{ localStorage.setItem("rft.rp",JSON.stringify({cable:RP.cable,ends:RP.ends,test:RP.test,wl:RP.wl})); }catch(e){} };
+  const rpCab=()=>CABLES.find(c=>c.pre===RP.cable)||CABLES[1];
+  const rpStem=c=>(STEMS.find(([k])=>k.startsWith(c.pre))||[c.pre+"-A-R432"])[0];
+  const ribSpec=set=>{ const rs=[...set].sort((a,b)=>a-b), out=[]; let i=0; while(i<rs.length){ let k=i; while(k+1<rs.length&&rs[k+1]===rs[k]+1) k++; out.push(i===k?""+rs[i]:rs[i]+"-"+rs[k]); i=k+1; } return out.join(","); };
+  const ribParse=s=>{ const set=new Set(); String(s||"").split(/[,\s]+/).filter(Boolean).forEach(p=>{ const m=p.replace(/^R/i,"").match(/^(\d{1,2})(?:-(\d{1,2}))?$/); if(!m) return; const a=+m[1], b=+(m[2]||m[1]); for(let r=Math.min(a,b);r<=Math.max(a,b);r++) if(r>=1&&r<=36) set.add(r); }); return set; };
+  const kb=n=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";
+  (function rpBuild(){
+    $("rpCable").innerHTML=CABLES.map(c=>`<option value="${c.pre}">${esc(c.name)}</option>`).join("");
+    $("rpRibs").innerHTML=[...Array(36)].map((_,i)=>`<button type="button" data-rr="${i+1}">${i+1}</button>`).join("");
+    $("rpRibs").querySelectorAll("[data-rr]").forEach(b=>b.onclick=()=>{ const r=+b.dataset.rr; RP.ribs.has(r)?RP.ribs.delete(r):RP.ribs.add(r); $("rpRibTxt").value=ribSpec(RP.ribs); rpPaint(); });
+    document.querySelectorAll("[data-rq]").forEach(b=>b.onclick=()=>{ RP.ribs.clear(); $("rpRibTxt").value=b.dataset.rq==="clear"?"none":""; rpPaint(); });
+    $("rpRibTxt").oninput=()=>{ const v=$("rpRibTxt").value.trim(); RP.ribs=ribParse(v); rpPaint(); };
+    $("rpCable").onchange=()=>{ RP.cable=$("rpCable").value; rpSave(); rpPaint(); };
+    document.querySelectorAll("#rpTest [data-rt]").forEach(b=>b.onclick=()=>{ RP.test=b.dataset.rt; rpSave(); rpPaint(); });
+    document.querySelectorAll("#rpWl [data-rw]").forEach(b=>b.onclick=()=>{ RP.wl=b.dataset.rw; rpSave(); rpPaint(); });
+    $("rpDateClear").onclick=()=>{ $("rpFrom").value=""; $("rpTo").value=""; rpPaint(); };
+    ["rpFrom","rpTo","rpNom"].forEach(id=>$(id).oninput=rpPaint);
+    $("rpRefresh").onclick=()=>rpLoad(true);
+  })();
+  function rpEnds(){ const c=rpCab(); return RP.ends==="a"?[c.rtus[0]]:RP.ends==="b"?[c.rtus[1]]:c.rtus; }
+  function rpPaint(){
+    const c=rpCab(); $("rpCable").value=c.pre;
+    $("rpEnds").innerHTML=[["both","Both ends"],["a",placeOf(c.rtus[0][1])+" only"],["b",placeOf(c.rtus[1][1])+" only"]].map(([k,l])=>`<button type="button" data-re="${k}" aria-pressed="${RP.ends===k}">${esc(l)}</button>`).join("");
+    $("rpEnds").querySelectorAll("[data-re]").forEach(b=>b.onclick=()=>{ RP.ends=b.dataset.re; rpSave(); rpPaint(); });
+    $("rpEndsNote").textContent=RP.ends==="both"?`Bidirectional: ${placeOf(c.rtus[0][1])} is End A, ${placeOf(c.rtus[1][1])} End B (east to west). Splices are averaged both ways.`:"One way only: losses and splices as seen from that end, no averaging.";
+    const none=$("rpRibTxt").value.trim().toLowerCase()==="none";
+    $("rpRibs").querySelectorAll("[data-rr]").forEach(b=>b.setAttribute("aria-pressed",String(RP.ribs.has(+b.dataset.rr))));
+    const nr=none?0:(RP.ribs.size||36), nf=nr*12, ne=RP.ends==="both"?2:1;
+    $("rpRibSum").textContent=none?"No ribbons chosen.":RP.ribs.size?`${RP.ribs.size} ribbon${RP.ribs.size>1?"s":""} (R${ribSpec(RP.ribs).replace(/,/g,", R")}), ${nf} fibres.`:"All 36 ribbons, 432 fibres.";
+    document.querySelectorAll("#rpTest [data-rt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rt===RP.test)));
+    document.querySelectorAll("#rpWl [data-rw]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rw===RP.wl)));
+    const loc=(RP.locs||[]).find(x=>x.cable===c.pre);
+    $("rpLoc").textContent=loc?loc.name:"none for this cable, joints named by distance";
+    $("rpN").textContent=nf; $("rpE").textContent=rpEnds().map(e=>placeOf(e[1])).join(" and ");
+    const secs=nf*ne*0.7+40;
+    $("rpEst").textContent=nf?"about "+mins(secs):"–";
+    $("rpEstNote").textContent=nf?`${nf*ne} FMS results to read, then the workbook is built. Rough guide; FMS sets the pace.`:"";
+    $("rpGo").disabled=!nf;
+  }
+  async function rpOpen(){ rpPaint(); rpLoad(true); rpLocsLoad(); }
+  async function rpLoad(force){
+    try{ const d=await relay("/api/fullreport/list",{}); RP.items=d.live||[]; RP.saved=d.saved||[]; $("rpHistNote").textContent=d.repo?"":"Report storage is off on the relay, so reports are kept only until it restarts."; }
+    catch(e){ if(quiet(e)) return; $("rpRows").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    rpRows(); rpTick();
+  }
+  function rpRows(){
+    const all=[...RP.items, ...RP.saved.map(x=>({...x, state:"done", fromRepo:true}))];
+    if(!all.length){ $("rpRows").innerHTML='<p class="note" style="margin:0">No reports yet.</p>'; return; }
+    const cabName=s=>(STEMS.find(x=>x[0]===s)||[0,cableId(s)])[1];
+    const endsTxt=x=>x.rtuB?"Both ends":placeOf(x.rtuA)+" only";
+    const st=x=>x.state==="running"?`<div class="bar" style="min-width:120px"><i style="width:${x.pct||0}%"></i></div><span class="note">${esc(x.note||"Running")}</span>`
+      : x.state==="queued"?`<span class="chip queued">Waiting${x.queuePos>1?" ("+(x.queuePos-1)+" ahead)":""}</span>`
+      : x.state==="done"?`<span class="res Pass">Ready</span>${x.size?` <span class="note">${kb(x.size)}</span>`:""}`
+      : x.state==="cancelled"?`<span class="res">Cancelled</span>`:`<span class="res Failed" title="${esc(x.error||"")}">Failed</span> <span class="note">${esc((x.error||"").slice(0,90))}</span>`;
+    $("rpRows").innerHTML=`<table class="hist rpt"><thead><tr><th>When</th><th>Cable</th><th>Ribbons</th><th>Ends</th><th>Test</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>${all.slice(0,80).map(x=>`<tr data-rp="${esc(x.id)}">
+      <td>${esc(when(x.ended||x.started))}</td><td>${esc(cabName(x.stem))}${x.label?`<div class="note">${esc(x.label)}</div>`:""}</td><td>${esc(x.ribbons?"R"+x.ribbons.replace(/,/g,", R"):"All")}</td><td>${esc(endsTxt(x))}</td><td>${esc(x.testType==="auto"?"Latest":x.testType||"")}${x.dfrom||x.dto?`<div class="note">${esc((x.dfrom||"…")+" to "+(x.dto||"…"))}</div>`:""}</td><td>${esc(nice(String(x.user||"").split("@")[0].replace("."," ")))}</td><td>${st(x)}</td>
+      <td style="white-space:nowrap">${x.state==="done"?`<button class="btn primary" type="button" data-rpdl="${esc(x.id)}">Download</button> <button class="btn" type="button" data-rplog="${esc(x.id)}">Run log</button>`:x.state==="queued"||x.state==="running"?`<button class="btn cancel" type="button" data-rpx="${esc(x.id)}">Cancel</button>`:""}</td></tr>`).join("")}</tbody></table>`;
+    $("rpRows").querySelectorAll("[data-rpdl]").forEach(b=>b.onclick=()=>rpGet(b.dataset.rpdl,"xlsx",b));
+    $("rpRows").querySelectorAll("[data-rplog]").forEach(b=>b.onclick=()=>rpGet(b.dataset.rplog,"log",b));
+    $("rpRows").querySelectorAll("[data-rpx]").forEach(b=>b.onclick=async()=>{ try{ await relay("/api/fullreport/cancel",{id:b.dataset.rpx}); }catch(e){ if(!quiet(e)) toast(e.message); } rpLoad(); });
+  }
+  function rpTick(){ clearTimeout(RP.pollT); const busy=RP.items.some(x=>x.state==="running"||x.state==="queued"); if(busy&&screen==="reports") RP.pollT=setTimeout(()=>rpLoad(),2500); }
+  async function relayFile(path,body,fallback){
+    const h={"Content-Type":"application/json","X-App-Key":KEY}; if(session.id) h["X-Session"]=session.id;
+    try{ const rz=JSON.parse(localStorage.getItem("rft.resume")||"null"); if(rz&&rz.code&&rz.sid===session.id) h["X-Resume"]=rz.code; }catch(e){}
+    const res=await fetch(RELAY+path,{method:"POST",headers:h,body:JSON.stringify(body)});
+    if(!res.ok){ let d={}; try{ d=await res.json(); }catch(e){} throw new Error(d.detail||("HTTP "+res.status)); }
+    const name=((res.headers.get("Content-Disposition")||"").match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/)||[])[1]||fallback;
+    const a=document.createElement("a"); a.href=URL.createObjectURL(await res.blob()); a.download=decodeURIComponent(name); document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000); return name;
+  }
+  async function rpGet(id,kind,btn){ btn.disabled=true; try{ const n=await relayFile("/api/fullreport/get",{id,kind},kind==="log"?"runlog.txt":"report.xlsx"); toast("Saved "+decodeURIComponent(n)); }catch(e){ if(!quiet(e)) toast("Download failed: "+e.message); } finally{ btn.disabled=false; } }
+  const b64=file=>new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]||""); r.onerror=()=>rej(new Error("Could not read the file")); r.readAsDataURL(file); });
+  async function rpStart(body){ const j=await relay("/api/fullreport/start",body); rpWatch(j); return j; }
+  function rpWatch(j){   /* tell the user when a report they started is ready, wherever they are in the app */
+    if(RP.watch[j.id]) return; RP.watch[j.id]=1;
+    const go=async()=>{ let s=null; try{ s=await relay("/api/fullreport/status",{id:j.id}); }catch(e){ if(quiet(e)) return; }
+      if(s&&(s.state==="running"||s.state==="queued")){ if(screen==="reports"){ const i=RP.items.findIndex(x=>x.id===s.id); if(i>=0){ RP.items[i]=s; rpRows(); } } return setTimeout(go,3000); }
+      delete RP.watch[j.id];
+      if(s&&s.state==="done") toast(`Report ready: ${s.fileName}. Download it from Reports.`); else if(s&&s.state==="error") toast("Report failed: "+(s.error||"").slice(0,140));
+      if(screen==="reports") rpLoad(); };
+    setTimeout(go,2500);
+  }
+  $("rpGo").onclick=async()=>{
+    $("rpErr").textContent=""; const c=rpCab(), ends=rpEnds();
+    const body={stem:rpStem(c), rtuA:ends[0][1], rtuB:ends[1]?ends[1][1]:"", ribbons:RP.ribs.size?ribSpec(RP.ribs):"", testType:RP.test,
+      dfrom:$("rpFrom").value||"", dto:$("rpTo").value||"", nominal:+$("rpNom").value||0.02, viewWl:RP.wl};
+    if(body.dfrom&&body.dto&&body.dfrom>body.dto){ $("rpErr").textContent="From is after To."; return; }
+    const f=$("rpClient").files&&$("rpClient").files[0];
+    $("rpGo").disabled=true; $("rpGo").textContent="Starting…";
+    try{
+      if(f){ if(f.size>15*1048576) throw new Error("The customer report is over 15 MB."); body.client=await b64(f); body.clientName=f.name; }
+      const j=await rpStart(body); toast(j.state==="queued"?"Report queued behind another one.":"Report started."); $("rpClient").value=""; await rpLoad(); $("rpHist").scrollIntoView({behavior:"smooth",block:"start"});
+    }catch(e){ if(!quiet(e)) $("rpErr").textContent=e.message; }
+    finally{ $("rpGo").disabled=false; $("rpGo").textContent="Run report"; }
+  };
+  async function rpLocsLoad(){
+    try{ const d=await relay("/api/fullreport/locations",{}); RP.locs=d.items||[]; }catch(e){ if(quiet(e)) return; $("rpLocRows").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    rpPaint();
+    $("rpLocRows").innerHTML=`<table class="hist rpt"><thead><tr><th>Cable</th><th>Location schedule</th><th>Kept</th><th></th></tr></thead><tbody>${CABLES.map(c=>{ const x=RP.locs.find(l=>l.cable===c.pre);
+      return `<tr><td>${esc(c.name)}</td><td>${x?esc(x.name)+(x.rows?` <span class="note">${x.rows} rows</span>`:""):'<span class="note">None, joints named by distance</span>'}</td><td class="note">${x?(x.seed?"ships with the tool":esc(when(x.t))+(x.by?" · "+esc(nice(String(x.by).split("@")[0].replace("."," "))):"")):""}</td>
+        <td style="white-space:nowrap">${x?`<button class="btn" type="button" data-locdl="${c.pre}">Download</button> `:""}<label class="btn" style="cursor:pointer">Upload…<input type="file" accept=".xlsx" data-locup="${c.pre}" hidden></label></td></tr>`; }).join("")}</tbody></table>`;
+    $("rpLocRows").querySelectorAll("[data-locdl]").forEach(b=>b.onclick=async()=>{ try{ await relayFile("/api/fullreport/locations/get",{cable:b.dataset.locdl},b.dataset.locdl+" locations.xlsx"); }catch(e){ if(!quiet(e)) toast(e.message); } });
+    $("rpLocRows").querySelectorAll("[data-locup]").forEach(inp=>inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
+      const c=CABLES.find(x=>x.pre===inp.dataset.locup);
+      if(!await ask("Use these locations?", `${f.name} becomes the location schedule for ${c.name}. Every report on this cable names its joints from it.`, "Upload")) return;
+      try{ const r=await relay("/api/fullreport/locations/upload",{cable:c.pre, name:f.name, data:await b64(f)}); toast(`Saved: ${r.rows} location rows from ${r.sheets.length} sheet${r.sheets.length>1?"s":""}.`); }catch(e){ if(!quiet(e)) toast("Not saved: "+e.message); }
+      rpLocsLoad(); });
+  }
+  window.rftReportFromTask=r=>reportFromTask(r);
+  async function reportFromTask(r,btn,note){
+    const c=CABLES.find(x=>String(r.cable||"").toUpperCase().startsWith(x.pre)); if(!c){ toast("Could not tell which cable that Task was on."); return; }
+    const say=t=>{ if(note) note.textContent=t; };
+    if(btn) btn.disabled=true;
+    try{
+      const j=await rpStart({stem:rpStem(c), rtuA:c.rtus[0][1], rtuB:c.rtus[1][1], ribbons:r.ribbons||"", testType:"auto", nominal:0.02, viewWl:"1550", taskId:r.id||"", label:`From ${r.type} ${r.scope}${r.owner?" by "+nice(r.owner):""}`});
+      say(j.state==="queued"?"Queued behind another report. You will see a message when it is ready; it is also in Reports.":"Started. You will see a message when it is ready; it is also in Reports.");
+    }catch(e){ if(!quiet(e)) say("Not started: "+e.message); }
+    finally{ if(btn) btn.disabled=false; }
+  }
   ["hType","hRtu","hOwner"].forEach(id=>$(id).onchange=renderHistory);
   $("hDays").onchange=loadHistory; $("hSrc").onchange=loadHistory; $("hRefresh").onclick=loadHistory;
   $("hCsv").onclick=()=>{
@@ -2384,7 +2581,7 @@
 
   async function health(){
     try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=RELAY===LIVE_RELAY?"":"local relay: "+RELAY; $("appv").textContent=h.version===APP_VERSION?`${APP_VERSION} (app and relay)`:`app ${APP_VERSION} · relay ${h.version}`;
-      RELAYV=h.build||parseInt(String(h.version||"").replace(/\D/g,""))||0; const fb=document.querySelector('nav [data-nav="fibres"]'), okv=RELAYV>=31;   /* Brunel: named versions, so the number comes from build */ if(fb) fb.hidden=!okv; $("miCv").hidden=!okv;   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+      RELAYV=h.build||parseInt(String(h.version||"").replace(/\D/g,""))||0; $("miRp").hidden=!(RELAYV>=43); const fb=document.querySelector('nav [data-nav="fibres"]'), okv=RELAYV>=31;   /* Brunel: named versions, so the number comes from build */ if(fb) fb.hidden=!okv; $("miCv").hidden=!okv;   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
