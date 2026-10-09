@@ -1061,6 +1061,29 @@ gives `version: "Brunel"` and `build: 40` (the build number keeps counting for c
   took 2 min 58 s including a 21 s FMS blip, no rechecks, about 13 s a fibre. Full 432 cable about 1 h 35 min.
 - Relay `/health` version Brunel.2, build 42. The full FMS puller report moves to Brunel.3.
 
+## Brunel.4 (desktop, phone and relay) — 9 October 2026 — flipped ribbons
+
+- Prompted by the E2E run on R35, F-RGAC-SNBC, 9 Oct 14:51 (Joe, tone RGAC2, OTDR SNBC): the ribbon was flipped
+  (F409 on F420, F420 on F409 and so on) but the run reported 12 crosses after 24 tests, 4 min 44 s.
+- Relay `continuity_engine.py`: when a fibre is dark on its own position and nothing in its ribbon is straight
+  yet, it is tried once on its mirror (f1 on f12). If it lands there, the mirror is checked the other way and one
+  more pair is proven both ways (f2 on f11, f11 on f2). Two pairs proven (`FLIP_PAIRS = 2`, the same rule as
+  Cable View and the Excel report), then one more pair picked at random from the rest must agree both ways
+  (`FLIP_RANDOM_CHECK`, Alkis 9 Oct); if it does not, nothing is called flipped and the rest is searched fibre
+  by fibre. Then the ribbon is declared Flipped: the run stops testing that ribbon and
+  moves on. A fibre already seen dark on its mirror gets one more check, then Dis. A lone swapped pair (f1 and
+  f12 only) stays two crosses and the ribbon carries on as normal. The whole-ribbon probes do the same when
+  they find the ribbon reversed. New result state `flip`; `flippedRibbons` in the snapshot.
+- Simulator, 40 seeds a fault type at 8 % missed clashes: reversed ribbon 2048 to 1371 tests, all 480 fibres
+  Flipped, no wrong answers; straight, swapped ribbons, swapped bundles and pairs unchanged (crossed ribbons
+  cost about one extra test each). The R35 replay: 9 tests instead of 24. Only two pairs swapped: correctly not called a flip.
+- Relay: `counts.flip`, Teams card ("Flipped (1 to 12, 12 to 1): R35"), Run history summary, Cable View history
+  word, resume carries `flip`. Run history rereads runs saved before Brunel.4 as Flipped when two mirror pairs
+  agree, so the 9 Oct R35 run now reads as Flipped.
+- Desktop and phone E2E: Flipped tile and count, blue cells with the far end fibre, findings line "R35 flipped",
+  CSV and text report; desktop Live cards and the run report in Run history. Older runs are reread the same way.
+- Versions: Brunel.4, relay build 44, sw.js `reachtester-brunel.4`.
+
 ## Brunel.3 (desktop and relay) — 9 October 2026 — the full FMS report in the app
 
 - Relay `relay_fullreport.py` and `report_job.py`: the PC tool's engine (`fms_report/fms_pull.py` and

@@ -317,6 +317,10 @@
   table.eg td.st{background:#E5F4EC;color:var(--ok)}
   table.eg td.cx{background:#FCEFD9;color:#8A5208}
   table.eg td.nf{background:var(--bad-tint);color:var(--bad)}
+  table.eg td.fl{background:#E3EBFF;color:#2B55C8}
+  :root[data-theme=dark] table.eg td.fl{background:rgba(120,150,255,.28);color:#C9D6FF}
+  .lrib i.fl{background:#A6BCF4}:root[data-theme=dark] .lrib i.fl{background:#4F5BE0}
+  .k-fl{color:#2B55C8}:root[data-theme=dark] .k-fl{color:#AFC2FF}
   table.eg td.now{box-shadow:inset 0 0 0 2px var(--live);background:var(--live-tint);color:var(--live)}
   table.eg td.cand{box-shadow:inset 0 0 0 2px rgba(142,68,201,.45)}
   pre.log{margin:0;max-height:300px;overflow:auto;background:var(--soft);border-radius:8px;padding:14px;font-family:var(--code);font-size:12px;line-height:1.55;white-space:pre-wrap;color:#3A3D44}
@@ -971,6 +975,7 @@
             <div class="big" id="eDone">0 / 0</div>
             <div class="tiles">
               <div><div class="lbl">Straight</div><div class="mono t" id="eNSt">0</div></div>
+              <div><div class="lbl">Flipped</div><div class="mono t" id="eNFl">0</div></div>
               <div><div class="lbl">Crossed</div><div class="mono t" id="eNCx">0</div></div>
               <div><div class="lbl">DIS</div><div class="mono t" id="eNDis">0</div></div>
               <div><div class="lbl">Not found</div><div class="mono t" id="eNUn">0</div></div>
@@ -1186,6 +1191,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel.4 (9 Oct 2026)</h3>
+      <ul><li>E2E Continuity spots a flipped ribbon (1 to 12, 12 to 1). When the first fibre is dark on its own position it is tried on its mirror; once two pairs are proven both ways (F1 and F12, F2 and F11) and one more pair picked at random agrees, the ribbon is declared Flipped and the run moves on, instead of testing every fibre as a cross.</li><li>Flipped shows in its own colour and count on the run, the Live screen, Run history, the Teams card and Cable View. Runs saved before this (such as R35 on 9 Oct) now read as Flipped too.</li></ul>
       <h3>Brunel.3 (9 Oct 2026)</h3>
       <ul><li>Reports on the top bar: the full FMS Test Results Report, the same workbook as the PC tool (Cover, Summary, Remedials, All Events, Bidir E2E, Cable_View, Detailed Cable View, Splices, ODF, Raw A-B and B-A, Config, and Client Verify when you add the EXFO customer report).</li><li>New report: pick the cable, both ends or one, ribbons, latest or a date window, splice nominal (0.02) and the cable view wavelengths. It runs on the relay with progress; you get a message when it is ready.</li><li>Report next to a finished FMS Task in Run history: one click for that Task's ribbons, both ends, latest results.</li><li>Report history keeps every report and its run log to download again. Locations: upload a Distances workbook per cable so joints get their names.</li></ul>
       <h3>Brunel.2 (9 Oct 2026)</h3>
@@ -1309,7 +1316,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel.3";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel.4";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1319,6 +1326,18 @@
   const $=id=>document.getElementById(id);
   const nice=n=>String(n||"").split(/\s+/).map(w=>w?w[0].toUpperCase()+w.slice(1):w).join(" ");
   const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  /* Brunel.4: a ribbon going 1 to 12, 12 to 1 is a flip, not 12 crosses. Older runs saved it as crosses:
+     read them as flipped when two mirror pairs in the ribbon agree (the same rule as Cable View). */
+  function flipFix(res){
+    if(!res) return res; const pairs={}, hit={};
+    Object.entries(res).forEach(([k,v])=>{ const f=+k, g=+(v&&v.found||0); if(!v||v.state!=="cross"||!g||Math.ceil(f/12)!==Math.ceil(g/12)) return;
+      const p=(f-1)%12+1, q=(g-1)%12+1; if(q!==13-p) return; const r=Math.ceil(f/12); (pairs[r]=pairs[r]||new Set()).add(Math.min(p,q)); (hit[r]=hit[r]||[]).push(k); });
+    Object.keys(hit).forEach(r=>{ if(pairs[r].size>=2) hit[r].forEach(k=>{ res[k]={...res[k],state:"flip"}; }); });
+    return res;
+  }
+  function flipCounts(s){ const res=s&&s.results; if(!res) return; flipFix(res); const c=s.counts=s.counts||{};
+    ["straight","cross","flip","dis","unres"].forEach(k=>c[k]=Object.values(res).filter(v=>v.state===k).length); }
+  const flippedRibs=res=>[...new Set(Object.entries(res||{}).filter(([,v])=>v.state==="flip").map(([k])=>Math.ceil(+k/12)))].sort((a,b)=>a-b);
   const SES="toneTester.session";
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
@@ -1939,7 +1958,7 @@
     try{
       const s=await relay("/api/continuity/status",{jobId:id});
       if(id!==E.jobId) return;
-      E.snap=s; eRender();
+      flipCounts(s); E.snap=s; eRender();
       if(s.state==="running"||s.state==="paused") E.pollT=setTimeout(ePoll,(document.hidden||tab!=="e2e"||screen!=="console")?15000:3000);
     }catch(e){
       if(quiet(e)) return;
@@ -1949,7 +1968,7 @@
   }
   function eNotify(s){
     const c=s.counts||{}, title=`${cableId(s.stem)} ${rangeText(s.ribbons)}: ${({done:"complete",stopped:"stopped",error:"failed"})[s.state]||s.state}`;
-    const sp=s.kind==="speed"&&s.speed, body=sp?`Speed test: one go finds a fibre ${sp.oneGoPct}%, within 3 goes ${(sp.withinPct||[])[2]}%. ${mins((s.ended||s.now)-s.started)}.`:`${c.straight} straight, ${c.cross} crossed, ${c.dis||0} DIS. ${mins((s.ended||s.now)-s.started)}.`;
+    const sp=s.kind==="speed"&&s.speed, body=sp?`Speed test: one go finds a fibre ${sp.oneGoPct}%, within 3 goes ${(sp.withinPct||[])[2]}%. ${mins((s.ended||s.now)-s.started)}.`:`${c.straight} straight, ${c.flip?c.flip+" flipped ("+flippedRibs(s.results).map(r=>"R"+r).join(", ")+"), ":""}${c.cross} crossed, ${c.dis||0} DIS. ${mins((s.ended||s.now)-s.started)}.`;
     toast(title+". "+body);
     if(window.RFTPush && RFTPush.isOn()) return;        // v35: the relay sends it to every device
     try{ if(window.Notification && Notification.permission==="granted"){
@@ -1969,7 +1988,7 @@
     $("eBar").style.width=(s.targets?100*s.done/s.targets:0)+"%";
     $("eProg").textContent=`${s.done} of ${s.targets} fibres · started ${new Date(s.started*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}${s.user?" · "+nice(String(s.user).split("@")[0].replace("."," ")):""}`;
     $("eDone").textContent=s.done+" / "+s.targets;
-    const c=s.counts||{}; $("eNSt").textContent=c.straight||0; $("eNCx").textContent=c.cross||0; $("eNDis").textContent=c.dis||0; $("eNUn").textContent=c.unres||0;
+    const c=s.counts||{}; $("eNSt").textContent=c.straight||0; $("eNCx").textContent=c.cross||0; $("eNFl").textContent=c.flip||0; $("eNDis").textContent=c.dis||0; $("eNUn").textContent=c.unres||0;
     $("eNTests").textContent=s.tests||0; $("eEl").textContent=mins((s.ended||s.now)-s.started);
     const cand=s.candidate||s.current;
     $("eNow").innerHTML= s.state==="running"&&s.fmsDown
@@ -2009,7 +2028,7 @@
       h+=`<tr><th>R${r}</th>`;
       for(let p=1;p<=PER;p++){
         const f=(r-1)*PER+p, v=res[f]; let cls="", txt=String(f).padStart(3,"0");
-        if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":"nf"; if(v.state==="cross") txt="→"+String(v.found).padStart(3,"0"); if(v.state==="dis") txt="DIS"; if(v.state==="unres") txt="?"; }
+        if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":v.state==="flip"?"fl":"nf"; if(v.state==="cross"||v.state==="flip") txt="→"+String(v.found).padStart(3,"0"); if(v.state==="dis") txt="DIS"; if(v.state==="unres") txt="?"; }
         if(s.state==="running"&&s.current===f) cls+=" now";
         if(s.state==="running"&&s.candidate===f&&s.current!==f) cls+=" cand";
         h+=`<td class="${cls}" data-ef="${f}" title="${fname(f)} ${rpl(f)}">${txt}</td>`;
@@ -2022,6 +2041,7 @@
       $("eCell").textContent= !v ? `${fname(f)} ${rpl(f)}: not tested yet.`
         : v.state==="straight" ? `${fname(f)} ${rpl(f)} is straight through (${v.tests} test${v.tests>1?"s":""}).`
         : v.state==="cross" ? `${fname(f)} ${rpl(f)} lands on ${fname(v.found)} ${rpl(v.found)} at the far end (${v.why}, ${v.tests} tests).`
+        : v.state==="flip" ? `${fname(f)} ${rpl(f)} is in a flipped ribbon: it lands on ${fname(v.found)} ${rpl(v.found)} (${v.why||"flipped ribbon"}${v.tests?", "+v.tests+" test"+(v.tests>1?"s":""):", not tested on its own"}).`
         : v.state==="dis" ? `${fname(f)} ${rpl(f)} is DIS: ${v.loc?"the fibre "+v.loc.text+(v.loc.method?" ["+v.loc.method+"]":""):v.why+" ("+v.tests+" tests)"}.`
         : `${fname(f)} ${rpl(f)} was not found in ${v.tests} tests. Check it with the toner.`;
     });
@@ -2032,7 +2052,8 @@
       if(v.state==="cross") cr.push(`${fname(f)} lands on ${fname(v.found)}`);
       if(v.state==="unres") nf.push(fname(f));
       if(v.state==="dis") ds.push(fname(f)+(v.loc?": "+v.loc.text:"")); });
-    (s.patterns||[]).filter(p=>p.hits>=2).forEach(p=>out.push(p.label.charAt(0).toUpperCase()+p.label.slice(1)+", seen on "+p.hits+" fibres."));
+    flippedRibs(res).forEach(r=>out.push(`R${r} flipped: 1 lands on 12, 12 on 1. Swap the ribbon over at one end; no need to chase each fibre.`));
+    (s.patterns||[]).filter(p=>p.hits>=2&&!/reversed$/.test(p.label)).forEach(p=>out.push(p.label.charAt(0).toUpperCase()+p.label.slice(1)+", seen on "+p.hits+" fibres."));
     if(cr.length) out.push(`${cr.length} crossed: ${cr.slice(0,6).join("; ")}${cr.length>6?"; …":""}.`);
     ds.slice(0,8).forEach(d=>out.push("DIS "+d+"."));
     if(ds.length>8) out.push(`…and ${ds.length-8} more DIS.`);
@@ -2059,7 +2080,7 @@
     const s=E.snap; if(!s) return; const res=s.results||{};
     const rows=[["fibre","ribbon","position","result","far end fibre","tests","detail"]];
     (s.ribbons||[]).forEach(r=>{ for(let p=1;p<=PER;p++){ const f=(r-1)*PER+p, v=res[f]||{};
-      rows.push([fname(f),r,p,v.state||"not tested",v.state==="cross"?fname(v.found):v.state==="straight"?fname(f):"",v.tests||"",v.loc?v.loc.text:(v.why||"")]); } });
+      rows.push([fname(f),r,p,v.state||"not tested",v.state==="cross"||v.state==="flip"?fname(v.found):v.state==="straight"?fname(f):"",v.tests||"",v.loc?v.loc.text:(v.why||"")]); } });
     const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(",")).join("\r\n");
     const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`${cableId(s.stem)}-e2e-${new Date(s.started*1000).toISOString().slice(0,10)}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
   };
@@ -2305,14 +2326,14 @@
     // cards
     const cards=[];
     runs.forEach(r=>{
-      const res=r.results||{}, n=v=>Object.values(res).filter(x=>x===v).length, pct=r.targets?100*r.done/r.targets:0;
-      let ribs=(r.ribbons||[]).slice(0,6).map(rb=>`<div class="lrib"><small>R${rb}</small>`+[...Array(12)].map((_,p)=>{ const f=(rb-1)*12+p+1, s=res[String(f)]; return `<i class="${f===r.current?"now":s==="straight"?"st":s==="cross"?"cx":s?"nf":""}"></i>`; }).join("")+"</div>").join("");
+      const res=r.results||{}, n=v=>Object.values(res).filter(x=>x===v).length, pct=r.targets?100*r.done/r.targets:0;   /* Brunel.4: "flip" from the relay */
+      let ribs=(r.ribbons||[]).slice(0,6).map(rb=>`<div class="lrib"><small>R${rb}</small>`+[...Array(12)].map((_,p)=>{ const f=(rb-1)*12+p+1, s=res[String(f)]; return `<i class="${f===r.current?"now":s==="straight"?"st":s==="cross"?"cx":s==="flip"?"fl":s?"nf":""}"></i>`; }).join("")+"</div>").join("");
       cards.push(`<button type="button" class="panel lcard" data-go="${esc(r.toneRtu)}" data-tab="e2e"><span class="lchip e2e">E2E Continuity${r.state==="paused"?" · paused":""}</span>
         <div class="ltitle">${esc(cableId(r.stem))} · ${esc(rangeText(r.ribbons))}</div>
         <div class="lwho"><span class="lav" style="background:${avc(r.owner)}">${esc(initials(r.owner))}</span><div><b>${esc(r.owner||"Someone")}</b><div class="note">Tone ${esc(short(r.toneRtu))} → OTDR ${esc(short(r.testRtu))} · started ${hm(r.started)}</div></div></div>
         <div class="lrow"><span class="lbig">${r.done} / ${r.targets}</span><span class="note">about ${mins((r.targets-r.done)*13)} left</span></div>
         <div class="bar"><i style="width:${pct}%"></i></div><div class="lribs">${ribs}</div>
-        <div class="lcounts"><span><b class="k-ok">${n("straight")}</b> straight</span><span><b class="k-cx">${n("cross")}</b> crossed</span><span><b class="k-bad">${n("dis")}</b> DIS</span>${n("unres")?`<span><b class="k-bad">${n("unres")}</b> not found</span>`:""}</div></button>`);
+        <div class="lcounts"><span><b class="k-ok">${n("straight")}</b> straight</span>${n("flip")?`<span><b class="k-fl">${n("flip")}</b> flipped</span>`:""}<span><b class="k-cx">${n("cross")}</b> crossed</span><span><b class="k-bad">${n("dis")}</b> DIS</span>${n("unres")?`<span><b class="k-bad">${n("unres")}</b> not found</span>`:""}</div></button>`);
     });
     uni.forEach(u=>{
       const f=u.fibre||1, p=(f-1)%12, col=IEC[p], pct=u.inScope?100*(u.confirmed+u.dis+u.cross)/u.inScope:0;
@@ -2406,21 +2427,22 @@
       if(H.sel!==r) return;
       if(d.kind==="speed"&&d.speed){ const sp=d.speed, w=sp.withinPct||[];
         box.innerHTML=`<h3 style="margin:14px 0 6px">Speed test</h3><div class="spstats"><div class="spst"><b>${sp.oneGoPct}%</b><span>one go finds it</span></div><div class="spst"><b>${w[1]??"–"}%</b><span>within 2 goes</span></div><div class="spst"><b>${w[2]??"–"}%</b><span>within 3 goes</span></div><div class="spst"><b>${sp.avgGoS??"–"} s</b><span>average go</span></div></div><p class="note">${sp.fibres} fibres, ${sp.goes} goes, tone ${d.settings?.toneS??"?"} s, OTDR ${d.settings?.otdrS??"?"} s.${sp.never&&sp.never.length?" Never lit: "+sp.never.map(fname).join(", ")+".":""}</p>`; return; }
-      const res=d.results||{}, rbs=(d.ribbons&&d.ribbons.length?d.ribbons:[...new Set(Object.keys(res).map(f=>Math.ceil(+f/12)))]).sort((a,b)=>a-b);
+      const res=flipFix(d.results||{}), rbs=(d.ribbons&&d.ribbons.length?d.ribbons:[...new Set(Object.keys(res).map(f=>Math.ceil(+f/12)))]).sort((a,b)=>a-b);
       const cnt=k=>Object.values(res).filter(x=>x.state===k).length;
-      const cls=x=>!x?"":x.state==="straight"?"ok":x.state==="cross"?"cross":x.state==="dis"?"dis":"unres";
-      const word=x=>!x?"Not tested":x.state==="straight"?"Straight":x.state==="cross"?"Crossed to "+fNum(x.found||0):x.state==="dis"?"Dis.":"Not found";
+      const cls=x=>!x?"":x.state==="straight"?"ok":x.state==="cross"?"cross":x.state==="flip"?"flip":x.state==="dis"?"dis":"unres";
+      const word=x=>!x?"Not tested":x.state==="straight"?"Straight":x.state==="cross"?"Crossed to "+fNum(x.found||0):x.state==="flip"?"Flipped, lands on "+fNum(x.found||0):x.state==="dis"?"Dis.":"Not found";
       let g='<div class="rgrid"><span></span>'+[...Array(12)].map((_,i)=>`<span class="hd">${i+1}</span>`).join("")+"<span></span>";
       rbs.forEach(rb=>{ const xs=[...Array(12)].map((_,i)=>{ const f=(rb-1)*12+i+1; return [f,res[String(f)]]; });
-        const bad=xs.filter(([,x])=>x&&x.state!=="straight").length;
-        g+=`<span class="rl">R${rb}</span>`+xs.map(([f,x])=>`<button type="button" class="fc ${cls(x)}" data-rf="${f}" title="${esc(fNum(f)+": "+word(x))}">${f}${x&&x.state==="cross"?`<small>→${x.found||"?"}</small>`:""}</button>`).join("")+`<span class="rs">${bad?bad+" to check":"All straight"}</span>`; });
+        const bad=xs.filter(([,x])=>x&&x.state!=="straight").length, fl=xs.filter(([,x])=>x&&x.state==="flip").length;
+        g+=`<span class="rl">R${rb}</span>`+xs.map(([f,x])=>`<button type="button" class="fc ${cls(x)}" data-rf="${f}" title="${esc(fNum(f)+": "+word(x))}">${f}${x&&(x.state==="cross"||x.state==="flip")?`<small>→${x.found||"?"}</small>`:""}</button>`).join("")+`<span class="rs">${fl&&fl===bad?"Ribbon flipped":bad?bad+" to check":"All straight"}</span>`; });
       g+="</div>";
-      const probs=Object.entries(res).filter(([,x])=>x.state!=="straight").sort((a,b)=>+a[0]-+b[0]);
+      const fr=flippedRibs(res);
+      const probs=[...fr.map(r=>[String((r-1)*12+1),{state:"flipnote",r}]),...Object.entries(res).filter(([,x])=>x.state!=="straight"&&x.state!=="flip")].sort((a,b)=>+a[0]-+b[0]);
       box.innerHTML=`<h3 style="margin:14px 0 6px;font-size:15px">Report</h3>
-        <div class="lvsum"><span class="k">Straight<b>${cnt("straight")}</b></span><span class="k">Crossed<b>${cnt("cross")}</b></span><span class="k">Dis.<b>${cnt("dis")}</b></span><span class="k">Not found<b>${cnt("unres")}</b></span><span class="k">Tested<b>${Object.keys(res).length}${d.targets?" of "+d.targets:""}</b></span></div>
+        <div class="lvsum"><span class="k">Straight<b>${cnt("straight")}</b></span><span class="k">Flipped<b>${cnt("flip")}</b></span><span class="k">Crossed<b>${cnt("cross")}</b></span><span class="k">Dis.<b>${cnt("dis")}</b></span><span class="k">Not found<b>${cnt("unres")}</b></span><span class="k">Tested<b>${Object.keys(res).length}${d.targets?" of "+d.targets:""}</b></span></div>
         <p class="note" style="margin:8px 0">${esc(d.stem.replace(/-R\d+$/,""))} · tone ${esc(short(d.toneRtu))}, OTDR ${esc(short(d.testRtu))}${d.settings&&d.settings.toneS?` · tone ${d.settings.toneS} s, OTDR ${d.settings.otdrS} s`:""}</p>${g}
         <p class="note" id="hRepCell" style="margin:6px 0 0">Click a fibre for what it found.</p>
-        ${probs.length?`<h4 style="margin:12px 0 6px">To check</h4><ul class="fhist">${probs.map(([f,x])=>`<li><span class="t">${fNum(+f)}</span><span>${esc(word(x))}${x.loc?" · "+esc(x.loc):""}</span></li>`).join("")}</ul>`:""}
+        ${probs.length?`<h4 style="margin:12px 0 6px">To check</h4><ul class="fhist">${probs.map(([f,x])=>x.state==="flipnote"?`<li><span class="t">R${x.r}</span><span>Ribbon flipped: 1 lands on 12, 12 on 1</span></li>`:`<li><span class="t">${fNum(+f)}</span><span>${esc(word(x))}${x.loc?" · "+esc(x.loc):""}</span></li>`).join("")}</ul>`:""}
         <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" id="hRepCv">Open in Cable View</button></div>`;
       box.querySelectorAll("[data-rf]").forEach(b=>b.onclick=()=>{ const f=+b.dataset.rf; $("hRepCell").textContent=fNum(f)+" (R"+ribOf(f)+" F"+posOf(f)+"): "+word(res[String(f)]); });
       $("hRepCv").onclick=()=>{ const stem=d.stem; if(FB.stem!==stem){ FB.stem=stem; jset("rft.fib.stem",stem); } setScreen("fibres"); };

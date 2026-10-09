@@ -1,6 +1,6 @@
 // Offline shell. v33: pages come from the network first, so a new version shows on the next open;
 // the cache is only used when there is no signal. Bump CACHE after editing the app.
-const CACHE = "reachtester-brunel.3";
+const CACHE = "reachtester-brunel.4";
 const ASSETS = ["./", "./index.html", "./desktop.html", "./push.js", "./manifest.webmanifest",
                 "./icons/icon-192.png", "./icons/icon-512.png", "./logo.png", "./logo-light.png", "./mark.png", "./neos-logo.svg"];
 self.addEventListener("install", e => {

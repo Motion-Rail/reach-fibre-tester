@@ -273,6 +273,9 @@
   table.ct-g td{width:26px; height:26px; min-width:24px; text-align:center; font-size:.66rem; border-radius:5px; background:var(--surface2);
                 color:var(--muted); border:1px solid transparent; cursor:pointer;}
   table.ct-g td.st{background:var(--done-dim); color:var(--done); border-color:var(--done);}
+  table.ct-g td.fl{background:#E3EBFF; color:#2B55C8; border-color:#6F8EE8; font-weight:800;}
+  :root[data-theme=dark] table.ct-g td.fl{background:rgba(120,150,255,.28); color:#C9D6FF}
+  .ct-stat.fl b{color:#2B55C8} :root[data-theme=dark] .ct-stat.fl b{color:#AFC2FF}
   table.ct-g td.cx{background:var(--cross-dim); color:var(--cross); border-color:var(--cross); font-weight:800;}
   table.ct-g td.nf{background:var(--off-dim); color:var(--off); border-color:var(--off);}
   table.ct-g td.now{outline:2px solid var(--tone); color:var(--tone);}
@@ -699,6 +702,7 @@
         <div class="progress-row"><div class="bar"><i id="ctBar"></i></div><div class="counts mono" id="ctProg">0 / 0</div></div>
         <div class="ct-stats">
           <div class="ct-stat ok"><b class="mono" id="ctNStraight">0</b><span>Straight</span></div>
+          <div class="ct-stat fl" style="display:none"><b class="mono" id="ctNFlip">0</b><span>Flipped</span></div>
           <div class="ct-stat cx"><b class="mono" id="ctNCross">0</b><span>Crossed</span></div>
           <div class="ct-stat nf"><b class="mono" id="ctNDis">0</b><span>DIS</span></div>
           <div class="ct-stat nf"><b class="mono" id="ctNUnres">0</b><span>Not found</span></div>
@@ -931,8 +935,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="Brunel.3";   /* Brunel: releases named after railway engineers */
+const APP_VERSION="Brunel.4";   /* Brunel: releases named after railway engineers */
 const APP_VERSIONS=[
+  ["Brunel.4","9 Oct 2026","E2E Continuity spots a flipped ribbon (1 to 12, 12 to 1): two pairs proven both ways plus one random pair to confirm, then the ribbon is called Flipped, instead of testing every fibre as a cross. Older runs read as Flipped too."],
   ["Brunel.3","9 Oct 2026","The full FMS report can now be run from the desktop console (Reports). No change on the phone."],
   ["Brunel.2","9 Oct 2026","E2E tone is now 10 s by default: FMS starts the OTDR late, so a 4 s tone had often ended. Runs are quicker overall."],
   ["Brunel.1","9 Oct 2026","Small update: the E2E speed test times each whole go, including rechecks."],
@@ -1747,6 +1752,16 @@ let crosses={};                              // index -> "crossed with ..."
   let ends=null;          // {stem, a:{rtuName,rtuId,site,online}, b:{...}}
   let ribbons=new Set(jget(LASTKEY,{}).ribbons||[1]);
   let jobId=jget(JOBKEY,""), snap=null, pollT=null;
+  /* Brunel.4: 1 to 12, 12 to 1 is a flipped ribbon, not 12 crosses (older runs reread the same way as Cable View) */
+  function flipFix(s){
+    const res=s&&s.results; if(!res) return s; const pairs={}, hit={};
+    Object.entries(res).forEach(([k,v])=>{ const f=+k, g=+(v&&v.found||0); if(!v||v.state!=="cross"||!g||Math.ceil(f/12)!==Math.ceil(g/12)) return;
+      const p=(f-1)%12+1, q=(g-1)%12+1; if(q!==13-p) return; const r=Math.ceil(f/12); (pairs[r]=pairs[r]||new Set()).add(Math.min(p,q)); (hit[r]=hit[r]||[]).push(k); });
+    Object.keys(hit).forEach(r=>{ if(pairs[r].size>=2) hit[r].forEach(k=>{ res[k]={...res[k],state:"flip"}; }); });
+    const c=s.counts=s.counts||{}; ["straight","cross","flip","dis","unres"].forEach(k=>c[k]=Object.values(res).filter(v=>v.state===k).length);
+    return s;
+  }
+  const flippedRibs=res=>[...new Set(Object.entries(res||{}).filter(([,v])=>v.state==="flip").map(([k])=>Math.ceil(+k/12)))].sort((a,b)=>a-b);
 
   function relayCfg(){ return {relay:DEFAULT_RELAY, key:DEFAULT_KEY}; }   // v22: fixed, no user setting
   async function relay(path, body){
@@ -1941,7 +1956,7 @@ let crosses={};                              // index -> "crossed with ..."
   async function poll(){
     stopPoll();
     try{
-      snap=await relay("/api/continuity/status",{jobId});
+      snap=flipFix(await relay("/api/continuity/status",{jobId}));
       render();
       if(snap.state==="running"||snap.state==="paused"){
         pollT=setTimeout(poll, document.hidden?15000:3000);
@@ -1963,7 +1978,7 @@ let crosses={};                              // index -> "crossed with ..."
   const autoResumed={}, lastState={};
   function notifyEnd(s){
     const c=s.counts||{}, title=cableId(s.stem)+" "+rangeText(s.ribbons)+": "+({done:"complete",stopped:"stopped",error:"failed"}[s.state]||s.state);
-    const body=c.straight+" straight, "+c.cross+" crossed, "+(c.dis||0)+" DIS. "+mins((s.ended||s.now)-s.started)+".";
+    const body=c.straight+" straight, "+(c.flip?c.flip+" flipped, ":"")+c.cross+" crossed, "+(c.dis||0)+" DIS. "+mins((s.ended||s.now)-s.started)+".";
     try{ if(window.Notification && Notification.permission==="granted"){
       navigator.serviceWorker && navigator.serviceWorker.ready.then(r=>r.showNotification(title,{body, icon:"icons/icon-192.png", tag:"run-"+s.id}))
         .catch(()=>new Notification(title,{body})); } }catch(e){}
@@ -1991,7 +2006,7 @@ let crosses={};                              // index -> "crossed with ..."
     if(s.simulate) $("ctSimTag").textContent="Simulation, no light"+(s.truthNotes&&s.truthNotes.length?" · planted: "+s.truthNotes.join("; "):"");
     $("ctBar").style.width=(s.targets?100*s.done/s.targets:0)+"%";
     $("ctProg").textContent=s.done+" / "+s.targets;
-    $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNUnres").textContent=s.counts.unres; $("ctNUnres").parentElement.style.display=s.counts.unres?"":"none"; $("ctSub").textContent=cableId(s.stem); $("ctNDis").textContent=s.counts.dis||0;
+    $("ctNStraight").textContent=s.counts.straight; $("ctNCross").textContent=s.counts.cross; $("ctNFlip").textContent=s.counts.flip||0; $("ctNFlip").parentElement.style.display=s.counts.flip?"":"none"; $("ctNUnres").textContent=s.counts.unres; $("ctNUnres").parentElement.style.display=s.counts.unres?"":"none"; $("ctSub").textContent=cableId(s.stem); $("ctNDis").textContent=s.counts.dis||0;
     $("ctNTests").textContent=s.tests;
     $("ctElapsed").textContent=mins(((s.ended||s.now)-s.started));
     const cand=s.candidate||s.current;
@@ -2038,7 +2053,7 @@ let crosses={};                              // index -> "crossed with ..."
       for(let p=1;p<=PER;p++){
         const f=(r-1)*PER+p, v=res[f];
         let cls="", txt=String(f).padStart(3,"0");     // v19: fibre ID, not position
-        if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":"nf"; if(v.state==="cross") txt=String(v.found).padStart(3,"0"); if(v.state==="dis") txt="DIS"; if(v.state==="unres") txt="?"; }
+        if(v){ cls=v.state==="straight"?"st":v.state==="cross"?"cx":v.state==="flip"?"fl":"nf"; if(v.state==="cross"||v.state==="flip") txt=String(v.found).padStart(3,"0"); if(v.state==="dis") txt="DIS"; if(v.state==="unres") txt="?"; }
         if(s.state==="running"&&s.current===f) cls+=" now";
         if(s.state==="running"&&s.candidate===f&&s.current!==f) cls+=" cand";
         h+='<td class="'+cls+'" data-f="'+f+'">'+txt+'</td>';
@@ -2051,6 +2066,7 @@ let crosses={};                              // index -> "crossed with ..."
       $("ctCellInfo").textContent = !v ? fname(f)+" "+rpl(f)+", not tested yet."
         : v.state==="straight" ? fname(f)+" "+rpl(f)+" is straight through ("+v.tests+" test"+(v.tests>1?"s":"")+")."
         : v.state==="cross" ? fname(f)+" "+rpl(f)+" lands on "+fname(v.found)+" "+rpl(v.found)+" at the far end ("+v.why+", "+v.tests+" tests)."
+        : v.state==="flip" ? fname(f)+" "+rpl(f)+" is in a flipped ribbon: it lands on "+fname(v.found)+" "+rpl(v.found)+" ("+(v.why||"flipped ribbon")+")."
         : v.state==="dis" ? fname(f)+" "+rpl(f)+" is DIS: "+(v.loc? "the fibre "+v.loc.text+(v.loc.method?" ["+v.loc.method+"]":"")+"." : v.why+" ("+v.tests+" tests).")
         : fname(f)+" "+rpl(f)+" was not found in "+v.tests+" tests. Check it with the toner.";
     });
@@ -2061,7 +2077,7 @@ let crosses={};                              // index -> "crossed with ..."
       if(v.state==="cross") cr.push(fname(f)+" ("+rpl(f)+") lands on "+fname(v.found)+" ("+rpl(v.found)+")");
       if(v.state==="unres") nf.push(fname(f)+" ("+rpl(f)+")");
       if(v.state==="dis") ds.push(fname(f)+" ("+rpl(f)+")"+(v.loc?": "+v.loc.text:"")); });
-    const pats=(snap.patterns||[]).filter(p=>p.hits>=2).map(p=>p.label.charAt(0).toUpperCase()+p.label.slice(1)+", seen on "+p.hits+" fibres");
+    const pats=flippedRibs(res).map(r=>"R"+r+" flipped: 1 lands on 12, 12 on 1. Swap the ribbon over at one end; no need to chase each fibre").concat((snap.patterns||[]).filter(p=>p.hits>=2&&!/reversed$/.test(p.label)).map(p=>p.label.charAt(0).toUpperCase()+p.label.slice(1)+", seen on "+p.hits+" fibres"));
     return {cr,nf,ds,pats};
   }
   function findings(){
@@ -2117,7 +2133,7 @@ let crosses={};                              // index -> "crossed with ..."
     return ["Reach Fibre Tester - E2E continuity report"+(s.simulate?" (SIMULATION, no light)":""),
       "Cable: "+cableId(s.stem), "Tone from: "+s.toneRtu, "OTDR from: "+s.testRtu, "Ribbons: "+rangeText(s.ribbons),
       "Started: "+new Date(s.started*1000).toLocaleString("en-GB")+(s.ended?"  Ended: "+new Date(s.ended*1000).toLocaleString("en-GB"):""),
-      "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+", crossed "+s.counts.cross+", DIS "+(s.counts.dis||0)+", not found "+s.counts.unres+". Tests "+s.tests+". Time "+mins((s.ended||s.now)-s.started)+".",
+      "Result: "+s.done+" of "+s.targets+" checked. Straight "+s.counts.straight+(s.counts.flip?", flipped "+s.counts.flip+" ("+flippedRibs(s.results).map(r=>"R"+r).join(", ")+")":"")+", crossed "+s.counts.cross+", DIS "+(s.counts.dis||0)+", not found "+s.counts.unres+". Tests "+s.tests+". Time "+mins((s.ended||s.now)-s.started)+".",
       "Versions: app "+(s.appVersion||APP_VERSION)+", relay "+(s.relayVersion||"?"),
       "", "Crossed:", ...(cr.length?cr:["None"]), "", "DIS:", ...(ds.length?ds:["None"]), "", "Not found:", ...(nf.length?nf:["None"]),
       ...(pats.length?["","Patterns:",...pats]:[]),
@@ -2127,7 +2143,7 @@ let crosses={};                              // index -> "crossed with ..."
     const rows=[["Cable","Fibre","Ribbon","Position","Result","Far end fibre","Far end ribbon","Far end position","How found","Tests","DIS distance (m)","DIS measured from","DIS location"]];
     const res=snap.results||{};
     Object.keys(res).map(Number).sort((a,b)=>a-b).forEach(f=>{ const v=res[f], a=rp(f), b=v.found?rp(v.found):null;
-      rows.push([snap.stem,fname(f),a.r,a.p,v.state==="straight"?"Straight":v.state==="cross"?"Crossed":v.state==="dis"?"DIS":"Not found",
+      rows.push([snap.stem,fname(f),a.r,a.p,v.state==="straight"?"Straight":v.state==="cross"?"Crossed":v.state==="flip"?"Flipped":v.state==="dis"?"DIS":"Not found",
                  v.found?fname(v.found):"",b?b.r:"",b?b.p:"",'"'+String(v.why).replace(/"/g,"'")+'"',v.tests,
                  v.loc?v.loc.distM:"", v.loc?v.loc.from:"", v.loc?'"'+String(v.loc.text).replace(/"/g,"'")+'"':""]); });
     return rows.map(r=>r.join(",")).join("\r\n");
@@ -2158,7 +2174,7 @@ let crosses={};                              // index -> "crossed with ..."
     kv("Run by",(jget("toneTester.session",{})||{}).user||""); kv("Settings","Tone 1550 nm"+((s.settings||{}).freqHz?" "+(s.settings||{}).freqHz+" Hz":"")+", "+(s.pace?s.pace.toneS:(s.settings||{}).toneS)+" s  |  OTDR "+((s.settings||{}).otdrS||"")+" s"+(s.pace&&s.pace.auto?"  |  auto pacing":""));
     kv("Time taken",mins((s.ended||s.now)-s.started)); kv("Versions","App "+(s.appVersion||APP_VERSION)+"  |  Relay "+(s.relayVersion||"?"));
     h2("Result");
-    kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); kv("Crossed",String(s.counts.cross)); kv("DIS",String(s.counts.dis||0)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
+    kv("Checked",s.done+" of "+s.targets); kv("Straight",String(s.counts.straight)); if(s.counts.flip) kv("Flipped",String(s.counts.flip)+" ("+flippedRibs(s.results).map(r=>"R"+r).join(", ")+")"); kv("Crossed",String(s.counts.cross)); kv("DIS",String(s.counts.dis||0)); kv("Not found",String(s.counts.unres)); kv("Tests used",String(s.tests));
     h2("Crossed fibres"); if(cr.length) cr.forEach(c=>para("-  "+c)); else para("None");
     h2("DIS"); { const dl=lists().ds; if(dl.length) dl.forEach(d=>para("-  "+d)); else para("None"); }
     h2("Not found"); para(nf.length?nf.join(", "):"None");
@@ -2166,7 +2182,7 @@ let crosses={};                              // index -> "crossed with ..."
     h2("Map, far end fibre per position");
     const res=s.results||{};
     s.ribbons.forEach(r=>{ const cells=[]; for(let p=1;p<=PER;p++){ const f=(r-1)*PER+p, v=res[f];
-      cells.push(!v?"  .":v.state==="straight"?String(p).padStart(3," "):v.state==="cross"?"["+String(v.found).padStart(3,"0")+"]":v.state==="dis"?"DIS":"  ?"); }
+      cells.push(!v?"  .":v.state==="straight"?String(p).padStart(3," "):v.state==="cross"?"["+String(v.found).padStart(3,"0")+"]":v.state==="flip"?"<"+String(v.found).padStart(3,"0")+">":v.state==="dis"?"DIS":"  ?"); }
       page(); doc.setFont("courier","normal"); doc.setFontSize(8); doc.setTextColor(20); doc.text("R"+String(r).padStart(2,"0")+"  "+cells.join(" "),L,y); y+=4.4; });
     y+=2; para("Key: number = straight at that position; [nnn] = crossed, lands on far end fibre nnn; DIS = no light at the far end; ? = not found; . = not tested.");
     h2("Method");
