@@ -931,8 +931,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="Brunel";   /* Brunel: releases named after railway engineers */
+const APP_VERSION="Brunel.1";   /* Brunel: releases named after railway engineers */
 const APP_VERSIONS=[
+  ["Brunel.1","9 Oct 2026","Small update: the E2E speed test times each whole go, including rechecks."],
   ["Brunel","9 Oct 2026","Releases are now named after great railway engineers. E2E continuity retries a fibre that does not light at the same short settings (tone 4 s, OTDR 1 s), up to 3 goes, instead of stepping up to a 20 s tone, so runs are much quicker."],
   ["v41","8 Oct 2026","Keep me signed in: tick it when you sign in and the app stays signed in on this phone for up to 30 days. Sign out ends it. Needs service v37."],
   ["v40","8 Oct 2026","Stay signed in: a relay update or restart no longer signs you out. Needs service v36."],

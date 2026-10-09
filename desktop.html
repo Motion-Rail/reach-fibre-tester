@@ -1107,6 +1107,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel.1 (9 Oct 2026)</h3>
+      <ul><li>E2E speed test: the average go now times the whole go, including the recheck when FMS starts the OTDR late, so it shows the real pace.</li></ul>
       <h3>Brunel (9 Oct 2026)</h3>
       <ul><li>E2E Continuity: a fibre that does not light is tried again at the same short settings (tone 4 s, OTDR 1 s), up to 3 goes, instead of stepping up to a 20 s tone. Goes per fibre is under Pace (advanced).</li><li>E2E speed test: tries every fibre of the chosen ribbons 5 times and reports how often one go finds it and how long a go takes, so the settings can be tuned. Nothing is recorded on the cable.</li><li>E2E ribbons: All or Clear, and chosen ribbons stand out in dark mode.</li><li>Cable View: Test this fibre opens a pop out with Real Time from either end and a Single Test (OTDR with its measure time, or iOLM with its setup and wavelengths). Ends are named by place (Reading, Swindon) once the cable is chosen. The To check list is a table under the fibres. Find a fibre and the simple cable report are gone; the full FMS report comes next.</li><li>Bulk Test: chosen options are coloured, the comment says when both ends are tested, the check before starting is a themed box in the middle of the screen, and a running Task can show its fibres (Show fibres).</li><li>Tone Test: Mark an issue with Dis., Crossed, Flipped (ribbon reversed) and Note, all the same size with a key.</li><li>OTDR trace: each event has a short marker above the trace instead of a line down the whole chart.</li></ul>
       <h3>v47 (9 Oct 2026)</h3>
@@ -1224,7 +1226,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel.1";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}

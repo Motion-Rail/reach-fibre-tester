@@ -1040,3 +1040,12 @@ gives `version: "Brunel"` and `build: 40` (the build number keeps counting for c
 - OTDR trace: short event markers above the trace.
 - Phone: version Brunel; the pacing tick box is now "Retry missed fibres at the same short settings (3 goes)".
 - Next (Brunel.1): the full FMS puller report in the app, under Tools.
+
+## Brunel.1 (desktop, phone and relay) — 9 October 2026
+
+- E2E speed test: each go is timed in full (tone, OTDR and any recheck after a late FMS start). The first live speed
+  test (Reading to Swindon R1, 9 Oct) showed "average go 5.6 s" while the real pace was about 10 s, because only the
+  last attempt was timed. Relay `/health` version Brunel.1, build 41.
+- Live result recorded: 90% lit on the first go, 100% within 2 goes, so 3 goes is enough; a normal run moves on as
+  soon as a fibre lights. 22 of 60 goes had FMS start the OTDR 10 to 16 s after the tone.
+- The full FMS puller report moves to Brunel.2.
