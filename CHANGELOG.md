@@ -1049,3 +1049,14 @@ gives `version: "Brunel"` and `build: 40` (the build number keeps counting for c
 - Live result recorded: 90% lit on the first go, 100% within 2 goes, so 3 goes is enough; a normal run moves on as
   soon as a fibre lights. 22 of 60 goes had FMS start the OTDR 10 to 16 s after the tone.
 - The full FMS puller report moves to Brunel.2.
+
+## Brunel.2 (desktop, phone and relay) — 9 October 2026
+
+- Desktop console: no tab bar. A tool from the Tools menu shows only that test, with its name as the heading
+  (E2E Continuity, Tone Test, Bulk Test). If none is chosen, a small "Pick a test" panel. Test hook `rftTool(name)`.
+- Tasks on the chosen RTU moved to the left panel under Cables and RTUs (`#pane-tasks`, `#taskCount`, `#tasks`), with
+  Show fibres (colour squares, number on hover) and Cancel. Starting a Bulk Test no longer jumps away from the form.
+- E2E default tone 10 s (relay `default_tone_s`, desktop and phone). Live on 9 Oct, Reading to Swindon R1: tone 4 s took
+  3 min 24 s for 12 fibres with 9 late FMS start rechecks (FMS started the OTDR 9 to 14 s after the tone call); tone 10 s
+  took 2 min 58 s including a 21 s FMS blip, no rechecks, about 13 s a fibre. Full 432 cable about 1 h 35 min.
+- Relay `/health` version Brunel.2, build 42. The full FMS puller report moves to Brunel.3.

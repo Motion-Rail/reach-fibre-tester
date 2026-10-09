@@ -669,7 +669,7 @@
       <details class="ct-panel ct-adv" id="ctAdv">
         <summary>Advanced</summary>
         <div class="ct-row" style="margin-top:10px;">
-          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="4"></div>
+          <div><label class="fld" for="ctToneS" style="margin-top:0">Tone seconds</label><input id="ctToneS" type="number" min="4" max="20" value="10"></div>
           <div><label class="fld" for="ctOtdrS" style="margin-top:0">OTDR seconds</label><input id="ctOtdrS" type="number" min="1" max="30" value="1"></div>
         </div>
         <label class="ct-check"><input type="checkbox" id="ctAuto" checked> Retry missed fibres at the same short settings (3 goes)</label>
@@ -931,8 +931,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="Brunel.1";   /* Brunel: releases named after railway engineers */
+const APP_VERSION="Brunel.2";   /* Brunel: releases named after railway engineers */
 const APP_VERSIONS=[
+  ["Brunel.2","9 Oct 2026","E2E tone is now 10 s by default: FMS starts the OTDR late, so a 4 s tone had often ended. Runs are quicker overall."],
   ["Brunel.1","9 Oct 2026","Small update: the E2E speed test times each whole go, including rechecks."],
   ["Brunel","9 Oct 2026","Releases are now named after great railway engineers. E2E continuity retries a fibre that does not light at the same short settings (tone 4 s, OTDR 1 s), up to 3 goes, instead of stepping up to a 20 s tone, so runs are much quicker."],
   ["v41","8 Oct 2026","Keep me signed in: tick it when you sign in and the app stays signed in on this phone for up to 30 days. Sign out ends it. Needs service v37."],
@@ -1884,7 +1885,7 @@ let crosses={};                              // index -> "crossed with ..."
   $("ctToneS").addEventListener("change",estimate);
   function mins(s){ s=Math.max(0,Math.round(s)); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
     return (h? h+" h ":"")+(h||m? m+" min ":"")+sec+" sec"; }
-  const DEF={toneS:4, otdrS:1};    // v39: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz (was 10 s / 3 s CW)
+  const DEF={toneS:10, otdrS:1};   // Brunel.2: 10 s tone (FMS starts the OTDR 9 to 16 s late)    // v39: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz (was 10 s / 3 s CW)
   $("ctResetAdv").onclick=()=>{ $("ctToneS").value=DEF.toneS; $("ctOtdrS").value=DEF.otdrS; $("ctAuto").checked=true;
     jset(LASTKEY,{...jget(LASTKEY,{}), adv:false}); estimate(); };
 

@@ -252,6 +252,16 @@
   h1.rtuname{margin:4px 0 2px;font-size:30px;font-weight:500;letter-spacing:-.015em;display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums}
   .panel{background:var(--surface);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow)}
   .panel h2{margin:0 0 14px;font-size:16px;font-weight:600;letter-spacing:-.005em}
+  .tooltitle{margin:4px 0 0;font-size:20px}
+  .tooltitle:empty{display:none}
+  .sidetasks{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .sidetasks .sect{display:flex;gap:6px;align-items:center}
+  .sidetasks #tasks{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .sidetasks .task{padding:10px;gap:6px;font-size:12.5px}
+  .sidetasks .task .btn{min-height:30px;padding:4px 10px;font-size:12.5px}
+  .sidetasks .tfr{grid-template-columns:28px repeat(12,minmax(0,1fr));gap:2px}
+  .sidetasks .tfc{min-width:0;height:14px;font-size:0}   /* numbers on hover; the row says the ribbon */
+  .sidetasks details.tfib summary{font-size:12px}
   .tabs{display:inline-flex;gap:2px;flex-wrap:wrap;background:var(--soft2);border-radius:8px;padding:3px;align-self:flex-start}
   .tabs button{background:none;border:0;border-radius:6px;padding:8px 18px;min-height:38px;cursor:pointer;color:var(--muted);font-weight:600;transition:background .15s,color .15s}
   .tabs button:hover{color:var(--ink)}
@@ -730,6 +740,11 @@
         <span><span class="dot off"></span>Offline</span>
         <span><span class="dot idle"></span>Checking</span>
       </div>
+      <section class="sidetasks" id="pane-tasks" aria-live="polite">
+        <div class="sect">Tasks on <span id="sideRtu">this RTU</span> <span class="count" id="taskCount">0</span></div>
+        <div id="tasks" class="note">Loading…</div>
+        <div id="cancelledList"></div>
+      </section>
     </aside>
 
     <main id="screen-live" hidden>
@@ -761,18 +776,18 @@
         <div class="note" id="rtuState"></div>
         <button class="btn" id="freeBtn" type="button" hidden style="margin-top:8px">Tell me when free</button>
       </div>
-      <div class="tabs" role="tablist" aria-label="Modules for this RTU">
-        <button role="tab" id="tab-tasks" aria-controls="pane-tasks" data-tab="tasks">Tasks<span class="count" id="taskCount">0</span></button>
+      <h2 class="tooltitle" id="toolTitle"></h2>
+      <div class="tabs" role="tablist" aria-label="Modules for this RTU" hidden>
+        <button role="tab" id="tab-tasks" data-tab="tasks">Tasks</button>
         <button role="tab" id="tab-bulk" aria-controls="pane-bulk" data-tab="bulk">Bulk Test</button>
         <button role="tab" id="tab-e2e" aria-controls="pane-e2e" data-tab="e2e">E2E Continuity</button>
         <button role="tab" id="tab-uni" aria-controls="pane-uni" data-tab="uni">Tone (Uni-dir)</button>
       </div>
 
-      <section class="panel" role="tabpanel" id="pane-tasks" aria-labelledby="tab-tasks" aria-live="polite">
-        <h2>Bulk Tasks on this RTU</h2>
-        <div id="tasks" class="note">Loading…</div>
-        <p class="note" style="margin:12px 0 0">Only bulk Tasks show here. Cancelled Tasks stay in Run history.</p>
-        <div id="cancelledList"></div>
+      <section class="panel" id="toolPick" hidden>
+        <h2>Pick a test</h2>
+        <p class="note" style="margin:0 0 12px">Bulk Tasks running on this RTU are on the left, under Cables and RTUs.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" type="button" data-pick="e2e">E2E Continuity</button><button class="btn primary" type="button" data-pick="uni">Tone Test</button><button class="btn primary" type="button" data-pick="bulk">Bulk Test</button></div>
       </section>
 
       <section role="tabpanel" id="pane-bulk" aria-labelledby="tab-bulk" hidden>
@@ -878,7 +893,7 @@
               <div class="note" id="eRibSum" style="margin-top:8px"></div>
               <details style="margin-top:12px"><summary style="cursor:pointer;min-height:32px">Pace (advanced)</summary>
                 <div class="row" style="margin-top:10px">
-                  <label class="f">Tone (s)<input type="number" id="eToneS" min="4" max="20" value="4" style="width:100px"></label>
+                  <label class="f">Tone (s)<input type="number" id="eToneS" min="4" max="20" value="10" style="width:100px"></label>
                   <label class="f">OTDR (s)<input type="number" id="eOtdrS" min="1" max="30" value="1" style="width:100px"></label>
                   <label class="f">Goes per fibre<input type="number" id="eTries" min="1" max="5" value="3" style="width:100px"></label>
                   <button class="btn" type="button" id="eResetAdv">Proven defaults</button>
@@ -1107,6 +1122,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel.2 (9 Oct 2026)</h3>
+      <ul><li>Tools: the page shows only the test you picked (E2E Continuity, Tone Test or Bulk Test); the tab bar is gone.</li><li>Tasks running on the chosen RTU sit in the left panel under Cables and RTUs, with Show fibres and Cancel.</li><li>E2E tone is now 10 s by default. On 9 Oct a 4 s tone ended before FMS started the OTDR on 9 of 12 fibres (17 s a fibre); 10 s needed no rechecks (about 13 s a fibre).</li></ul>
       <h3>Brunel.1 (9 Oct 2026)</h3>
       <ul><li>E2E speed test: the average go now times the whole go, including the recheck when FMS starts the OTDR late, so it shows the real pace.</li></ul>
       <h3>Brunel (9 Oct 2026)</h3>
@@ -1226,7 +1243,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel.1";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel.2";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1504,15 +1521,21 @@
     }
   }
   document.addEventListener("click",e=>{ const b=e.target.closest("[data-act]"); if(b) doAct(b.dataset.act,b.dataset); });
+  /* Brunel.2: no tab bar. The page shows only the test you picked; Tasks on this RTU live in the left panel. */
+  const TOOLNAME={bulk:"Bulk Test", e2e:"E2E Continuity", uni:"Tone Test"};
   function showTab(t){
+    if(t==="tasks"){ refreshTasks&&refreshTasks(true); if(TOOLNAME[tab]&&screen==="console"&&!$("pane-"+tab).hidden){ setScreen("console"); return; } }
     tab=t; jset("rft.desktop.tab",t);
     document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
-    ["tasks","bulk","e2e","uni"].forEach(k=>$("pane-"+k).hidden=k!==t);
+    ["bulk","e2e","uni"].forEach(k=>$("pane-"+k).hidden=k!==t);
+    $("toolPick").hidden=!!TOOLNAME[t]; $("toolTitle").textContent=TOOLNAME[t]||"";
     if(t==="e2e"||t==="uni") loadFrame(t,false);
     if(t==="bulk") renderBulk();
     setScreen("console");
   }
   document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+  document.querySelectorAll("#toolPick [data-pick]").forEach(b=>b.onclick=()=>showTab(b.dataset.pick));
+  window.rftTool=t=>{ menusClose(); screen="console"; showTab(t); };
   let moduleFor={};
   function loadFrame(kind, force){          // v32: native panes (name kept from v29)
     const key=selected+"|"+kind;
@@ -1525,7 +1548,7 @@
   function renderMain(){
     const cab=cableOf(selected), site=cab?cab.rtus.find(r=>r[1]===selected)[0]:"", L=light(selected), st=rtuState[selected];
     $("crumb").textContent=cab?`${cab.name} · ${placeOf(selected)} end`:"";
-    $("rtuName").textContent=short(selected); $("rtuName").title=selected; $("rtuDot").className="dot "+L.dot; $("rtuDot").setAttribute("aria-label",L.word);
+    $("rtuName").textContent=short(selected); $("rtuName").title=selected; $("sideRtu").textContent=short(selected); $("rtuDot").className="dot "+L.dot; $("rtuDot").setAttribute("aria-label",L.word);
     $("rtuState").textContent=st?(st.found?nice(L.word):"Not found in FMS"):"Checking FMS…";
     paintFree(L);
     const ts=tasksFor(selected);
@@ -1534,7 +1557,7 @@
     const cx=(tasksData&&tasksData.cancelled||[]).filter(c=>(id&&String(c.rtuId)===id)||c.rtuName===selected).slice(0,5);
     $("cancelledList").innerHTML=cx.length?"<h2 style='margin:16px 0 6px;font-size:14px'>Cancelled recently</h2>"+cx.map(c=>`<div class="note">${new Date(c.cancelled*1000).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})} · ${esc(c.taskKind)} · ${esc(nice(c.owner))}'s Task cancelled by ${esc(nice(c.by))} · ${c.doneBefore} of ${c.total} done</div>`).join(""):"";
     if(ts==null){ $("tasks").innerHTML="<span class='note'>Loading…</span>"; return; }
-    if(!ts.length){ $("tasks").innerHTML="<div class='note'>Idle. No bulk Tasks running or queued on this RTU.</div>"; return; }
+    if(!ts.length){ $("tasks").innerHTML="<div class='note'>None running or queued.</div>"; return; }
     $("tasks").innerHTML=(ts.length>1?`<div class="note">FMS runs these together, one fibre at a time.</div>`:"")+ts.map(t=>{
       const pct=t.total?Math.round(100*t.done/t.total):0, left=t.total-t.done, who=nice(t.owner);
       const chip=t.testing?"Running":"Waiting";
@@ -1689,7 +1712,7 @@
     const ok=await ask("Start Bulk Test?", `FMS check passed: all ${p.fibres} fibres found on ${site} (${cableId(stem())}).\n\n${what}\n${p.tasks} FMS Task${p.tasks>1?"s":""}, about ${hms(p.estimateS)}.${busyTxt}\n\nComment: ${payload().comment}`, "Start now");
     if(!ok){ renderBulkSide(); return; }
     $("bStart").textContent="Starting…";
-    try{ const r=await relay("/api/bulk/start",payload()); toast(`Started ${r.ids.length} FMS Task${r.ids.length>1?"s":""}. Follow it in the Tasks tab.`); showTab("tasks"); refreshTasks(true); }
+    try{ const r=await relay("/api/bulk/start",payload()); toast(`Started ${r.ids.length} FMS Task${r.ids.length>1?"s":""}. It shows on the left under Tasks.`); refreshTasks(true); }
     catch(e){ if(!quiet(e)) toast("Not started: "+e.message); }
     renderBulkSide();
   };
@@ -1709,8 +1732,8 @@
     $("bStart").textContent=dl?"Scheduling…":"Starting…";
     try{
       const ra=await relay("/api/bulk/start",A); const rb=Bp?await relay("/api/bulk/start",Bp):null;
-      toast(dl?`Scheduled for ${hm(ra.at)}${Bp?" from both ends":""}. It shows under the Start button until then.`:`Started from ${Bp?"both ends":placeOf(selected)}. Follow it in Running now.`);
-      if(!dl){ showTab("tasks"); refreshTasks(true); }
+      toast(dl?`Scheduled for ${hm(ra.at)}${Bp?" from both ends":""}. It shows under the Start button until then.`:`Started from ${Bp?"both ends":placeOf(selected)}. It shows on the left under Tasks.`);
+      if(!dl) refreshTasks(true);
     }catch(e){ if(!quiet(e)) toast("Not started: "+e.message); }
     renderBulkSide(); paintSched(true);
   }
@@ -1757,7 +1780,7 @@
 
   // ── E2E Continuity ──
   const E={tone:"", test:"", stem:"", ribbons:new Set(jget("rft.desktop.e2eRibs",[1])), jobId:"", snap:null, pollT:null, last:{}, notified:{}};
-  const EDEF={toneS:4, otdrS:1, tries:3};   /* Brunel: up to 3 short goes, no long tone */   /* v42: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz */
+  const EDEF={toneS:10, otdrS:1, tries:3};   /* Brunel.2: 10 s tone, FMS starts the OTDR late */   /* Brunel: up to 3 short goes, no long tone */   /* v42: EXFO best results: tone 4 s, OTDR 1 s, 1550 nm, 330 Hz */
   (function buildERibs(){
     $("eRibs").innerHTML=[...Array(NRIB)].map((_,i)=>`<button type="button" data-er="${i+1}" title="Ribbon ${i+1}, fibres ${fname(i*12+1)}-${fname(i*12+12)}">${i+1}</button>`).join("");
     $("eRibs").querySelectorAll("[data-er]").forEach(b=>b.onclick=()=>{ const r=+b.dataset.er; E.ribbons.has(r)?E.ribbons.delete(r):E.ribbons.add(r); eSetupPaint(); });
