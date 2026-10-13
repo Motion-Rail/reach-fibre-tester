@@ -935,8 +935,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="Brunel.4";   /* Brunel: releases named after railway engineers */
+const APP_VERSION="Brunel.5";   /* Brunel: releases named after railway engineers */
 const APP_VERSIONS=[
+  ["Brunel.5","13 Oct 2026","Desktop console only: Network Rail logo next to the Neos logo. No change on the phone."],
   ["Brunel.4","9 Oct 2026","E2E Continuity spots a flipped ribbon (1 to 12, 12 to 1): two pairs proven both ways plus one random pair to confirm, then the ribbon is called Flipped, instead of testing every fibre as a cross. Older runs read as Flipped too."],
   ["Brunel.3","9 Oct 2026","The full FMS report can now be run from the desktop console (Reports). No change on the phone."],
   ["Brunel.2","9 Oct 2026","E2E tone is now 10 s by default: FMS starts the OTDR late, so a 4 s tone had often ended. Runs are quicker overall."],

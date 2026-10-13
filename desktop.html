@@ -88,6 +88,7 @@
   .mdd.right{left:auto;right:0}
   .mdd.mshort{min-width:200px}
   header .neoslogo{height:20px;margin-left:4px}
+  header .nrlogo{height:22px;margin-left:10px}
   :root[data-look=glass][data-theme=dark] header .neoslogo{filter:brightness(0) invert(1) opacity(.92)}
   :root[data-look=glass] .mdd{background:rgba(255,255,255,.98);backdrop-filter:blur(14px)}
   :root[data-look=glass][data-theme=dark] .mdd{background:rgba(24,22,48,.98)}
@@ -660,7 +661,7 @@
 
 <section id="signin" class="center" hidden>
   <form class="card" id="loginForm" autocomplete="on">
-    <div class="brandrow"><img src="logo.png" alt="Motion"><img src="neos-logo.svg" alt="Neos Networks"></div>
+    <div class="brandrow"><img src="logo.png" alt="Motion"><img src="neos-logo.svg" alt="Neos Networks"><img src="nr-logo.png" alt="Network Rail"></div>
     <h1>Reach Fibre Tester</h1>
     <p>Desktop console. Sign in with your FMS account.</p>
     <label class="f" for="user">FMS username (email)<input id="user" type="email" autocomplete="username" required></label>
@@ -712,6 +713,7 @@
         <div class="mfoot" id="meVer"></div>
       </div></div>
     <img class="neoslogo" src="neos-logo.svg" alt="Neos Networks">
+    <img class="neoslogo nrlogo" src="nr-logo.png" alt="Network Rail">
   </header>
   <dialog class="pickdlg" id="pickDlg" aria-labelledby="pickTitle"><form method="dialog">
     <h2 id="pickTitle">Which cable?</h2><p class="note" id="pickSub" style="margin:0 0 12px"></p>
@@ -1191,6 +1193,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel.5 (13 Oct 2026)</h3>
+      <ul><li>Network Rail logo next to the Neos logo, at the top right and on the sign in screen.</li></ul>
       <h3>Brunel.4 (9 Oct 2026)</h3>
       <ul><li>E2E Continuity spots a flipped ribbon (1 to 12, 12 to 1). When the first fibre is dark on its own position it is tried on its mirror; once two pairs are proven both ways (F1 and F12, F2 and F11) and one more pair picked at random agrees, the ribbon is declared Flipped and the run moves on, instead of testing every fibre as a cross.</li><li>Flipped shows in its own colour and count on the run, the Live screen, Run history, the Teams card and Cable View. Runs saved before this (such as R35 on 9 Oct) now read as Flipped too.</li></ul>
       <h3>Brunel.3 (9 Oct 2026)</h3>
@@ -1316,7 +1320,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel.4";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel.5";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}

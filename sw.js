@@ -1,8 +1,8 @@
 // Offline shell. v33: pages come from the network first, so a new version shows on the next open;
 // the cache is only used when there is no signal. Bump CACHE after editing the app.
-const CACHE = "reachtester-brunel.4";
+const CACHE = "reachtester-brunel.5";
 const ASSETS = ["./", "./index.html", "./desktop.html", "./push.js", "./manifest.webmanifest",
-                "./icons/icon-192.png", "./icons/icon-512.png", "./logo.png", "./logo-light.png", "./mark.png", "./neos-logo.svg"];
+                "./icons/icon-192.png", "./icons/icon-512.png", "./logo.png", "./logo-light.png", "./mark.png", "./neos-logo.svg", "./nr-logo.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS.map(a => new Request(a, {cache: "reload"})))).then(() => self.skipWaiting()));
 });

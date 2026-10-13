@@ -1097,3 +1097,9 @@ gives `version: "Brunel"` and `build: 40` (the build number keeps counting for c
 - Run history FMS rows carry `ribbons` and `kind`. Relay `/health` Brunel.3, build 43. Pillow added (logo on the Cover).
 - Desktop: Reports menu (New report, Report history, Locations) and page; Report button on a finished FMS Task in
   Run history (that Task's ribbons, both ends, latest results); a message when a report you started is ready.
+
+## Brunel.5 (desktop) — 13 October 2026 — Network Rail logo
+- Desktop: Network Rail logo (`nr-logo.png`, from the logo Alkis supplied, white made transparent) to the right of the Neos
+  logo in the top bar and on the sign in screen; white in Dark glass like the Neos logo.
+- Phone and relay unchanged (relay stays Brunel.4, build 44).
+- Versions: Brunel.5, sw.js `reachtester-brunel.5` (caches nr-logo.png).
