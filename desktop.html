@@ -710,6 +710,7 @@
         <button type="button" role="menuitem" class="hdrlink" id="helpBtn" aria-haspopup="dialog"><b>Help and release notes</b></button>
         <button type="button" role="menuitem" class="hdrlink" id="mobileBtn"><b>Mobile view</b><span>Open the phone app</span></button>
         <button type="button" role="menuitem" class="hdrlink" id="signOut"><b>Sign out</b></button>
+        <button type="button" role="menuitem" class="hdrlink" id="signOutAll" hidden><b>Sign out everyone</b><span>Admin: ends every session, all devices</span></button>
         <div class="mfoot" id="meVer"></div>
       </div></div>
     <img class="neoslogo" src="neos-logo.svg" alt="Neos Networks">
@@ -1193,6 +1194,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel.6 (15 Oct 2026)</h3>
+      <ul><li>Security hardening, no change to test speed. You are signed out after 8 hours without using the app, or 7 days with "Keep me signed in" (was 30). A running E2E is never cut off.</li><li>After 5 failed sign ins in 15 minutes the sign in pauses for the rest of the 15 minutes.</li><li>Admins can sign everyone out at once (your name menu, Sign out everyone), for example if a phone is lost.</li></ul>
       <h3>Brunel.5 (13 Oct 2026)</h3>
       <ul><li>Network Rail logo next to the Neos logo, at the top right and on the sign in screen.</li></ul>
       <h3>Brunel.4 (9 Oct 2026)</h3>
@@ -1320,8 +1323,8 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel.5";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
-  const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="123456";
+  const APP_VERSION="Brunel.6";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
   let RELAY=LIVE_RELAY; try{ RELAY=sessionStorage.getItem("rft.relay")||LIVE_RELAY; }catch(e){}
@@ -1367,7 +1370,7 @@
     try{ const rz=JSON.parse(localStorage.getItem("rft.resume")||"null"); if(rz&&rz.code&&rz.sid===session.id) h["X-Resume"]=rz.code; }catch(e){}   /* v43: stay signed in through relay restarts */
     const r=await fetch(RELAY+path,{method:"POST",headers:h,body:JSON.stringify(body||{})});
     let d={}; try{d=await r.json();}catch(e){}
-    if(r.status===401){ signedOut("Your session ended. Sign in again."); throw new Error("signed out"); }
+    if(r.status===401 && path!=="/api/login"){ signedOut("Your session ended. Sign in again."); throw new Error("signed out"); }   /* Brunel.6: a wrong password shows the relay's message */
     if(r.status===403 && /Desktop console/.test(d.detail||"")){ showBlocked(d.detail); throw new Error("blocked"); }
     if(!r.ok){ const e=new Error(d.detail||("HTTP "+r.status)); e.status=r.status; throw e; }
     return d;
@@ -1408,6 +1411,12 @@
     }catch(err){ if(!quiet(err)) $("loginErr").textContent="Sign in failed: "+err.message; }
     finally{ $("loginBtn").disabled=false; }
   };
+  /* Brunel.6: admin only (the relay checks too). Ends every session on every device, including this one. */
+  (()=>{ const b=$("signOutAll"); if(!b) return; const ADMINS=["alkis.kardasopoulos@motionrail.co.uk"];
+    const show=()=>{ b.hidden=!ADMINS.includes(String(session.user||"").trim().toLowerCase()); }; show(); setInterval(show,5000);
+    b.onclick=async()=>{ if(!confirm("Sign out everyone, on every phone and computer, including you? Running E2E runs will stop.")) return;
+      try{ const d=await relay("/api/admin/signout-all",{}); signedOut("Everyone has been signed out ("+(d.ended||0)+" sessions)."); }
+      catch(e){ if(e.message!=="signed out") toast("Could not sign everyone out: "+e.message); } }; })();
   $("signOut").onclick=async()=>{ try{ await relay("/api/presence/leave",{}); }catch(e){} try{ await relay("/api/logout",{}); }catch(e){} signedOut(""); };   /* v44: also ends a keep me signed in */
   $("mobileBtn").onclick=()=>{ location.href="index.html"; };
   $("helpBtn").onclick=()=>{ const d=$("help"); if(d.showModal) d.showModal(); else d.setAttribute("open",""); };

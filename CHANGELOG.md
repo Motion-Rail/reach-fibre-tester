@@ -1103,3 +1103,17 @@ gives `version: "Brunel"` and `build: 40` (the build number keeps counting for c
   logo in the top bar and on the sign in screen; white in Dark glass like the Neos logo.
 - Phone and relay unchanged (relay stays Brunel.4, build 44).
 - Versions: Brunel.5, sw.js `reachtester-brunel.5` (caches nr-logo.png).
+
+## Brunel.6 (relay, desktop and phone) — 15 October 2026 — security hardening
+- Relay `relay_security.py`: idle timeout (8 h, or 7 days with Keep me signed in; a user with a running or paused E2E
+  is never dropped); sign in limit (5 failures in 15 min per IP address or per username, then HTTP 429 until the
+  window ends; a good sign in clears it); admin `POST /api/admin/signout-all` (ends every session and FMS sign in and
+  refuses every resume code issued before it, saved in LOG_REPO `config/revoke.json` so it survives restarts) and
+  `POST /api/admin/security` (status); security headers on every reply and `Cache-Control: no-store` on /api.
+- Resume codes: 12 h cut to 8 h, Keep me signed in 30 days cut to 7. Sign in errors no longer pass FMS's own reply
+  back. `/health` no longer lists hosts, origins or the FMS client id.
+- App key changed (`APP_KEY` on the relay). The relay also accepts `APP_KEY_PREV` while phones still hold the old page.
+  Key compared in constant time.
+- Desktop: Sign out everyone in the name menu, shown to admins only (the relay checks too).
+- Versions: Brunel.6, relay build 45, sw.js `reachtester-brunel.6`.
+

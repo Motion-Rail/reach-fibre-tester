@@ -935,8 +935,9 @@
   window.addEventListener("online",()=>{ realFetch(window.RFT_RELAY+"/health",{cache:"no-store"}).then(()=>netShow(false),()=>{}); });
 })();
 /* ════════ v14 version history ════════ */
-const APP_VERSION="Brunel.5";   /* Brunel: releases named after railway engineers */
+const APP_VERSION="Brunel.6";   /* Brunel: releases named after railway engineers */
 const APP_VERSIONS=[
+  ["Brunel.6","15 Oct 2026","Security: signed out after 8 hours without use, or 7 days with Keep me signed in (was 30). Sign in pauses after 5 failed tries in 15 minutes. Test speed unchanged."],
   ["Brunel.5","13 Oct 2026","Desktop console only: Network Rail logo next to the Neos logo. No change on the phone."],
   ["Brunel.4","9 Oct 2026","E2E Continuity spots a flipped ribbon (1 to 12, 12 to 1): two pairs proven both ways plus one random pair to confirm, then the ribbon is called Flipped, instead of testing every fibre as a cross. Older runs read as Flipped too."],
   ["Brunel.3","9 Oct 2026","The full FMS report can now be run from the desktop console (Reports). No change on the phone."],
@@ -1019,7 +1020,7 @@ const APP_VERSIONS=[
 // by anyone who opens the page. The real control is APP_ORIGIN on the relay, which
 // restricts which site may call it. Keep APP_ORIGIN locked to the app URL.
   const DEFAULT_RELAY=window.RFT_RELAY;
-  const DEFAULT_KEY="123456";
+  const DEFAULT_KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   let cfg={relay:DEFAULT_RELAY, key:DEFAULT_KEY, wl:"1550", dur:"5", freq:"1000"};
   let session={id:"", user:""};
   let route="", rtuId="", rtuName="", rtuSite="", rtuOnline=true;
@@ -1741,7 +1742,7 @@ let crosses={};                              // index -> "crossed with ..."
   "use strict";
   const $=id=>document.getElementById(id);
   const PER=12, RIBBONS=36, BUNDLE=6;
-  const DEFAULT_RELAY=window.RFT_RELAY, DEFAULT_KEY="123456";
+  const DEFAULT_RELAY=window.RFT_RELAY, DEFAULT_KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const JOBKEY="toneTester.contJob", LASTKEY="toneTester.contLast", SNAPKEY="toneTester.contSnap";
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const jset=(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} };
@@ -2240,7 +2241,7 @@ let crosses={};                              // index -> "crossed with ..."
 (() => {
   "use strict";
   const $=id=>document.getElementById(id);
-  const RELAY=window.RFT_RELAY, KEY="123456";
+  const RELAY=window.RFT_RELAY, KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const jget=(k,d)=>{ try{const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v;}catch(e){return d;} };
   const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const ses=()=>jget("toneTester.session",{})||{};
