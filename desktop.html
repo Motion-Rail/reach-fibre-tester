@@ -296,6 +296,32 @@
   .chk{display:flex;align-items:center;gap:8px;min-height:40px;cursor:pointer;font-weight:500}
   .chk input{width:18px;height:18px;accent-color:var(--brand)}
   .warnbox{background:var(--warn-tint);color:#7A4A06;border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.45}
+  /* Brunel 1.0: learned locations and the asset inventory */
+  .lcmode{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .lcroute{position:relative;height:46px;margin:6px 8px 18px}
+  .lcroute .ln{position:absolute;left:0;right:0;top:20px;height:4px;border-radius:2px;background:var(--line)}
+  .lcroute .built{position:absolute;left:0;top:20px;height:4px;border-radius:2px;background:var(--brand)}
+  .lcroute .tk{position:absolute;top:13px;width:3px;height:18px;margin-left:-1px;border-radius:2px;background:var(--ink)}
+  .lcroute .tk.u{background:#E3A008;height:22px;top:11px}
+  .lcroute .end{position:absolute;top:34px;font-size:11px;color:var(--muted);white-space:nowrap}
+  .lcroute .lab{position:absolute;top:-2px;font-size:11px;color:var(--muted);white-space:nowrap}
+  .lcnew{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin:0 0 18px}
+  .lccard{border-radius:10px;padding:14px 16px;background:var(--warn-tint);color:#7A4A06;display:flex;flex-direction:column;gap:8px}
+  .lccard b{color:var(--ink)}
+  .lccard .row2{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .lccard input[type=text]{flex:1 1 160px;min-width:0}
+  .lccard input[type=number]{flex:1 1 150px;min-width:0}
+  .lccard .lnk2{font-size:13px}
+  table.hist.inv td:first-child{white-space:nowrap}
+  .lccard .btn{min-height:34px;padding:6px 12px;font-size:13px}
+  .lcsched summary{cursor:pointer;font-weight:600;color:var(--muted)}
+  table.hist.inv{min-width:1000px}
+  table.hist.inv td.u{color:#B26A00;font-weight:600}
+  .lcset{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-top:18px}
+  .lcset input{width:90px}
+  :root[data-theme=dark] .lccard{color:#F5D08A}
+  :root[data-theme=dark] .lccard b{color:#fff}
+  :root[data-theme=dark] table.hist.inv td.u{color:#F5C15C}
   details summary{font-weight:600;color:var(--muted)}
 
   /* E2E and Tone */
@@ -698,7 +724,7 @@
       <div class="mi" data-mi="cv" id="miCv" hidden><button data-nav="fibres">Cable View</button><button type="button" class="mcar" aria-label="Cable View menu" aria-haspopup="menu" aria-expanded="false">▾</button>
         <div class="mdd mcab" role="menu"><div id="mCables"></div></div></div>
       <div class="mi hdr" data-mi="rp" id="miRp" hidden><button data-nav="reports" aria-haspopup="menu">Reports</button><button type="button" class="mcar" aria-label="Reports menu" aria-haspopup="menu" aria-expanded="false">▾</button>
-        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="r-new"><b>New report</b></button><button type="button" role="menuitem" data-act="r-history"><b>Report history</b></button><button type="button" role="menuitem" data-act="r-locs"><b>Locations</b></button></div></div>
+        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="r-new"><b>New report</b></button><button type="button" role="menuitem" data-act="r-history"><b>Report history</b></button><button type="button" role="menuitem" data-act="r-locs"><b>Locations and assets</b></button></div></div>
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
@@ -1182,9 +1208,10 @@
         <div id="rpRows" style="margin-top:10px"><p class="note">Loading…</p></div>
       </section>
       <section class="panel" id="rpLocs" style="margin-top:16px">
-        <h2>Locations</h2>
-        <p class="note" style="margin:0 0 10px">The joint and backsplice distances each cable's report names its locations from: the Distances workbook layout used by the PC tool. Without one, joints are named by distance.</p>
-        <div id="rpLocRows"><p class="note">Loading…</p></div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><h2 style="margin:0" class="grow">Locations and asset inventory</h2><div class="seg" role="group" aria-label="Cable" id="lcCables"></div></div>
+        <p class="note" style="margin:10px 0 14px">Joints are learned from the test results: when many fibres show an event at the same distance, that is a location. Name each one from the design once and every report uses the name. A cable with a Distances workbook can use that instead.</p>
+        <div id="lcBody"><p class="note">Loading…</p></div>
+        <details class="lcsched" style="margin-top:20px"><summary>Distances workbooks</summary><p class="note" style="margin:8px 0 10px">The joint and backsplice distances a cable's report names its locations from, in the PC tool's Distances layout. Used when a cable is set to Distances workbook.</p><div id="rpLocRows"><p class="note">Loading…</p></div></details>
       </section>
     </main>
   </div>
@@ -1194,6 +1221,10 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel 1.0 (15 Oct 2026)</h3>
+      <ul><li>Locations are learned from the test results. When many fibres show an event at the same distance, it becomes a location; the first time it shows as Unnamed and appears under Reports, Locations and assets, to name from the design once. Every later report uses the name and refines the distance.</li><li>Asset inventory per cable: every joint, ODF and spur in route order from End A, with its distance, when it was first seen, fibres, splices, ribbons and splice losses, and how far the cable is built. Also an Asset Inventory sheet in the report, and a download on its own.</li><li>Remedial tracking follows the location, so a remedial raised at an unnamed joint keeps its history once the joint is named.</li><li>Not a joint for a bend or fault cluster, and Split in two for two joints too close to tell apart.</li><li>Cables with a Distances workbook can keep using it, or switch to learned and start from its names.</li></ul>
+      <h3>Brunel.6.1 (15 Oct 2026)</h3>
+      <ul><li>Reports no longer drop out of Report history. Saving a finished report now retries when the store is busy (for example while an E2E run is saving its logs), and keeps trying every 5 minutes until it works. Until then the report stays downloadable and shows "Not in history yet".</li></ul>
       <h3>Brunel.6 (15 Oct 2026)</h3>
       <ul><li>Security hardening, no change to test speed. You are signed out after 8 hours without using the app, or 7 days with "Keep me signed in" (was 30). A running E2E is never cut off.</li><li>After 5 failed sign ins in 15 minutes the sign in pauses for the rest of the 15 minutes.</li><li>Admins can sign everyone out at once (your name menu, Sign out everyone), for example if a phone is lost.</li></ul>
       <h3>Brunel.5 (13 Oct 2026)</h3>
@@ -1201,7 +1232,7 @@
       <h3>Brunel.4 (9 Oct 2026)</h3>
       <ul><li>E2E Continuity spots a flipped ribbon (1 to 12, 12 to 1). When the first fibre is dark on its own position it is tried on its mirror; once two pairs are proven both ways (F1 and F12, F2 and F11) and one more pair picked at random agrees, the ribbon is declared Flipped and the run moves on, instead of testing every fibre as a cross.</li><li>Flipped shows in its own colour and count on the run, the Live screen, Run history, the Teams card and Cable View. Runs saved before this (such as R35 on 9 Oct) now read as Flipped too.</li></ul>
       <h3>Brunel.3 (9 Oct 2026)</h3>
-      <ul><li>Reports on the top bar: the full FMS Test Results Report, the same workbook as the PC tool (Cover, Summary, Remedials, All Events, Bidir E2E, Cable_View, Detailed Cable View, Splices, ODF, Raw A-B and B-A, Config, and Client Verify when you add the EXFO customer report).</li><li>New report: pick the cable, both ends or one, ribbons, latest or a date window, splice nominal (0.02) and the cable view wavelengths. It runs on the relay with progress; you get a message when it is ready.</li><li>Report next to a finished FMS Task in Run history: one click for that Task's ribbons, both ends, latest results.</li><li>Report history keeps every report and its run log to download again. Locations: upload a Distances workbook per cable so joints get their names.</li></ul>
+      <ul><li>Reports on the top bar: the full FMS Test Results Report, the same workbook as the PC tool (Cover, Summary, Remedials, All Events, Bidir E2E, Cable_View, Detailed Cable View, Splices, ODF, Raw A-B and B-A, Config, and Client Verify when you add the EXFO customer report).</li><li>New report: pick the cable, both ends or one, ribbons, latest or a date window, splice nominal (0.02) and the cable view wavelengths. It runs on the relay with progress; you get a message when it is ready.</li><li>Report next to a finished FMS Task in Run history: one click for that Task's ribbons, both ends, latest results.</li><li>Report history keeps every report and its run log to download again. Locations and assets: name the joints learned from the results (or upload a Distances workbook) and see each cable's asset inventory.</li></ul>
       <h3>Brunel.2 (9 Oct 2026)</h3>
       <ul><li>Tools: the page shows only the test you picked (E2E Continuity, Tone Test or Bulk Test); the tab bar is gone.</li><li>Tasks running on the chosen RTU sit in the left panel under Cables and RTUs, with Show fibres and Cancel.</li><li>E2E tone is now 10 s by default. On 9 Oct a 4 s tone ended before FMS started the OTDR on 9 of 12 fibres (17 s a fibre); 10 s needed no rechecks (about 13 s a fibre).</li></ul>
       <h3>Brunel.1 (9 Oct 2026)</h3>
@@ -1323,7 +1354,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel.6";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.0";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -2484,6 +2515,8 @@
     finally{ btn.disabled=false; }
   }
   // ════════ Brunel.3: Reports, the full FMS Test Results Report from the app ════════
+  const LC={cable:"F-SGIC-SNBC", list:[], data:null, split:null, busy:false};
+  try{ LC.cable=localStorage.getItem("rft.lc.cable")||LC.cable; }catch(e){}
   const RP={cable:"F-RGAC-SNBC", ends:"both", ribs:new Set(), test:"auto", wl:"1550", items:[], saved:[], locs:[], pollT:null, watch:{}};
   try{ const s=JSON.parse(localStorage.getItem("rft.rp")||"null"); if(s){ RP.cable=s.cable||RP.cable; RP.ends=s.ends||RP.ends; RP.test=s.test||RP.test; RP.wl=s.wl||RP.wl; } }catch(e){}
   const rpSave=()=>{ try{ localStorage.setItem("rft.rp",JSON.stringify({cable:RP.cable,ends:RP.ends,test:RP.test,wl:RP.wl})); }catch(e){} };
@@ -2517,15 +2550,15 @@
     $("rpRibSum").textContent=none?"No ribbons chosen.":RP.ribs.size?`${RP.ribs.size} ribbon${RP.ribs.size>1?"s":""} (R${ribSpec(RP.ribs).replace(/,/g,", R")}), ${nf} fibres.`:"All 36 ribbons, 432 fibres.";
     document.querySelectorAll("#rpTest [data-rt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rt===RP.test)));
     document.querySelectorAll("#rpWl [data-rw]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rw===RP.wl)));
-    const loc=(RP.locs||[]).find(x=>x.cable===c.pre);
-    $("rpLoc").textContent=loc?loc.name:"none for this cable, joints named by distance";
+    const loc=(RP.locs||[]).find(x=>x.cable===c.pre), lrn=(LC.list||[]).find(x=>x.cable===c.pre);
+    $("rpLoc").textContent=lrn&&lrn.mode==="learned"?`learned from the tests (${lrn.locations} so far${lrn.unnamed?", "+lrn.unnamed+" to name":""})`:loc?loc.name:"none for this cable, joints named by distance";
     $("rpN").textContent=nf; $("rpE").textContent=rpEnds().map(e=>placeOf(e[1])).join(" and ");
     const secs=nf*ne*0.7+40;
     $("rpEst").textContent=nf?"about "+mins(secs):"–";
     $("rpEstNote").textContent=nf?`${nf*ne} FMS results to read, then the workbook is built. Rough guide; FMS sets the pace.`:"";
     $("rpGo").disabled=!nf;
   }
-  async function rpOpen(){ rpPaint(); rpLoad(true); rpLocsLoad(); }
+  async function rpOpen(){ rpPaint(); rpLoad(true); rpLocsLoad(); lcLoad(); }
   async function rpLoad(force){
     try{ const d=await relay("/api/fullreport/list",{}); RP.items=d.live||[]; RP.saved=d.saved||[]; $("rpHistNote").textContent=d.repo?"":"Report storage is off on the relay, so reports are kept only until it restarts."; }
     catch(e){ if(quiet(e)) return; $("rpRows").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
@@ -2538,7 +2571,7 @@
     const endsTxt=x=>x.rtuB?"Both ends":placeOf(x.rtuA)+" only";
     const st=x=>x.state==="running"?`<div class="bar" style="min-width:120px"><i style="width:${x.pct||0}%"></i></div><span class="note">${esc(x.note||"Running")}</span>`
       : x.state==="queued"?`<span class="chip queued">Waiting${x.queuePos>1?" ("+(x.queuePos-1)+" ahead)":""}</span>`
-      : x.state==="done"?`<span class="res Pass">Ready</span>${x.size?` <span class="note">${kb(x.size)}</span>`:""}`
+      : x.state==="done"?`<span class="res Pass">Ready</span>${x.size?` <span class="note">${kb(x.size)}</span>`:""}${!x.fromRepo&&!x.saved&&x.saveError?`<div class="note" style="color:#B26A00" title="${esc(x.saveError)}">Not in history yet, retrying. Download it now to be safe.</div>`:""}`
       : x.state==="cancelled"?`<span class="res">Cancelled</span>`:`<span class="res Failed" title="${esc(x.error||"")}">Failed</span> <span class="note">${esc((x.error||"").slice(0,90))}</span>`;
     $("rpRows").innerHTML=`<table class="hist rpt"><thead><tr><th>When</th><th>Cable</th><th>Ribbons</th><th>Ends</th><th>Test</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>${all.slice(0,80).map(x=>`<tr data-rp="${esc(x.id)}">
       <td>${esc(when(x.ended||x.started))}</td><td>${esc(cabName(x.stem))}${x.label?`<div class="note">${esc(x.label)}</div>`:""}</td><td>${esc(x.ribbons?"R"+x.ribbons.replace(/,/g,", R"):"All")}</td><td>${esc(endsTxt(x))}</td><td>${esc(x.testType==="auto"?"Latest":x.testType||"")}${x.dfrom||x.dto?`<div class="note">${esc((x.dfrom||"…")+" to "+(x.dto||"…"))}</div>`:""}</td><td>${esc(nice(String(x.user||"").split("@")[0].replace("."," ")))}</td><td>${st(x)}</td>
@@ -2565,13 +2598,13 @@
     const go=async()=>{ let s=null; try{ s=await relay("/api/fullreport/status",{id:j.id}); }catch(e){ if(quiet(e)) return; }
       if(s&&(s.state==="running"||s.state==="queued")){ if(screen==="reports"){ const i=RP.items.findIndex(x=>x.id===s.id); if(i>=0){ RP.items[i]=s; rpRows(); } } return setTimeout(go,3000); }
       delete RP.watch[j.id];
-      if(s&&s.state==="done") toast(`Report ready: ${s.fileName}. Download it from Reports.`); else if(s&&s.state==="error") toast("Report failed: "+(s.error||"").slice(0,140));
+      if(s&&s.state==="done") toast(`Report ready: ${s.fileName}. Download it from Reports.`+(s.learn&&s.learn.new?` ${s.learn.new} new location${s.learn.new>1?"s":""} to name in Locations.`:"")); else if(s&&s.state==="error") toast("Report failed: "+(s.error||"").slice(0,140));
       if(screen==="reports") rpLoad(); };
     setTimeout(go,2500);
   }
   $("rpGo").onclick=async()=>{
     $("rpErr").textContent=""; const c=rpCab(), ends=rpEnds();
-    const body={stem:rpStem(c), rtuA:ends[0][1], rtuB:ends[1]?ends[1][1]:"", ribbons:RP.ribs.size?ribSpec(RP.ribs):"", testType:RP.test,
+    const body={stem:rpStem(c), rtuA:ends[0][1], rtuB:ends[1]?ends[1][1]:"", endA:c.rtus[0][1], ribbons:RP.ribs.size?ribSpec(RP.ribs):"", testType:RP.test,
       dfrom:$("rpFrom").value||"", dto:$("rpTo").value||"", nominal:+$("rpNom").value||0.02, viewWl:RP.wl};
     if(body.dfrom&&body.dto&&body.dfrom>body.dto){ $("rpErr").textContent="From is after To."; return; }
     const f=$("rpClient").files&&$("rpClient").files[0];
@@ -2595,13 +2628,111 @@
       try{ const r=await relay("/api/fullreport/locations/upload",{cable:c.pre, name:f.name, data:await b64(f)}); toast(`Saved: ${r.rows} location rows from ${r.sheets.length} sheet${r.sheets.length>1?"s":""}.`); }catch(e){ if(!quiet(e)) toast("Not saved: "+e.message); }
       rpLocsLoad(); });
   }
+  // ════════ Brunel 1.0: learned locations and the asset inventory ════════
+  const m0=v=>v==null||v===""?"":Number(v).toLocaleString("en-GB",{maximumFractionDigits:0});
+  const m1=v=>v==null||v===""?"":Number(v).toLocaleString("en-GB",{minimumFractionDigits:1,maximumFractionDigits:1});
+  const dB=v=>v==null?"":Number(v).toFixed(3);
+  const lday=s=>{ if(!s) return ""; const d=new Date(String(s).replace(" ","T")+"Z"); return isNaN(d)?String(s):d.toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}); };
+  async function lcLoad(){
+    try{ const d=await relay("/api/locations/list",{cables:CABLES.map(c=>c.pre)}); LC.list=d.items||[]; }catch(e){ if(quiet(e)) return; $("lcBody").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    lcTabs(); rpPaint(); lcOpen(LC.cable);
+  }
+  function lcTabs(){
+    $("lcCables").innerHTML=CABLES.map(c=>{ const x=LC.list.find(l=>l.cable===c.pre)||{}; return `<button type="button" data-lc="${c.pre}" aria-pressed="${LC.cable===c.pre}">${esc(c.name)}${x.unnamed?` <span class="chip queued" style="padding:1px 7px;margin-left:4px">${x.unnamed}</span>`:""}</button>`; }).join("");
+    $("lcCables").querySelectorAll("[data-lc]").forEach(b=>b.onclick=()=>{ LC.cable=b.dataset.lc; try{ localStorage.setItem("rft.lc.cable",LC.cable); }catch(e){} LC.split=null; lcTabs(); lcOpen(LC.cable); });
+  }
+  async function lcOpen(cable){
+    try{ LC.data=await relay("/api/locations/get",{cable}); }catch(e){ if(quiet(e)) return; $("lcBody").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    lcPaint();
+  }
+  async function lcDo(path,body,msg){
+    if(LC.busy) return; LC.busy=true;
+    try{ LC.data=await relay(path,{cable:LC.cable,...body}); if(msg) toast(msg); const i=LC.list.findIndex(x=>x.cable===LC.cable); const inv=LC.data.inventory;
+      if(i>=0){ LC.list[i]={...LC.list[i], mode:LC.data.state.settings.mode, locations:inv.rows.length, unnamed:inv.unnamed, buildEnd:inv.buildEnd}; } lcTabs(); rpPaint(); lcPaint(); return true; }
+    catch(e){ if(!quiet(e)) toast(e.message); return false; }
+    finally{ LC.busy=false; }
+  }
+  function lcPaint(){
+    const D=LC.data; if(!D) return; const st=D.state, inv=D.inventory, c=CABLES.find(x=>x.pre===LC.cable)||CABLES[0];
+    const A=placeOf(c.rtus[0][1]), B=placeOf(c.rtus[1][1]), learned=st.settings.mode==="learned";
+    const locs=st.locations.filter(x=>x.status!=="split"), act=locs.filter(x=>x.status!=="notjoint"), un=act.filter(x=>x.status==="unnamed");
+    const be=inv.buildEnd, total=Math.max(be?be.distance_m:0, ...act.map(x=>x.distance_m), 1);
+    const near=d=>{ const named=act.filter(x=>x.name).sort((a,b)=>a.distance_m-b.distance_m); let lo=null, hi=null; named.forEach(x=>{ if(x.distance_m<d) lo=x; else if(!hi&&x.distance_m>d) hi=x; }); return lo&&hi?`between ${lo.name} and ${hi.name}`:lo?`after ${lo.name}`:hi?`before ${hi.name}`:`${m0(d)} m from ${A}`; };
+    let h=`<div class="lcmode"><span class="note">${esc(c.name)}: locations from</span><div class="seg" role="group" aria-label="Locations from"><button type="button" data-lm="learned" aria-pressed="${learned}">Learned from the tests</button><button type="button" data-lm="schedule" aria-pressed="${!learned}">Distances workbook</button></div>
+      ${learned?`<span class="grow"></span><button class="btn" type="button" id="lcInv">Download inventory</button>`:""}</div>`;
+    if(!learned){
+      h+=`<p class="note" style="margin:0">${D.schedule?"Reports on this cable name their joints from its Distances workbook (below). Switch to Learned from the tests to build the asset inventory from the results.":"This cable has no Distances workbook, so its reports name joints by distance. Switch to Learned from the tests to learn and name them."}</p>`;
+      $("lcBody").innerHTML=h; lcWire(); return;
+    }
+    if(!act.length&&!be){
+      h+=`<div class="warnbox">Nothing learned on this cable yet. Run a report on it (Reports, New report) and its joints appear here to name.</div>`;
+      $("lcBody").innerHTML=h; lcWire(); return;
+    }
+    // route strip, End A on the left
+    h+=`<div class="lcroute" aria-hidden="true"><div class="ln"></div>${be?`<div class="built" style="width:${Math.min(100,be.distance_m/total*100)}%"></div>`:""}
+      <span class="lab" style="left:0">${esc(A)}</span><span class="lab" style="right:0">${esc(be&&be.complete?B:"")}</span>
+      ${act.map(x=>`<i class="tk${x.status==="unnamed"?" u":""}" style="left:${x.distance_m/total*100}%" title="${esc(x.name||"Unnamed")} ${m0(x.distance_m)} m"></i>`).join("")}
+      ${be?`<span class="end" style="${be.distance_m/total>0.6?"right:"+Math.max(0,100-be.distance_m/total*100)+"%":"left:"+be.distance_m/total*100+"%"}">${be.complete?`Through to ${esc(B)}, ${m0(be.distance_m)} m`:`Built to ${m0(be.distance_m)} m from ${esc(A)}`} · ${esc(lday(be.at))}</span>`:""}</div>`;
+    if(un.length){
+      h+=`<h3 style="margin:0 0 10px">To name (${un.length})</h3><div class="lcnew">${un.map(x=>{ const sp=LC.split===x.id;
+        return `<div class="lccard" data-lid="${x.id}"><div><b>New event at ${m0(x.distance_m)} m</b></div>
+        <div class="note" style="color:inherit">${x.parent&&!x.tests_seen?"Split from one location; the next report shares its events":`Seen on ${x.fibre_count||"?"}${x.stats&&x.stats.tested?" of "+x.stats.tested:""} fibres`} · ${esc(near(x.distance_m))} · first seen ${esc(lday(x.first_seen))}</div>
+        <div class="row2"><input type="text" data-nm placeholder="Name from the design, e.g. A-07 Shrivenham" aria-label="Name" maxlength="80"><select data-ty aria-label="Type">${D.types.map(t=>`<option>${t}</option>`).join("")}</select></div>
+        <div class="row2"><input type="number" data-ch placeholder="Design chainage (m)" aria-label="Design chainage, optional" step="0.1"><button class="btn primary" type="button" data-name>Name it</button></div>
+        <div class="row2" style="gap:14px"><button class="lnk2" type="button" data-nj>Not a joint</button><button class="lnk2" type="button" data-sp>${sp?"Cancel split":"Split in two"}</button></div>
+        ${sp?`<div class="row2"><span>Two joints at</span><input type="number" data-s1 value="${(x.distance_m-3).toFixed(1)}" step="0.1" aria-label="First joint, m"><span>and</span><input type="number" data-s2 value="${(x.distance_m+3).toFixed(1)}" step="0.1" aria-label="Second joint, m"><span>m</span><button class="btn primary" type="button" data-spgo>Split</button></div>`:""}
+        <div class="err" role="alert" data-er></div></div>`; }).join("")}</div>`;
+    }
+    h+=`<h3 style="margin:4px 0 10px">Asset inventory (${inv.rows.length})</h3>
+      <div style="overflow-x:auto"><table class="hist inv"><thead><tr><th>Asset</th><th>Type</th><th>From ${esc(A)} (m)</th><th>Window</th><th>Design chainage</th><th>First seen</th><th>Reports</th><th>Fibres</th><th>Splices</th><th>Ribbons</th><th>Avg (dB)</th><th>Worst (dB)</th><th>Over ${inv.rows[0]?inv.rows[0].threshold:0.15}</th><th></th></tr></thead><tbody>
+      ${inv.rows.map(r=>`<tr data-lid="${r.id}"><td class="${r.named?"":"u"}">${esc(r.asset)}</td><td>${esc(r.type||"")}</td><td class="mono">${m1(r.distance_m)}</td><td class="note">± ${m1(r.tolerance_m)}</td><td class="mono">${m1(r.chainage)}</td><td class="note">${esc(lday(r.first_seen))}</td><td>${r.tests_seen||0}</td><td>${r.fibres!=null?r.fibres+(r.tested?" of "+r.tested:""):""}</td><td>${r.splices??""}</td><td>${r.ribbons??""}</td><td class="mono">${dB(r.avg)}</td><td class="mono">${dB(r.worst)}</td><td>${r.over??""}</td>
+        <td style="white-space:nowrap">${r.named?`<button class="lnk2" type="button" data-rn>Rename</button>`:""}</td></tr>`).join("")}
+      ${be?`<tr><td><b>${be.complete?"End B, "+esc(B):"Current build end"}</b></td><td></td><td class="mono">${m1(be.distance_m)}</td><td colspan="2"></td><td class="note">${esc(lday(be.at))}</td><td></td><td>${be.fibres||""}</td><td colspan="6"></td></tr>`:""}</tbody></table></div>`;
+    const nj=locs.filter(x=>x.status==="notjoint");
+    if(nj.length) h+=`<details class="lcsched" style="margin-top:14px"><summary>Not joints (${nj.length})</summary><div style="margin-top:8px">${nj.map(x=>`<div class="row" style="gap:10px;align-items:center;margin:6px 0" data-lid="${x.id}"><span>${esc(x.name||"Event")} at ${m0(x.distance_m)} m <span class="note">seen on ${x.fibre_count||"?"} fibres</span></span><button class="btn" type="button" data-undo>Restore</button></div>`).join("")}</div></details>`;
+    h+=`<div class="lcset"><label class="f">A joint needs events on (% of fibres tested)<input type="number" id="lcShare" min="2" max="100" step="1" value="${Math.round(st.settings.minShare*100)}"></label>
+      <label class="f">Starting match window (± m)<input type="number" id="lcTol" min="2" max="100" step="1" value="${st.settings.tol}"></label><button class="btn" type="button" id="lcSave">Save settings</button>
+      <span class="note">The window closes in on each location as reports confirm it.</span></div>`;
+    $("lcBody").innerHTML=h; lcWire();
+  }
+  function lcWire(){
+    const B=$("lcBody");
+    B.querySelectorAll("[data-lm]").forEach(b=>b.onclick=async()=>{ const m=b.dataset.lm, D=LC.data; if(m===D.state.settings.mode) return;
+      let seed=false;
+      if(m==="learned"&&D.schedule&&!D.state.locations.length) seed=await ask("Start from the Distances workbook?", "The workbook's location names and distances become the first learned locations, and reports refine them from there. Choose Cancel to start with nothing and name every joint as it is found.", "Use the workbook");
+      if(m==="schedule"&&!await ask("Use the Distances workbook?", "Reports on this cable will name joints from its Distances workbook again. The learned locations are kept, ready to switch back.", "Switch")) return;
+      await lcDo("/api/locations/settings",{mode:m, seed}, m==="learned"?"This cable now learns its locations from the tests.":"This cable now uses its Distances workbook."); });
+    const inv=$("lcInv"); if(inv) inv.onclick=async()=>{ try{ await relayFile("/api/locations/inventory",{cable:LC.cable},LC.cable+" asset inventory.xlsx"); }catch(e){ if(!quiet(e)) toast(e.message); } };
+    B.querySelectorAll(".lccard").forEach(card=>{ const id=card.dataset.lid, er=card.querySelector("[data-er]");
+      const go=async()=>{ const nm=card.querySelector("[data-nm]").value.trim(), ch=card.querySelector("[data-ch]").value; er.textContent="";
+        if(!nm){ er.textContent="Type the name from the design first."; card.querySelector("[data-nm]").focus(); return; }
+        await lcDo("/api/locations/name",{id, name:nm, type:card.querySelector("[data-ty]").value, chainage:ch===""?null:+ch},`Named ${nm}. The next report uses it.`); };
+      card.querySelector("[data-name]").onclick=go;
+      card.querySelector("[data-nm]").onkeydown=e=>{ if(e.key==="Enter") go(); };
+      card.querySelector("[data-nm]").oninput=()=>{ er.textContent=""; };
+      card.querySelector("[data-nj]").onclick=async()=>{ if(await ask("Not a joint?", "Events here stop being treated as a location (for example a bend or a fault). You can restore it later.", "Not a joint")) lcDo("/api/locations/notjoint",{id},"Marked as not a joint."); };
+      card.querySelector("[data-sp]").onclick=()=>{ LC.split=LC.split===id?null:id; lcPaint(); };
+      const sg=card.querySelector("[data-spgo]"); if(sg) sg.onclick=async()=>{ const a=+card.querySelector("[data-s1]").value, b=+card.querySelector("[data-s2]").value;
+        if(!(Math.abs(b-a)>=2)){ er.textContent="Give two distances at least 2 m apart."; return; }
+        LC.split=null; await lcDo("/api/locations/split",{id, at:[a,b]},"Split in two. Name each one; the next report shares the events between them."); };
+    });
+    B.querySelectorAll("[data-rn]").forEach(b=>b.onclick=()=>{ const tr=b.closest("tr"), id=tr.dataset.lid, L=LC.data.state.locations.find(x=>x.id===id);
+      tr.cells[0].innerHTML=`<input type="text" value="${esc(L.name)}" maxlength="80" aria-label="New name" style="width:100%">`;
+      b.textContent="Save"; const inp=tr.cells[0].querySelector("input"); inp.focus(); inp.select();
+      const save=()=>{ const v=inp.value.trim(); if(!v||v===L.name){ lcPaint(); return; } lcDo("/api/locations/name",{id, name:v, type:L.type||"", chainage:L.chainage},`Renamed to ${v}.`); };
+      b.onclick=save; inp.onkeydown=e=>{ if(e.key==="Enter") save(); if(e.key==="Escape") lcPaint(); }; });
+    B.querySelectorAll("[data-undo]").forEach(b=>b.onclick=()=>lcDo("/api/locations/notjoint",{id:b.closest("[data-lid]").dataset.lid, undo:true},"Restored."));
+    const sv=$("lcSave"); if(sv) sv.onclick=()=>{ const sh=+$("lcShare").value, t=+$("lcTol").value;
+      if(!(sh>=2&&sh<=100)){ toast("Share of fibres is 2 to 100 %."); return; } if(!(t>=2&&t<=100)){ toast("The window is 2 to 100 m."); return; }
+      lcDo("/api/locations/settings",{minShare:sh/100, tol:t},"Settings saved. They apply from the next report."); };
+  }
   window.rftReportFromTask=r=>reportFromTask(r);
   async function reportFromTask(r,btn,note){
     const c=CABLES.find(x=>String(r.cable||"").toUpperCase().startsWith(x.pre)); if(!c){ toast("Could not tell which cable that Task was on."); return; }
     const say=t=>{ if(note) note.textContent=t; };
     if(btn) btn.disabled=true;
     try{
-      const j=await rpStart({stem:rpStem(c), rtuA:c.rtus[0][1], rtuB:c.rtus[1][1], ribbons:r.ribbons||"", testType:"auto", nominal:0.02, viewWl:"1550", taskId:r.id||"", label:`From ${r.type} ${r.scope}${r.owner?" by "+nice(r.owner):""}`});
+      const j=await rpStart({stem:rpStem(c), rtuA:c.rtus[0][1], rtuB:c.rtus[1][1], endA:c.rtus[0][1], ribbons:r.ribbons||"", testType:"auto", nominal:0.02, viewWl:"1550", taskId:r.id||"", label:`From ${r.type} ${r.scope}${r.owner?" by "+nice(r.owner):""}`});
       say(j.state==="queued"?"Queued behind another report. You will see a message when it is ready; it is also in Reports.":"Started. You will see a message when it is ready; it is also in Reports.");
     }catch(e){ if(!quiet(e)) say("Not started: "+e.message); }
     finally{ if(btn) btn.disabled=false; }

@@ -1117,3 +1117,65 @@ gives `version: "Brunel"` and `build: 40` (the build number keeps counting for c
 - Desktop: Sign out everyone in the name menu, shown to admins only (the relay checks too).
 - Versions: Brunel.6, relay build 45, sw.js `reachtester-brunel.6`.
 
+
+## Brunel.6.1 (desktop and relay), 15 October 2026
+
+Fix: a finished full report could drop out of Report history (reported by Alkis for Joe's full RGAC-SNBC report of 14 Oct).
+
+Cause: when a report finished, the relay saved the workbook and the history index to relay-logs with one try each. GitHub refuses a write with 409 when another commit lands on the branch at the same moment, which happens while an E2E run is saving its logs. The failure was not shown. The report then lived only on the relay's disk, and went when the relay tidied it after 6 hours or restarted (the Brunel.6 deploy on 15 Oct restarted it). Also, if reading the index failed for a moment, the old code treated it as empty and could overwrite Report history with one row.
+
+- relay_fullreport.py: writes retry up to 6 times with a fresh sha (409, 422, 429, 5xx, dropped connection), one write at a time. The index entry is added only to an index read successfully, then read back to confirm. A report not yet saved stays on the relay for up to 7 days and is retried every 5 minutes. Its save error is passed to the app.
+- desktop.html: an unsaved report shows "Not in history yet, retrying. Download it now to be safe." under Ready.
+- Relay Brunel.6.1 build 46. Phone page unchanged (Brunel.6).
+- Tests: 10 new save tests against a mock GitHub (conflicts, read faults, long outage, retry, no duplicates); Brunel.6 suites 26 + 3 + 10 still pass.
+
+
+## Brunel 1.0 (desktop and relay), 15 October 2026: learned locations and the asset inventory
+
+Alkis, 15 Oct: instead of typing in distances for physical locations, learn them from the test events and name them
+from the design as they appear; learned locations feed the remedial history; once learned, build an asset inventory
+per cable; trial on Swindon to Stoke Gifford while it is built out. Named Brunel 1.0 at his request (not Stephenson).
+Includes Brunel.6.1 (report save retries), which was built but not deployed.
+
+How it works
+- Each report clusters the events of all its fibres by distance (positions from End A; End B results turned round;
+  fibres within 2 % of the median length scaled to it; launch and fibre end left out; events chained within 10 m).
+  A cluster seen on at least 20 % of the fibres tested (and 3 or more) is a location.
+- A cluster within a location's match window refines it (fibre weighted mean of the last 12 reports); the window
+  starts at 10 m and closes to 3 standard deviations plus 2 m (never under 5 m) after 3 reports.
+- New clusters become Unnamed locations with a stable id. Naming, Not a joint and Split in two are on the
+  Locations and assets screen. A cluster spanning two known locations is shared out by nearest.
+- The report engine reads the learned list as its schedule: events, Remedials, cable view joint columns and the
+  backsplice fold get the names (Unnamed 9,048 m until named). The Cover shows "Learned locations".
+- Remedial history keys on fibre and location id, so a remedial raised at an unnamed joint keeps its NEW /
+  EXISTING / IMPROVED history once named. Old distance keyed entries carry over within 25 m.
+- New Asset Inventory sheet (after Summary) and a download on its own: asset, type, distance from End A, window,
+  design chainage, first and last seen, reports seen, fibres, splices, ribbons, average and worst splice loss,
+  splices over 0.15 dB, and the current build end (or End B once the cable is tested from both ends).
+- Cables with no Distances workbook learn by default; a cable with one keeps using it until switched (with the
+  option to start from the workbook's names).
+
+Relay (build 47)
+- learned_locations.py (new): the learning, tagging, naming, split, merge and inventory, no network.
+- relay_assets.py (new): /api/locations/list, get, name, notjoint, split, settings, inventory. State per cable in
+  LOG_REPO config/learned/<F-XXXX-YYYY>.json. One change at a time; a finished report's learning is merged in so
+  names given while it ran are kept.
+- report_job.py: learned mode hooks (all_events_table, pick_sheet_for_cable, load_locations, map_locations);
+  LEARN| progress line; End B only runs turned round.
+- relay_fullreport.py: picks learned or schedule per cable; passes endA; merges the learning when saving, retried
+  with the report until saved; Report history rows carry locMode and the learn summary.
+- fms_report/bidir_report.py: LOCATE and ASSETS hooks (None on the PC tool), Asset Inventory sheet.
+- main.py, relay_continuity.py: Brunel 1.0, build 47.
+
+Desktop
+- Reports menu: Locations and assets. The panel has cable tabs (with the number to name), Learned from the tests or
+  Distances workbook, a route strip with the build end, To name cards (name, type, design chainage, Not a joint,
+  Split in two), the asset inventory table with Rename, Not joints with Restore, and the two settings. Distances
+  workbooks moved under a fold.
+- New report shows "learned from the tests (n so far, n to name)"; reports send endA; the ready message says how
+  many new locations there are to name.
+- APP_VERSION Brunel 1.0, sw.js reachtester-brunel-1.0, release notes. Phone page unchanged (Brunel.6).
+
+Tests (relay/tests_brunel10): learning 21, engine 12, endpoints 20, runner 5, desktop page 16 (light and dark), all
+pass; Brunel.6 suites 26 + 3 + 10 and Brunel.6.1 save tests 10 still pass.
+
