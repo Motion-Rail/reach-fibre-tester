@@ -933,9 +933,10 @@
                   <label class="f">Tone (s)<input type="number" id="eToneS" min="4" max="20" value="10" style="width:100px"></label>
                   <label class="f">OTDR (s)<input type="number" id="eOtdrS" min="1" max="30" value="1" style="width:100px"></label>
                   <label class="f">Goes per fibre<input type="number" id="eTries" min="1" max="5" value="3" style="width:100px"></label>
+                  <label class="f">Repeat runs<input type="number" id="eRepeat" min="1" max="10" value="1" style="width:100px"></label>
                   <button class="btn" type="button" id="eResetAdv">Proven defaults</button>
                 </div>
-                <p class="note" style="margin:8px 0 0">A fibre that does not light is tried again at the same short settings, up to the number of goes, before the search moves on. No long 20 s tone.</p>
+                <p class="note" style="margin:8px 0 0">A fibre that does not light is tried again at the same short settings, up to the number of goes, before the search moves on. No long 20 s tone. Repeat runs does the same ribbons back to back (up to 10) and writes each run's time and the average into the activity log.</p>
                 <div class="row" style="margin-top:10px;align-items:center">
                   <button class="btn" type="button" id="eSpeed">Speed test the chosen ribbons</button>
                   <span class="note">Tries every fibre 5 times on its own position at these settings and reports how often one go finds it and how long a go takes. Nothing is recorded on the cable.</span>
@@ -1354,7 +1355,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel 1.0";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.0.4";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1920,7 +1921,7 @@
     document.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{ const q=b.dataset.eq; E.ribbons.clear();
       if(q==="all") for(let r=1;r<=36;r++) E.ribbons.add(r); eSetupPaint(); });
   })();
-  $("eResetAdv").onclick=()=>{ $("eToneS").value=EDEF.toneS; $("eOtdrS").value=EDEF.otdrS; $("eTries").value=EDEF.tries; eSetupPaint(); };
+  $("eResetAdv").onclick=()=>{ $("eToneS").value=EDEF.toneS; $("eOtdrS").value=EDEF.otdrS; $("eTries").value=EDEF.tries; $("eRepeat").value=1; eSetupPaint(); };
   $("eToneS").oninput=()=>eSetupPaint();
   $("eSwap").onclick=()=>{ [E.tone,E.test]=[E.test,E.tone]; eSetupPaint(); };
 
@@ -1982,7 +1983,7 @@
     const tries=Math.min(5,Math.max(1,+$("eTries").value||EDEF.tries));
     if(speed && !await ask("Speed test", `Tone ${toneS} s, OTDR ${otdrS} s. Every fibre in ${rangeText([...E.ribbons])} (${E.ribbons.size*PER}) is tried 5 times on its own position, from ${placeOf(E.tone)} to ${placeOf(E.test)}. About ${mins(E.ribbons.size*PER*5*12)}. Nothing is recorded on the cable.`, "Start speed test")) return;
     const body={toneRtu:E.tone, testRtu:E.test, stem:E.stem, ribbons:[...E.ribbons].sort((a,b)=>a-b), toneS, otdrS, autoPace:false, fast:true, shortTries:tries,
-                speedTest:!!speed, speedTries:5,
+                speedTest:!!speed, speedTries:5, repeat:speed?1:Math.min(10,Math.max(1,+$("eRepeat").value||1)),
                 appVersion:"desktop "+APP_VERSION, wavelengthNm:1550, freqHz:330, simulate:(SIM&&RELAY!==LIVE_RELAY)?SIM:null, user:session.user||""};
     try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
     $("eStart").disabled=true; $("eStart").textContent="Starting…";
