@@ -106,6 +106,11 @@
   #meBtn{display:inline-flex;align-items:center;gap:8px;color:var(--ink);font-weight:600;font-size:13px;padding:4px 10px 4px 4px}
   #meBtn .av{width:26px;height:26px;border-radius:50%;background:var(--live);color:#fff;display:grid;place-items:center;font-weight:800;font-size:11px}
   #meBtn .who{display:inline}
+  /* Brunel 1.0.5: admin only features (Alkis). Hidden for everyone else; the relay checks the admin list too. */
+  body:not(.isadm) .adm{display:none!important}
+  dialog.dbgdlg{width:min(1180px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto}
+  .dbgt{border-collapse:collapse;width:100%;font-size:12.5px} .dbgt th,.dbgt td{padding:4px 8px;border-bottom:1px solid var(--line,#e6e6ee);text-align:left;white-space:nowrap}
+  .dbgt td.n{text-align:right;font-variant-numeric:tabular-nums} .dbgt .v-clash{color:#178a4c;font-weight:600} .dbgt .v-clean,.dbgt .v-late{color:#c2410c;font-weight:600}
   dialog.pickdlg{border:0;border-radius:16px;padding:22px 24px;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(23,26,32,.25)}
   dialog.pickdlg::backdrop{background:rgba(23,26,32,.35)}
   dialog.askdlg{width:min(520px,calc(100vw - 32px))}
@@ -721,10 +726,12 @@
         <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="running"><b>Running now</b></button><button type="button" role="menuitem" data-act="history"><b>Run history</b></button></div></div>
       <div class="mi hdr" data-mi="tl"><button data-nav="console" aria-haspopup="menu">Tools</button><button type="button" class="mcar" aria-label="Tools menu" aria-haspopup="menu" aria-expanded="false">▾</button>
         <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="t-live"><b>Real Time</b></button><button type="button" role="menuitem" data-act="t-once"><b>Single Test</b></button><button type="button" role="menuitem" data-act="t-e2e"><b>E2E Continuity</b></button><button type="button" role="menuitem" data-act="t-uni"><b>Tone Test</b></button><button type="button" role="menuitem" data-act="t-bulk"><b>Bulk Test</b></button><div id="mPickNote" hidden></div></div></div></div>
-      <div class="mi" data-mi="cv" id="miCv" hidden><button data-nav="fibres">Cable View</button><button type="button" class="mcar" aria-label="Cable View menu" aria-haspopup="menu" aria-expanded="false">▾</button>
+      <div class="mi adm" data-mi="cv" id="miCv" hidden><button data-nav="fibres">Cable View</button><button type="button" class="mcar" aria-label="Cable View menu" aria-haspopup="menu" aria-expanded="false">▾</button>
         <div class="mdd mcab" role="menu"><div id="mCables"></div></div></div>
       <div class="mi hdr" data-mi="rp" id="miRp" hidden><button data-nav="reports" aria-haspopup="menu">Reports</button><button type="button" class="mcar" aria-label="Reports menu" aria-haspopup="menu" aria-expanded="false">▾</button>
-        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="r-new"><b>New report</b></button><button type="button" role="menuitem" data-act="r-history"><b>Report history</b></button><button type="button" role="menuitem" data-act="r-locs"><b>Locations and assets</b></button></div></div>
+        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="r-new"><b>New report</b></button><button type="button" role="menuitem" data-act="r-history"><b>Report history</b></button><button type="button" role="menuitem" data-act="r-locs" class="adm"><b>Locations and assets</b></button></div></div>
+      <div class="mi hdr adm" data-mi="ad" id="miAd"><button data-nav="admin" aria-haspopup="menu">Admin</button><button type="button" class="mcar" aria-label="Admin menu" aria-haspopup="menu" aria-expanded="false">▾</button>
+        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="a-debug"><b>Run debug</b><span>Every test of an E2E run, with its timings</span></button><button type="button" role="menuitem" data-act="a-cv"><b>Cable View</b><span>Every fibre of a cable, latest results</span></button><button type="button" role="menuitem" data-act="r-locs"><b>Locations and assets</b><span>Learned joints and the asset inventory</span></button></div></div>
     </nav>
     <span class="grow"></span>
     <button class="pill" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel"><span class="dot"></span><span id="onlineText">connecting…</span></button>
@@ -928,15 +935,16 @@
               </div>
               <div class="ribs" id="eRibs"></div>
               <div class="note" id="eRibSum" style="margin-top:8px"></div>
-              <details style="margin-top:12px"><summary style="cursor:pointer;min-height:32px">Pace (advanced)</summary>
+              <details class="adm" style="margin-top:12px"><summary style="cursor:pointer;min-height:32px">Pace (advanced)</summary>
                 <div class="row" style="margin-top:10px">
                   <label class="f">Tone (s)<input type="number" id="eToneS" min="4" max="20" value="10" style="width:100px"></label>
                   <label class="f">OTDR (s)<input type="number" id="eOtdrS" min="1" max="30" value="1" style="width:100px"></label>
                   <label class="f">Goes per fibre<input type="number" id="eTries" min="1" max="5" value="3" style="width:100px"></label>
                   <label class="f">Repeat runs<input type="number" id="eRepeat" min="1" max="10" value="1" style="width:100px"></label>
+                  <label class="f">Alternate ends<select id="eAlt" style="width:150px"><option value="1" selected>On (both ends tone)</option><option value="0">Off (one end tones)</option></select></label>
                   <button class="btn" type="button" id="eResetAdv">Proven defaults</button>
                 </div>
-                <p class="note" style="margin:8px 0 0">A fibre that does not light is tried again at the same short settings, up to the number of goes, before the search moves on. No long 20 s tone. Repeat runs does the same ribbons back to back (up to 10) and writes each run's time and the average into the activity log.</p>
+                <p class="note" style="margin:8px 0 0">A fibre that does not light is tried again at the same short settings, up to the number of goes, before the search moves on. No long 20 s tone. Repeat runs does the same ribbons back to back (up to 10) and writes each run's time and the average into the activity log. Alternate ends On: the two RTUs take turns to tone, fibre by fibre; Off: only the "tone from" end tones.</p>
                 <div class="row" style="margin-top:10px;align-items:center">
                   <button class="btn" type="button" id="eSpeed">Speed test the chosen ribbons</button>
                   <span class="note">Tries every fibre 5 times on its own position at these settings and reports how often one go finds it and how long a go takes. Nothing is recorded on the cable.</span>
@@ -1187,7 +1195,7 @@
               <label class="f">Splice nominal (dB)<input type="number" id="rpNom" min="0" max="1" step="0.01" value="0.02" style="width:110px"></label>
               <div><div class="note" style="margin-bottom:6px">Cable view wavelengths</div><div class="seg" role="group" aria-label="Wavelengths" id="rpWl"><button type="button" data-rw="1550">1550</button><button type="button" data-rw="1310,1550">1310 and 1550</button><button type="button" data-rw="1310,1550,1625">All three</button></div></div>
             </div>
-            <p class="note" style="margin:12px 0 0">Locations: <b id="rpLoc">…</b> · <button class="lnk2" type="button" data-act="r-locs">Locations</button></p>
+            <p class="note adm" style="margin:12px 0 0">Locations: <b id="rpLoc">…</b> · <button class="lnk2" type="button" data-act="r-locs">Locations</button></p>
             <label class="f" style="margin-top:12px">EXFO customer report, for the Client Verify sheet (optional)<input type="file" id="rpClient" accept=".xlsx"></label>
           </section>
         </div>
@@ -1208,7 +1216,7 @@
         <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><h2 style="margin:0" class="grow">Report history</h2><span class="note" id="rpHistNote"></span><button class="btn" type="button" id="rpRefresh">Refresh</button></div>
         <div id="rpRows" style="margin-top:10px"><p class="note">Loading…</p></div>
       </section>
-      <section class="panel" id="rpLocs" style="margin-top:16px">
+      <section class="panel adm" id="rpLocs" style="margin-top:16px">
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><h2 style="margin:0" class="grow">Locations and asset inventory</h2><div class="seg" role="group" aria-label="Cable" id="lcCables"></div></div>
         <p class="note" style="margin:10px 0 14px">Joints are learned from the test results: when many fibres show an event at the same distance, that is a location. Name each one from the design once and every report uses the name. A cable with a Distances workbook can use that instead.</p>
         <div id="lcBody"><p class="note">Loading…</p></div>
@@ -1216,6 +1224,11 @@
       </section>
     </main>
   </div>
+  <dialog class="pickdlg dbgdlg" id="dbgDlg" aria-labelledby="dbgTitle">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><h2 id="dbgTitle" style="margin:0" class="grow">Run debug</h2>
+      <select id="dbgJob" style="max-width:420px"></select><button class="btn" type="button" id="dbgCsv">Download CSV</button><button class="btn" type="button" id="dbgClose">Close</button></div>
+    <div id="dbgBody" style="margin-top:12px"><p class="note">Loading…</p></div>
+  </dialog>
   <dialog class="help" id="help" aria-labelledby="helpTitle">
     <div class="helphead"><h2 id="helpTitle">Help</h2>
       <span class="seg" role="tablist" aria-label="Help"><button type="button" role="tab" data-ht="guide" aria-pressed="true">Guide</button><button type="button" role="tab" data-ht="notes" aria-pressed="false">Release notes</button></span>
@@ -1355,7 +1368,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel 1.0.4";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.0.5";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -1445,7 +1458,7 @@
   };
   /* Brunel.6: admin only (the relay checks too). Ends every session on every device, including this one. */
   (()=>{ const b=$("signOutAll"); if(!b) return; const ADMINS=["alkis.kardasopoulos@motionrail.co.uk"];
-    const show=()=>{ b.hidden=!ADMINS.includes(String(session.user||"").trim().toLowerCase()); }; show(); setInterval(show,5000);
+    const show=()=>{ const a=ADMINS.includes(String(session.user||"").trim().toLowerCase()); b.hidden=!a; document.body.classList.toggle("isadm",a); }; show(); setInterval(show,5000);
     b.onclick=async()=>{ if(!confirm("Sign out everyone, on every phone and computer, including you? Running E2E runs will stop.")) return;
       try{ const d=await relay("/api/admin/signout-all",{}); signedOut("Everyone has been signed out ("+(d.ended||0)+" sessions)."); }
       catch(e){ if(e.message!=="signed out") toast("Could not sign everyone out: "+e.message); } }; })();
@@ -1625,6 +1638,35 @@
     for(let i=0;i<60 && !(FB.data&&FB.data.stem===stem&&(FB.data.fibres||[]).length);i++) await new Promise(r=>setTimeout(r,250));
     if(FB.data&&FB.data.stem===stem){ await showFibre(f); if(then) then(); }
   }
+  /* Brunel 1.0.5: admin Run debug. Every test of an E2E run from the relay's own log. */
+  const DBG={rows:[],job:null};
+  async function dbgOpen(){
+    const d=$("dbgDlg"); if(d.showModal) d.showModal(); else d.setAttribute("open","");
+    $("dbgBody").innerHTML=`<p class="note">Loading…</p>`;
+    try{ const j=await relay("/api/continuity/jobs",{}); const jobs=j.jobs||[];
+      $("dbgJob").innerHTML=jobs.map(x=>`<option value="${x.id}">${new Date(x.started*1000).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})} · ${esc(x.stem||"")} R${(x.ribbons||[]).join(",")} · ${esc(x.state)}${x.passes&&x.passes.length>1?` · ${x.passes.length} runs`:""}</option>`).join("")||`<option value="">No runs on the relay</option>`;
+      const pick=(E.jobId&&jobs.some(x=>x.id===E.jobId))?E.jobId:(jobs[0]||{}).id; if(pick){ $("dbgJob").value=pick; await dbgLoad(pick); } else $("dbgBody").innerHTML=`<p class="note">No runs on the relay since it last started.</p>`;
+    }catch(e){ if(!quiet(e)) $("dbgBody").innerHTML=`<p class="note">Could not load: ${esc(e.message)}</p>`; }
+  }
+  async function dbgLoad(id){
+    $("dbgBody").innerHTML=`<p class="note">Loading…</p>`;
+    const d=await relay("/api/continuity/debug",{jobId:id}); DBG.job=d;
+    const sh=x=>String(x||"").replace(/^RTU\d*-|-\d+$/g,""); const f3=n=>"F"+String(n).padStart(3,"0");
+    DBG.rows=(d.testLog||[]).map((t,i)=>({i:i+1,run:t.pass||1,src:t.src,cand:t.cand,v:t.verdict,tone:sh(t.toneAt),chk:sh(t.otdrAt),cyc:t.cycleS,otdr:t.otdrS,acq:t.acqAfterToneS,tl:t.toneS,busy:t.busyRetries||0,at:t.t}));
+    const st=d.settings||{}, pc=d.pace||{}, rs=d.repeatSummary;
+    const dir={}; DBG.rows.filter(r=>r.src===r.cand&&r.tone).forEach(r=>{ const k=r.tone+" tones, "+r.chk+" checks"; const o=dir[k]=dir[k]||{goes:0,lit:0,late:0,dark:0}; o.goes++; if(r.v==="clash")o.lit++; else if(r.v==="late")o.late++; else if(r.v==="clean")o.dark++; });
+    let h=`<p class="note" style="margin:0 0 10px">${esc(d.stem||"")} · ${esc(d.toneRtu||"")} → ${esc(d.testRtu||"")} · ${esc(d.state||"")} · relay ${esc(d.relayVersion||"?")} · tone ${pc.toneS} s, OTDR ${st.otdrS} s, lead ${pc.leadS} s, alternate ${pc.alternate?"on":"off"}, goes ${st.shortTries}, repeat ${st.repeat||1} · ${(d.timing||{}).elapsedS||"?"} s in all, ${DBG.rows.length} tests</p>`;
+    if(rs) h+=`<p style="margin:0 0 10px"><b>Average of ${rs.runs} runs: ${Math.round(rs.avgS)} s a ribbon</b> (fastest ${Math.round(rs.minS)} s, slowest ${Math.round(rs.maxS)} s); ${rs.avgMisses} misses a run costing ${Math.round(rs.avgMissS)} s</p>`;
+    if(Object.keys(dir).length) h+=`<table class="dbgt" style="margin-bottom:12px;width:auto"><thead><tr><th>Direction (own position)</th><th>Goes</th><th>Lit</th><th>Late</th><th>Dark</th><th>Lit first time</th></tr></thead><tbody>${Object.entries(dir).map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.goes}</td><td class="n">${o.lit}</td><td class="n">${o.late}</td><td class="n">${o.dark}</td><td class="n">${Math.round(100*o.lit/(o.goes||1))}%</td></tr>`).join("")}</tbody></table>`;
+    if((d.passes||[]).length>1) h+=`<table class="dbgt" style="margin-bottom:12px;width:auto"><thead><tr><th>Run</th><th>Seconds</th><th>Tests</th><th>Straight</th><th>Misses</th><th>Miss cost (s)</th><th>Missed fibres</th></tr></thead><tbody>${d.passes.map(p=>`<tr><td class="n">${p.pass}</td><td class="n">${Math.round(p.seconds)}</td><td class="n">${p.tests}</td><td class="n">${p.straight}/${p.fibres}</td><td class="n">${p.misses}</td><td class="n">${Math.round(p.missS)}</td><td>${esc((p.missFibres||[]).join(", "))}</td></tr>`).join("")}</tbody></table>`;
+    h+=`<div style="overflow-x:auto"><table class="dbgt"><thead><tr><th>#</th><th>Run</th><th>Fibre</th><th>On</th><th>Tone → check</th><th>Result</th><th>Cycle (s)</th><th>OTDR (s)</th><th>Check after tone (s)</th><th>Tone (s)</th><th>Busy</th></tr></thead><tbody>${DBG.rows.map(r=>`<tr><td class="n">${r.i}</td><td class="n">${r.run}</td><td>${f3(r.src)}</td><td>${r.cand===r.src?"own":f3(r.cand)}</td><td>${esc(r.tone)} → ${esc(r.chk)}</td><td class="v-${esc(r.v)}">${r.v==="clash"?"lit":r.v==="clean"?"dark":esc(r.v)}</td><td class="n">${r.cyc??""}</td><td class="n">${r.otdr??""}</td><td class="n">${r.acq??""}</td><td class="n">${r.tl??""}</td><td class="n">${r.busy||""}</td></tr>`).join("")}</tbody></table></div>`;
+    $("dbgBody").innerHTML=h;
+  }
+  $("dbgJob").onchange=()=>{ const v=$("dbgJob").value; if(v) dbgLoad(v).catch(e=>{ if(!quiet(e)) $("dbgBody").innerHTML=`<p class="note">Could not load: ${esc(e.message)}</p>`; }); };
+  $("dbgClose").onclick=()=>$("dbgDlg").close();
+  $("dbgCsv").onclick=()=>{ if(!DBG.rows.length) return; const head="test,run,fibre,on,tone_end,check_end,result,cycle_s,otdr_s,check_after_tone_s,tone_s,busy_retries,time";
+    const csv=[head].concat(DBG.rows.map(r=>[r.i,r.run,r.src,r.cand,r.tone,r.chk,r.v,r.cyc??"",r.otdr??"",r.acq??"",r.tl??"",r.busy,new Date((r.at||0)*1000).toISOString()].join(","))).join("\n");
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`E2E run debug ${(DBG.job&&DBG.job.stem)||""}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); };
   function doAct(a,ds){
     const tool=(t,title)=>pickCable(title,false,(c,end)=>{ pickRtu(end); screen="console"; showTab(t); });
     switch(a){
@@ -1636,6 +1678,8 @@
       case "history": return setScreen("history");
       case "r-new": setScreen("reports"); return $("rpNew").scrollIntoView({behavior:"smooth",block:"start"});
       case "r-history": setScreen("reports"); return setTimeout(()=>$("rpHist").scrollIntoView({behavior:"smooth",block:"start"}),60);
+      case "a-cv": return setScreen("fibres");
+      case "a-debug": return dbgOpen();
       case "r-locs": setScreen("reports"); return setTimeout(()=>$("rpLocs").scrollIntoView({behavior:"smooth",block:"start"}),60);
       case "files": setScreen("history"); return toast("Open a finished FMS Task in the list, then press Download files.");
       case "csv": setScreen("history"); return setTimeout(()=>{ const b=$("hCsv"); if(b){ b.focus(); toast("Pick the days and filters, then Export CSV."); } },200);
@@ -1921,7 +1965,7 @@
     document.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{ const q=b.dataset.eq; E.ribbons.clear();
       if(q==="all") for(let r=1;r<=36;r++) E.ribbons.add(r); eSetupPaint(); });
   })();
-  $("eResetAdv").onclick=()=>{ $("eToneS").value=EDEF.toneS; $("eOtdrS").value=EDEF.otdrS; $("eTries").value=EDEF.tries; $("eRepeat").value=1; eSetupPaint(); };
+  $("eResetAdv").onclick=()=>{ $("eToneS").value=EDEF.toneS; $("eOtdrS").value=EDEF.otdrS; $("eTries").value=EDEF.tries; $("eRepeat").value=1; $("eAlt").value="1"; eSetupPaint(); };
   $("eToneS").oninput=()=>eSetupPaint();
   $("eSwap").onclick=()=>{ [E.tone,E.test]=[E.test,E.tone]; eSetupPaint(); };
 
@@ -1983,7 +2027,7 @@
     const tries=Math.min(5,Math.max(1,+$("eTries").value||EDEF.tries));
     if(speed && !await ask("Speed test", `Tone ${toneS} s, OTDR ${otdrS} s. Every fibre in ${rangeText([...E.ribbons])} (${E.ribbons.size*PER}) is tried 5 times on its own position, from ${placeOf(E.tone)} to ${placeOf(E.test)}. About ${mins(E.ribbons.size*PER*5*12)}. Nothing is recorded on the cable.`, "Start speed test")) return;
     const body={toneRtu:E.tone, testRtu:E.test, stem:E.stem, ribbons:[...E.ribbons].sort((a,b)=>a-b), toneS, otdrS, autoPace:false, fast:true, shortTries:tries,
-                speedTest:!!speed, speedTries:5, repeat:speed?1:Math.min(10,Math.max(1,+$("eRepeat").value||1)),
+                speedTest:!!speed, speedTries:5, repeat:speed?1:Math.min(10,Math.max(1,+$("eRepeat").value||1)), alternate:$("eAlt").value!=="0",
                 appVersion:"desktop "+APP_VERSION, wavelengthNm:1550, freqHz:330, simulate:(SIM&&RELAY!==LIVE_RELAY)?SIM:null, user:session.user||""};
     try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){}
     $("eStart").disabled=true; $("eStart").textContent="Starting…";
@@ -2114,7 +2158,7 @@
   $("eResume").onclick=async()=>{
     const s=E.snap; if(!s||!s.settings) return; const st=s.settings;
     const body={toneRtu:st.toneRtu, testRtu:st.testRtu, stem:st.stem, ribbons:st.ribbons, toneS:st.toneS, otdrS:st.otdrS, autoPace:false, fast:true, shortTries:st.shortTries||EDEF.tries,
-                speedTest:!!st.speedTest, speedTries:st.speedTries||5,
+                speedTest:!!st.speedTest, speedTries:st.speedTries||5, alternate:st.alternate!==false,
                 appVersion:"desktop "+APP_VERSION, wavelengthNm:st.wavelengthNm||1550, freqHz:st.freqHz||0, simulate:st.simulate||null,
                 prior:s.results||{}, resumeOf:s.state==="interrupted"?s.id:(s.resumeOf||s.id), user:session.user||""};
     $("eResume").disabled=true;
@@ -2488,7 +2532,7 @@
         <p class="note" style="margin:8px 0">${esc(d.stem.replace(/-R\d+$/,""))} · tone ${esc(short(d.toneRtu))}, OTDR ${esc(short(d.testRtu))}${d.settings&&d.settings.toneS?` · tone ${d.settings.toneS} s, OTDR ${d.settings.otdrS} s`:""}</p>${g}
         <p class="note" id="hRepCell" style="margin:6px 0 0">Click a fibre for what it found.</p>
         ${probs.length?`<h4 style="margin:12px 0 6px">To check</h4><ul class="fhist">${probs.map(([f,x])=>x.state==="flipnote"?`<li><span class="t">R${x.r}</span><span>Ribbon flipped: 1 lands on 12, 12 on 1</span></li>`:`<li><span class="t">${fNum(+f)}</span><span>${esc(word(x))}${x.loc?" · "+esc(x.loc):""}</span></li>`).join("")}</ul>`:""}
-        <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" id="hRepCv">Open in Cable View</button></div>`;
+        <div style="display:flex;gap:8px;margin-top:10px"><button class="btn adm" type="button" id="hRepCv">Open in Cable View</button></div>`;
       box.querySelectorAll("[data-rf]").forEach(b=>b.onclick=()=>{ const f=+b.dataset.rf; $("hRepCell").textContent=fNum(f)+" (R"+ribOf(f)+" F"+posOf(f)+"): "+word(res[String(f)]); });
       $("hRepCv").onclick=()=>{ const stem=d.stem; if(FB.stem!==stem){ FB.stem=stem; jset("rft.fib.stem",stem); } setScreen("fibres"); };
     }catch(e){ if(!quiet(e)) box.innerHTML=`<p class="note">Report not available: ${esc(e.message)}</p>`; }
