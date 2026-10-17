@@ -1335,6 +1335,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel 1.1.2 (17 Oct 2026)</h3>
+      <ul><li>Splice loss 1550: every fibre is set on the backbone distance, so a joint reads the same distance on every fibre, even on the ribbons that are longer because they go round spurs. Joints the schedule does not list are grouped on that distance too, so the same joint lines up in one column.</li><li>Spurs: the joints out at a REB show only on the ribbons that go through that spur. They sit at the distance where the spur leaves the backbone, with their place on the spur (spur out 20 m, spur end 53 m, spur back 2 m). Spurs found lists where each spur leaves and how long it is.</li></ul>
       <h3>Brunel 1.1.1 (17 Oct 2026)</h3>
       <ul><li>Tasks menu: Running now is gone (it is on Overview); Run history stays.</li><li>Cable View has three views: <b>Continuity</b>, <b>Splice loss 1550</b> and <b>ODF</b>. Continuity colours by continuity only; loss lives in the other two views.</li><li>Splice loss 1550: a <b>By joint</b> list under the grid, one row per joint with its type, distance, fails, worst loss and the ribbons failing. Sort along the cable or most fails first; click a joint for every ribbon there.</li><li>ODF: the connector at the ODF next to each RTU for every fibre, from the same latest results, pass at or under 0.5 dB at 1550 and fail above. Both ends as ribbon grids, a list of fails, and the detail of each connector (position, reflectance, 1310, 1550, 1625).</li><li>A cable whose testers are offline still shows its latest results: Update reads the latest stored FMS result of every fibre whatever its age, Cable View's loss and length use them when no recent FMS Task tested the cable, and continuity looks back up to a year when nothing is recent.</li><li>When your sign in has ended, Splice loss and ODF say so instead of waiting.</li></ul>
       <h3>Brunel 1.1 (16 Oct 2026)</h3>
@@ -1474,7 +1476,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel 1.1.1";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.1.2";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -2948,6 +2950,9 @@
   const SPVIEW=()=>jget("rft.sp.view."+FB.stem,{})||{};
   const spNum=v=>v==null?"":Number(v).toFixed(2), spShort=n=>String(n||"").replace(" (unscheduled)"," *").replace(/\s*\([^)]*\)\s*$/,"");
   const spKm=m=>m==null?"":(m/1000).toFixed(2)+" km";
+  // a spur joint keeps the distance where its spur leaves the backbone, plus its place on the spur
+  const spSpur=l=>!l||!l.spur_leg?"":l.spur_leg==="end"?`spur end ${l.spur_m} m`:`spur ${l.spur_leg} ${l.spur_m} m`;
+  const spWhere=l=>spKm(l.pos)+(l&&l.spur_leg?" · "+spSpur(l):"");
   const SPHOW={both:"both ends", nominal:"one end + nominal", ribbon:"one end + ribbon average", one_way:"one end only, left out"};
   function spCable(){ return CABLES.find(c=>FB.stem.startsWith(c.pre)); }
   function spCls(v,lim){ if(v==null) return "n"; const s=SP.sum&&SP.sum.settings||{}; if(v>=(lim??s.threshold)) return "f"; return s.split&&v>=0.10?"p1":"p0"; }
@@ -3085,7 +3090,7 @@
       while(i<locs.length){ const sp=locs[i].spur; let j=i; while(j+1<locs.length&&sp&&locs[j+1].spur===sp) j++;
         h+=sp?`<th class="spb" colspan="${j-i+1}" data-sploc="${esc(locs[i].loc)}" title="${esc(sp)}">${esc(sp.replace(/ spur$/,""))}</th>`:"<th></th>"; i=j+1; }
       h+="</tr>"; }
-    h+=`<tr class="sphd"><th class="rl">Ribbon</th>`+locs.map(l=>`<th><div class="vt" data-sploc="${esc(l.loc)}" title="${esc(l.loc)} · ${spKm(l.pos)} · ${l.n_fibres} fibres${l.sodf?" · S-ODF":""}${l.spur?" · "+esc(l.spur):""}"><b>${esc(spShort(l.loc))}</b>${l.sodf?' <span class="sod">S-ODF</span>':""} · ${spKm(l.pos)}</div></th>`).join("")+"</tr>";
+    h+=`<tr class="sphd"><th class="rl">Ribbon</th>`+locs.map(l=>`<th><div class="vt" data-sploc="${esc(l.loc)}" title="${esc(l.loc)} · ${spWhere(l)} · ${l.n_fibres} fibres${l.sodf?" · S-ODF":""}${l.spur?" · "+esc(l.spur):""}"><b>${esc(spShort(l.loc))}</b>${l.sodf?' <span class="sod">S-ODF</span>':""} · ${l.spur_leg?spSpur(l):spKm(l.pos)}</div></th>`).join("")+"</tr>";
     s.ribbons.forEach(rb=>{
       h+=`<tr><td class="rl"><a href="#" data-sprb="${rb}">R${rb}</a></td>`;
       locs.forEach(l=>{ const x=cm[rb+"|"+l.loc];
@@ -3111,15 +3116,15 @@
       <span class="seg" role="group" aria-label="Sort"><button type="button" data-jsort="pos" aria-pressed="${SP.jsort==="pos"}">Along the cable</button><button type="button" data-jsort="fails" aria-pressed="${SP.jsort==="fails"}">Most fails first</button></span></div>
       <table class="spt" style="margin-top:8px"><tr><th>Joint</th><th>Type</th><th class="n">km from ${esc(SP.sum.dataset.site_a||"End A")}</th><th class="n">Splices</th><th class="n">Fails</th><th></th><th class="n">Worst (dB)</th><th>Ribbons failing</th></tr>`
       +jl.map(j=>`<tr class="clk" data-jloc="${esc(j.l.loc)}"><td><b>${esc(spShort(j.l.loc))}</b>${j.l.spur?` <span class="sptag s">${esc(j.l.spur)}</span>`:""}</td><td>${j.l.sodf?'<span class="sod">S-ODF</span>':esc(j.l.kind||(j.l.scheduled?"":"not in schedule"))}</td>
-        <td class="n">${j.l.pos==null?"":(j.l.pos/1000).toFixed(2)}</td><td class="n">${j.n}</td><td class="n" style="${j.fails?"color:var(--bad);font-weight:700":""}">${j.fails||""}</td>
+        <td class="n">${j.l.pos==null?"":(j.l.pos/1000).toFixed(2)}${j.l.spur_leg?`<div class="note">${spSpur(j.l)}</div>`:""}</td><td class="n">${j.n}</td><td class="n" style="${j.fails?"color:var(--bad);font-weight:700":""}">${j.fails||""}</td>
         <td>${j.fails?`<span class="spbar" style="width:${Math.max(4,Math.round(80*j.fails/maxF))}px"></span>`:""}</td>
         <td class="n" style="color:${j.worst==null?"inherit":j.fails?"var(--bad)":"var(--ok)"};font-weight:700">${spNum(j.worst)}</td><td class="note">${rbTxt(j.rf)}</td></tr>`).join("")+"</table>";
     $("spJoints").querySelectorAll("[data-jloc]").forEach(e=>e.onclick=()=>spDrill("loc",e.dataset.jloc,0));
     $("spJoints").querySelectorAll("[data-jsort]").forEach(e=>e.onclick=()=>{ SP.jsort=e.dataset.jsort; spPaint(); });
     const sps=s.spurs||[];
     $("spSpurs").hidden=!sps.length;
-    $("spSpurs").innerHTML=`<h3 style="margin:0 0 8px">Spurs found</h3><p class="note" style="margin:0 0 8px">Joints that only one smaller group of fibres goes through, each within ${st.spur_gap} m of the next.</p><table class="spt"><tr><th>Spur</th><th>Fibres</th><th class="n">From</th><th class="n">To</th><th>Joints</th><th class="n">Fails</th></tr>`
-      +sps.map(p=>`<tr><td><a href="#" data-sploc="${esc(p.locations[0])}">${esc(p.name)}</a></td><td>${esc(((s.groups||[]).find(g=>g.id===p.group)||{}).ribbons||p.group)}</td><td class="n">${spKm(p.start)}</td><td class="n">${spKm(p.end)}</td><td class="note">${p.locations.map(esc).join(" · ")}</td><td class="n" style="${p.fail?"color:var(--bad);font-weight:700":""}">${p.fail}</td></tr>`).join("")+"</table>";
+    $("spSpurs").innerHTML=`<h3 style="margin:0 0 8px">Spurs found</h3><p class="note" style="margin:0 0 8px">Every fibre is set on the backbone distance, so a joint reads the same on every fibre. A spur is the loop some ribbons take out to a REB and back: its joints show only on those ribbons, at the distance where the spur leaves the backbone, with their place along the spur.</p><table class="spt"><tr><th>Spur</th><th>Fibres</th><th class="n">Leaves at</th><th class="n">Length</th><th>Joints</th><th class="n">Fails</th></tr>`
+      +sps.map(p=>`<tr><td><a href="#" data-sploc="${esc(p.locations[0])}">${esc(p.name)}</a></td><td>${esc(((s.groups||[]).find(g=>g.id===p.group)||{}).ribbons||p.group)}</td><td class="n">${spKm(p.start)}</td><td class="n">${p.length!=null?p.length+" m":spKm(p.end)}</td><td class="note">${p.locations.map(esc).join(" · ")}</td><td class="n" style="${p.fail?"color:var(--bad);font-weight:700":""}">${p.fail}</td></tr>`).join("")+"</table>";
     $("spSpurs").querySelectorAll("[data-sploc]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); spDrill("loc",e.dataset.sploc,0); });
   }
   // drill down: a cell (one ribbon at one joint), a joint (every ribbon), or a ribbon along the cable
@@ -3133,7 +3138,7 @@
         const locs=R.locations.filter(l=>SP.small||l.scheduled||l.n_fibres>=minN);
         let h=`<div class="fbar"><h3 style="margin:0">Ribbon ${a} along the cable</h3>${a>1?`<button class="btn" type="button" data-spgo="${a-1}">R${a-1}</button>`:""}${a<36?`<button class="btn" type="button" data-spgo="${a+1}">R${a+1}</button>`:""}<span class="grow"></span><button class="btn" type="button" id="spDetX">Close</button></div>
           <div class="spheat"><table><tr class="sphd"><th class="rl">Fibre</th><th><div class="vt"><b>A-B E2E</b></div></th><th><div class="vt"><b>B-A E2E</b></div></th>`
-          +locs.map(l=>`<th><div class="vt" data-sploc="${esc(l.loc)}" title="${esc(l.loc)}"><b>${esc(spShort(l.loc))}</b>${l.sodf?' <span class="sod">S-ODF</span>':""} · ${spKm(l.pos)}</div></th>`).join("")+"</tr>";
+          +locs.map(l=>`<th><div class="vt" data-sploc="${esc(l.loc)}" title="${esc(l.loc)}"><b>${esc(spShort(l.loc))}</b>${l.sodf?' <span class="sod">S-ODF</span>':""} · ${l.spur_leg?spSpur(l):spKm(l.pos)}</div></th>`).join("")+"</tr>";
         R.fibres.forEach(f=>{ h+=`<tr><td class="rl">F${String(f.fno).padStart(3,"0")}</td><td class="c n" style="color:var(--ink)">${spNum(f.a1550)}</td><td class="c n" style="color:var(--ink)">${spNum(f.b1550)}</td>`
           +locs.map(l=>{ const x=R.cells[f.fno+"|"+l.loc]; if(!x) return `<td class="c n"></td>`;
             if(x.how==="one_way") return `<td class="c n" title="one end only">${spNum(x.value)}</td>`;
@@ -3148,9 +3153,9 @@
         const rows=L.rows.filter(r=>r.splice||!b).sort((x,y)=>((y.how==="one_way"?-9:y.value)??-9)-((x.how==="one_way"?-9:x.value)??-9))
           .filter(r=>SP.show!=="fail"||r.fail);
         const lo=L.location||{}, nf=rows.filter(r=>r.fail).length;
-        let h=`<div class="fbar"><h3 style="margin:0">${esc(a)}${b?" · Ribbon "+b:" · every ribbon"}</h3><span class="note">${spKm(lo.pos)}${lo.kind?" · "+esc(lo.kind):""}${lo.spur?" · "+esc(lo.spur):""} · ${nf} fail${nf===1?"":"s"}${SP.show==="fail"?" (fails only)":""}</span>
+        let h=`<div class="fbar"><h3 style="margin:0">${esc(a)}${b?" · Ribbon "+b:" · every ribbon"}</h3><span class="note">${spWhere(lo)}${lo.kind?" · "+esc(lo.kind):""}${lo.spur?" · "+esc(lo.spur):""} · ${nf} fail${nf===1?"":"s"}${SP.show==="fail"?" (fails only)":""}</span>
           <span class="grow"></span>${b?`<button class="btn" type="button" id="spAllR">Every ribbon here</button><button class="btn" type="button" id="spRib">Ribbon ${b} along the cable</button>`:""}<button class="btn" type="button" id="spDetX">Close</button></div>
-          <table class="spt" style="margin-top:8px"><tr><th>Fibre</th><th>Ribbon</th><th class="n">From End A</th><th>Event</th><th class="n">A-B</th><th class="n">B-A</th><th class="n">Loss</th><th class="n">Limit</th><th></th></tr>`;
+          <table class="spt" style="margin-top:8px"><tr><th>Fibre</th><th>Ribbon</th><th class="n" title="Where the event is on that fibre's own trace from End A">On its trace</th><th>Event</th><th class="n">A-B</th><th class="n">B-A</th><th class="n">Loss</th><th class="n">Limit</th><th></th></tr>`;
         rows.forEach(r=>{ const cls=r.splice&&r.how!=="one_way"?spCls(r.value,r.limit):"", col=cls==="f"?"var(--bad)":cls?"var(--ok)":"inherit";
           const tags=[r.fail?`<span class="sptag f">fail</span>`:"", r.how&&r.how!=="both"?`<span class="sptag">${esc(SPHOW[r.how]||"")}</span>`:"", r.gainer?`<span class="sptag">gainer</span>`:"", r.splice&&lo.sodf&&r.limit!==SP.sum.settings.threshold?`<span class="sptag s">S-ODF ${r.limit}</span>`:""].join("");
           h+=`<tr><td class="mono"><a href="#" data-spf="${r.fno}">F${String(r.fno).padStart(3,"0")}</a></td><td><a href="#" data-sprb2="${r.ribbon}">R${r.ribbon}</a></td><td class="n">${r.pos??""} m</td><td>${esc(r.type)}</td><td class="n">${spNum(r.ab)}</td><td class="n">${spNum(r.ba)}</td><td class="n" style="color:${col};font-weight:700">${spNum(r.value)}</td><td class="n note">${r.splice?r.limit:""}</td><td>${tags}</td></tr>`; });

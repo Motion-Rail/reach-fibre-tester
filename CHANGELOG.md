@@ -5,6 +5,13 @@ Far-end confirmation: live-fibre detector clamp.
 
 ---
 
+## Brunel 1.1.2 — 17 Oct 2026 (relay build 50)
+
+- Splice loss 1550 on the backbone distance (engine ci_align.py, shared with Cable Insight v0.9): each fibre is mapped onto the backbone with its own offset at the joints most ribbons share; where the offset jumps between two of them by more than 40 m the fibre went round a spur loop, placed from the spur's own joints (the REB/ODF sits half way round).
+- Spur joints keep the junction's backbone distance plus their place on the spur (out, end, back, in metres) and show only on the ribbons that go through it. Spurs found shows where each spur leaves and its length.
+- Unscheduled joints are clustered on the backbone distance by density (busiest 50 m first, stragglers picked up, one reading per fibre) instead of chaining raw distances.
+- Stored pulls are realigned once when first opened; results are untouched, only the derived distance and the unscheduled joint labels.
+
 ## Brunel 1.1.1 — 17 Oct 2026 (relay build 49)
 
 - Tasks menu: Running now removed (shown on Overview); Run history stays.
