@@ -5,6 +5,15 @@ Far-end confirmation: live-fibre detector clamp.
 
 ---
 
+## Brunel 1.1.1 — 17 Oct 2026 (relay build 49)
+
+- Tasks menu: Running now removed (shown on Overview); Run history stays.
+- Cable View views: Continuity (colours by continuity only), Splice loss 1550, ODF.
+- Splice loss 1550: By joint list (type, km, splices, fails, worst, ribbons failing; sort along the cable or most fails first).
+- ODF view: connector at the ODF next to each RTU (first event after the launch on that end's trace, as fms_pull.build_odf), pass at or under 0.5 dB at 1550; both ends as ribbon grids, fails list, connector detail; limit per viewer or saved for the cable. Relay: /api/splice/odf, odf table in the engine (backfilled when the same results come round).
+- Offline testers: Cable View loss and length fall back to the latest stored FMS results (relay_splice.latest_loss) when no FMS Task in FIBRES_DAYS tested the cable; continuity logs look back FIBRES_LONG_DAYS (365) when nothing is recent.
+- Splice loss and ODF say when the sign in has ended instead of waiting.
+
 ## Brunel 1.1 — 16 Oct 2026 (relay build 48)
 
 ### Cable View: Continuity and Splice loss

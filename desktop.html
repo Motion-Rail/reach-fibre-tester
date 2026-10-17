@@ -211,6 +211,16 @@
   table.spt td.n,table.spt th.n{text-align:right;font-variant-numeric:tabular-nums}
   .sptag{display:inline-block;font-size:11px;border-radius:999px;padding:1px 8px;margin-right:4px;background:var(--soft);color:var(--muted)}
   .sptag.f{background:var(--bad-tint);color:var(--bad)} .sptag.s{background:var(--live-tint);color:var(--live)}
+  /* Brunel 1.1.1: ODF view and By joint list */
+  .odwrap{display:flex;flex-wrap:wrap;gap:28px;margin-top:10px}
+  .odg{display:grid;grid-template-columns:40px repeat(12,46px);gap:3px;align-items:center;font-size:11px}
+  .odg .hd{text-align:center;color:var(--muted);font-weight:700} .odg .rl{text-align:right;padding-right:6px;color:var(--muted);font-weight:700}
+  .odg button{height:24px;border:0;border-radius:5px;font-weight:700;font-size:11px;font-variant-numeric:tabular-nums;cursor:pointer;padding:0}
+  .odg button.p0{background:var(--sp0);color:var(--sp0i)} .odg button.f{background:var(--spf);color:var(--spfi)} .odg button.n{background:var(--spno);color:var(--faint);cursor:default}
+  .odg button.dim{background:var(--spno);color:transparent} .odg button.sel{outline:2px solid var(--ink);outline-offset:1px}
+  .odg h4{grid-column:1/-1;margin:0 0 4px;font-size:13px}
+  table.spt tr.clk{cursor:pointer} table.spt tr.clk:hover td{background:var(--soft)}
+  .spbar{display:inline-block;height:8px;border-radius:3px;background:var(--spf);vertical-align:middle}
   .fc.now{box-shadow:0 0 0 2px var(--live);animation:fnow 1.6s ease-in-out infinite}
   @keyframes fnow{50%{box-shadow:0 0 0 4px var(--live-tint),0 0 0 2px var(--live)}}
   @media (prefers-reduced-motion:reduce){.fc.now{animation:none}}
@@ -756,7 +766,7 @@
     <nav aria-label="Screens" class="mnav">
       <div class="mi" data-mi="ov"><button data-nav="live">Overview</button></div>
       <div class="mi hdr" data-mi="tr"><button data-nav="history" aria-haspopup="menu">Tasks</button><button type="button" class="mcar" aria-label="Tasks menu" aria-haspopup="menu" aria-expanded="false">▾</button>
-        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="running"><b>Running now</b></button><button type="button" role="menuitem" data-act="history"><b>Run history</b></button></div></div>
+        <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="history"><b>Run history</b></button></div></div>
       <div class="mi hdr" data-mi="tl"><button data-nav="console" aria-haspopup="menu">Tools</button><button type="button" class="mcar" aria-label="Tools menu" aria-haspopup="menu" aria-expanded="false">▾</button>
         <div class="mdd mshort" role="menu"><button type="button" role="menuitem" data-act="t-live"><b>Real Time</b></button><button type="button" role="menuitem" data-act="t-once"><b>Single Test</b></button><button type="button" role="menuitem" data-act="t-e2e"><b>E2E Continuity</b></button><button type="button" role="menuitem" data-act="t-uni"><b>Tone Test</b></button><button type="button" role="menuitem" data-act="t-bulk"><b>Bulk Test</b></button><div id="mPickNote" hidden></div></div></div></div>
       <div class="mi adm" data-mi="cv" id="miCv" hidden><button data-nav="fibres">Cable View</button><button type="button" class="mcar" aria-label="Cable View menu" aria-haspopup="menu" aria-expanded="false">▾</button>
@@ -1145,7 +1155,7 @@
         <div class="fbar">
           <h2 style="margin:0">Cable View</h2>
           <select id="fCable" aria-label="Cable"></select>
-          <span class="seg" role="group" aria-label="View" id="cvMode"><button type="button" data-cv="cont" aria-pressed="true">Continuity</button><button type="button" data-cv="splice" aria-pressed="false">Splice loss</button></span>
+          <span class="seg" role="group" aria-label="View" id="cvMode"><button type="button" data-cv="cont" aria-pressed="true">Continuity</button><button type="button" data-cv="splice" aria-pressed="false">Splice loss 1550</button><button type="button" data-cv="odf" aria-pressed="false">ODF</button></span>
           <span class="grow"></span>
           <input id="fFind" type="search" hidden aria-hidden="true">
           <span class="frep" hidden><button class="btn" type="button" id="fReport" hidden title="Excel workbook of this cable: a Summary sheet, then one row per fibre with continuity, iOLM loss from each end and the both ways average per wavelength, lengths and OTDR loss">Cable report (Excel)</button><small class="note" id="fRepNote" hidden>Every fibre: continuity, loss each end and both ways, length</small></span>
@@ -1159,7 +1169,7 @@
       <section class="panel fprog" id="fProg" style="margin-top:12px"></section>
       <div class="fwrap" style="margin-top:16px">
         <section class="panel">
-          <div class="fcolour"><b>Colour fibres by</b><span class="seg" role="group" aria-label="Colour fibres by">
+          <div class="fcolour"><span class="seg" role="group" aria-label="Colour fibres by" hidden>
             <button type="button" data-fm="cont" aria-pressed="true">Continuity</button>
             <button type="button" data-fm="loss" aria-pressed="false">Loss 1550</button>
             <button type="button" data-fm="age" aria-pressed="false">Last tested</button>
@@ -1203,7 +1213,30 @@
           <p class="note" style="margin:8px 0 0">Each cell is the worst splice in that ribbon at that joint, from the latest test of every fibre. Click a cell for the 12 fibres there, a joint name for every ribbon at that joint, or a ribbon for that ribbon along the whole cable. * is a joint the schedule does not list.</p>
         </section>
         <section class="panel" style="margin-top:12px" id="spDet" hidden></section>
+        <section class="panel" style="margin-top:12px" id="spJoints"></section>
         <section class="panel" style="margin-top:12px" id="spSpurs" hidden></section>
+      </div>
+      <!-- Brunel 1.1.1: ODF view, the connector at the ODF next to each RTU, from the same latest results -->
+      <div id="cvOdf" hidden>
+        <section class="panel" style="margin-top:16px" id="odHead"></section>
+        <section class="panel spf" style="margin-top:12px">
+          <div class="spfrow">
+            <label class="spl"><b>Pass</b> at or under <input type="number" id="odLim" step="0.05" min="0.05" max="5"> dB at 1550, fail above</label>
+            <span class="seg" role="group" aria-label="Show"><button type="button" data-odshow="all">All fibres</button><button type="button" data-odshow="fail">Fails only</button></span>
+            <span class="grow"></span>
+            <span class="note" id="odScope"></span>
+            <button class="btn" type="button" id="odReset">Use the cable's settings</button>
+            <button class="btn" type="button" id="odSave">Save for this cable</button>
+          </div>
+        </section>
+        <section class="fstats" id="odStats" style="margin-top:12px"></section>
+        <section class="panel" style="margin-top:12px">
+          <div class="spkey" id="odKey"></div>
+          <div class="odwrap" id="odGrids"><p class="note">Pick ODF to see the ODF connector at each end.</p></div>
+          <p class="note" style="margin:8px 0 0">Each cell is one fibre's ODF connector loss at 1550 nm: the first event after the RTU on that end's own trace (the same reading as the report's ODF Connection sheet). Click a fibre for its detail.</p>
+        </section>
+        <section class="panel" style="margin-top:12px" id="odDet" hidden></section>
+        <section class="panel" style="margin-top:12px" id="odFails"></section>
       </div>
     </main>
     <main id="screen-history" hidden>
@@ -1302,6 +1335,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel 1.1.1 (17 Oct 2026)</h3>
+      <ul><li>Tasks menu: Running now is gone (it is on Overview); Run history stays.</li><li>Cable View has three views: <b>Continuity</b>, <b>Splice loss 1550</b> and <b>ODF</b>. Continuity colours by continuity only; loss lives in the other two views.</li><li>Splice loss 1550: a <b>By joint</b> list under the grid, one row per joint with its type, distance, fails, worst loss and the ribbons failing. Sort along the cable or most fails first; click a joint for every ribbon there.</li><li>ODF: the connector at the ODF next to each RTU for every fibre, from the same latest results, pass at or under 0.5 dB at 1550 and fail above. Both ends as ribbon grids, a list of fails, and the detail of each connector (position, reflectance, 1310, 1550, 1625).</li><li>A cable whose testers are offline still shows its latest results: Update reads the latest stored FMS result of every fibre whatever its age, Cable View's loss and length use them when no recent FMS Task tested the cable, and continuity looks back up to a year when nothing is recent.</li><li>When your sign in has ended, Splice loss and ODF say so instead of waiting.</li></ul>
       <h3>Brunel 1.1 (16 Oct 2026)</h3>
       <ul><li>Cable View has two views: <b>Continuity</b> (as before) and <b>Splice loss</b>.</li><li>Splice loss keeps the latest test of every fibre from both ends. When a ribbon is tested again its new figures replace the old ones and every other fibre stays. Update fetches only what is new in FMS; with Update tested ribbons automatically on, ribbons tested since the last update are fetched when you open the view.</li><li>Ribbon by joint grid: each cell is the worst splice in that ribbon at that joint, green pass and red fail, striped where one end was filled. Click a cell for its 12 fibres, a joint for every ribbon there, or a ribbon for that ribbon along the whole cable.</li><li>Loss filters change your view only: pass limit (0.15), split pass at 0.10, S-ODF limit (0.30 for the NR ribbons at S-ODFs, with the ribbons suggested from the data), one end only (nominal, ribbon average or leave out), fails only, fibre group and small clusters. Save for this cable makes them what everyone sees.</li><li>Fibre groups (by length, checked against the joints) and spurs are found from the results. The numbers are the same as Cable Insight on the PC.</li></ul>
       <h3>Brunel 1.0 (15 Oct 2026)</h3>
@@ -1363,7 +1398,7 @@
     </div>
     <div class="helpbody" id="helpGuide">
       <h3>Finding your way</h3>
-      <ul><li><b>Overview</b>: the route map, everything running, who is online and what finished today.</li><li><b>Tasks</b> ▾: Running now and Run history. In Run history click a run to see its report; Download files and Export CSV are there too.</li><li><b>Tools</b> ▾: Real Time, Single Test, E2E Continuity, Tone Test, Bulk Test. Each asks which cable and end first and remembers it.</li><li><b>Cable View</b>: every fibre of a cable; ▾ to pick a cable, find a fibre or get the Excel report.</li><li><b>Your name</b> (top right): Alerts, Light or Dark, Help, Mobile view, Sign out.</li></ul>
+      <ul><li><b>Overview</b>: the route map, everything running, who is online and what finished today.</li><li><b>Tasks</b> ▾: Run history (what is running now is on Overview). In Run history click a run to see its report; Download files and Export CSV are there too.</li><li><b>Tools</b> ▾: Real Time, Single Test, E2E Continuity, Tone Test, Bulk Test. Each asks which cable and end first and remembers it.</li><li><b>Cable View</b>: every fibre of a cable; ▾ to pick a cable, find a fibre or get the Excel report.</li><li><b>Your name</b> (top right): Alerts, Light or Dark, Help, Mobile view, Sign out.</li></ul>
       <p class="note">Tasks and Tools open a list. Overview and Cable View go straight to their page.</p>
       <h3>What it is</h3>
       <p>The desktop console shows every RTU on the Reach route, what is running on each, and lets you start and cancel bulk tests from one screen. It uses the same sign in and service as the mobile app, and only named accounts can use it. Nothing here changes the mobile app.</p>
@@ -1400,6 +1435,7 @@
       <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
 
       <h3>Cable View</h3>
+      <p><b>ODF</b> (Brunel 1.1.1): the ODF connector next to each RTU for every fibre, the first event after the RTU on that end's own trace (the same reading as the report's ODF Connection sheet). Pass at or under 0.5 dB at 1550, fail above; the limit can be changed for your view or saved for the cable. It uses the same latest results as Splice loss 1550, so Update there refreshes both.</p>
       <p><b>Splice loss</b> (Brunel 1.1): switch at the top of Cable View. The latest splice losses of the whole cable as ribbons by joints, from the latest test of every fibre at both ends, averaged both ways (a splice seen from one end only is filled with the nominal, the ribbon average, or left out, as you choose). Pass under 0.15 dB, fail at or over; at an S-ODF the NR ribbons pass up to 0.30 dB because they carry two splices there. Update pulls only fibres with something new in FMS; a ribbon tested again replaces just its own figures. Click any cell, joint or ribbon to drill in. Your filters change only your view; Save for this cable sets them for everyone.</p>
       <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. The bars under the totals show how much is tested, and To check lists the crossed, Dis., not found and high loss fibres; click one to open it. Report (Excel) saves the whole cable: continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss. Click a fibre for Live OTDR, Test now (one OTDR from either end, 5 to 60 s, or one Standard iOLM with the setup and wavelengths you pick; no FMS Task), its stored OTDR and iOLM traces from both ends (click one to see the trace, an iOLM shows its 1550 OTDR trace and events; pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Real Time (live OTDR)</h3>
@@ -1438,7 +1474,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel 1.1";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.1.1";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -2862,16 +2898,16 @@
 
   async function health(){
     try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=RELAY===LIVE_RELAY?"":"local relay: "+RELAY; $("appv").textContent=h.version===APP_VERSION?`${APP_VERSION} (app and relay)`:`app ${APP_VERSION} · relay ${h.version}`;
-      RELAYV=h.build||parseInt(String(h.version||"").replace(/\D/g,""))||0; $("miRp").hidden=!(RELAYV>=43); const fb=document.querySelector('nav [data-nav="fibres"]'), okv=RELAYV>=31;   /* Brunel: named versions, so the number comes from build */ if(fb) fb.hidden=!okv; $("miCv").hidden=!okv; $("cvMode").hidden=!(RELAYV>=48); if(RELAYV&&RELAYV<48&&typeof SP!=="undefined"&&SP.mode==="splice") cvMode("cont");   /* Brunel 1.1: Splice loss needs relay build 48 */   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+      RELAYV=h.build||parseInt(String(h.version||"").replace(/\D/g,""))||0; $("miRp").hidden=!(RELAYV>=43); const fb=document.querySelector('nav [data-nav="fibres"]'), okv=RELAYV>=31;   /* Brunel: named versions, so the number comes from build */ if(fb) fb.hidden=!okv; $("miCv").hidden=!okv; $("cvMode").hidden=!(RELAYV>=48); { const ob=document.querySelector('[data-cv="odf"]'); if(ob) ob.hidden=!(RELAYV>=49); } if(RELAYV&&typeof SP!=="undefined"&&((RELAYV<48&&SP.mode!=="cont")||(RELAYV<49&&SP.mode==="odf"))) cvMode("cont");   /* Brunel 1.1: Splice loss needs relay build 48 */   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
   // ── v36: Fibres. Every fibre of a cable with its latest continuity, OTDR and iOLM results from both ends ──
-  const FB={stem:jget("rft.fib.stem","F-RGAC-SNBC-A-R432"), mode:jget("rft.fib.mode","cont"), data:null, sel:0, hits:[], det:{}, testOpen:!!jget("rft.fib.test",false), ftab:jget("rft.fib.tab","sum")};
+  const FB={stem:jget("rft.fib.stem","F-RGAC-SNBC-A-R432"), mode:"cont", data:null, sel:0, hits:[], det:{}, testOpen:!!jget("rft.fib.test",false), ftab:jget("rft.fib.tab","sum")};
   const STEMS=[["F-0057-RGAC-A-R432","Slough to Reading"],["F-RGAC-SNBC-A-R432","Reading to Swindon"],["F-SGIC-SNBC-A-R432","Swindon to Stoke Gifford"],["F-0001-SGIC-A-R432","Stoke Gifford to Cardiff"]];
   $("fCable").innerHTML=STEMS.map(([k,n])=>`<option value="${k}">${esc(n)}</option>`).join("");
   $("fCable").value=FB.stem;
-  $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; SP.sum=null; SP.det=null; SP.group=""; $("spDet").hidden=true; $("spJob").hidden=true; loadFibres(true).then(()=>{ if(SP.mode==="splice") spOpen(); }); };
+  $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; SP.sum=null; SP.det=null; SP.group=""; OD.data=null; OD.sel=0; $("spDet").hidden=true; $("spJob").hidden=true; $("odDet").hidden=true; loadFibres(true).then(()=>{ if(SP.mode==="splice") spOpen(); if(SP.mode==="odf") odOpen(); }); };
   document.querySelectorAll("[data-fm]").forEach(b=>b.onclick=()=>{ FB.mode=b.dataset.fm; jset("rft.fib.mode",FB.mode); paintFibres(); });
   const fNum=f=>"F"+String(f).padStart(3,"0"), ribOf=f=>Math.ceil(f/12), posOf=f=>(f-1)%12+1;
   const ago=t=>{ if(!t) return ""; const d=(Date.now()/1000-t)/86400; return d<1?"today":d<2?"yesterday":Math.round(d)+" days ago"; };
@@ -2916,7 +2952,7 @@
   function spCable(){ return CABLES.find(c=>FB.stem.startsWith(c.pre)); }
   function spCls(v,lim){ if(v==null) return "n"; const s=SP.sum&&SP.sum.settings||{}; if(v>=(lim??s.threshold)) return "f"; return s.split&&v>=0.10?"p1":"p0"; }
   function cvMode(m){ SP.mode=m; jset("rft.cv.mode",m); document.querySelectorAll("[data-cv]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.cv===m)));
-    $("cvCont").hidden=m!=="cont"; $("cvSplice").hidden=m!=="splice"; if(m==="splice") spOpen(); }
+    $("cvCont").hidden=m!=="cont"; $("cvSplice").hidden=m!=="splice"; $("cvOdf").hidden=m!=="odf"; if(m==="splice") spOpen(); if(m==="odf") odOpen(); }
   document.querySelectorAll("[data-cv]").forEach(b=>b.onclick=()=>cvMode(b.dataset.cv));
   function spDateT(s){ return s?Date.parse(String(s).replace(" ","T")+(String(s).length<=16?":00Z":"Z"))/1000:0; }
   // ribbons with an iOLM newer than what the Splice loss view holds, from Cable View's own results
@@ -2931,7 +2967,7 @@
   async function spOpen(){
     $("spGrid").innerHTML="<p class='note'>Reading the latest splice results…</p>";
     try{ SP.state=await relay("/api/splice/state",{stem:FB.stem}); }
-    catch(e){ if(quiet(e)) return; $("spHead").innerHTML=`<div class="warnbox">Splice loss is not available: ${esc(e.message)}</div>`; $("spGrid").innerHTML=""; return; }
+    catch(e){ $("spGrid").innerHTML=""; $("spHead").innerHTML=`<div class="warnbox">${quiet(e)?"Your sign in has ended. Sign in again to see the splice results.":"Splice loss is not available: "+esc(e.message)}</div>`; return; }
     const r=SP.state.ready.state;
     if(SP.state.job&&["queued","running"].includes(SP.state.job.state)) spWatch(SP.state.job.id);
     if(r==="preparing"){ spHead(); $("spGrid").innerHTML="<p class='note'>Getting the saved results ready after a relay restart (no FMS calls)…</p>"; setTimeout(()=>{ if(SP.mode==="splice"&&screen==="fibres") spOpen(); },3000); return; }
@@ -2971,7 +3007,8 @@
       let j; try{ j=await relay("/api/splice/job",{id}); }catch(e){ if(quiet(e)) return; $("spJob").hidden=true; return; }
       SP.job=j; spJob(j);
       if(["queued","running"].includes(j.state)){ SP.jobT=setTimeout(tick,1500); return; }
-      if(SP.mode==="splice"&&screen==="fibres"&&j.state==="done"){ toast(j.result&&j.result.new===false?"Splice loss: nothing new in FMS":"Splice loss updated"); spOpen(); }
+      if(SP.mode==="odf"&&screen==="fibres"&&j.state==="done"){ toast("ODF results updated"); odOpen(); }
+      else if(SP.mode==="splice"&&screen==="fibres"&&j.state==="done"){ toast(j.result&&j.result.new===false?"Splice loss: nothing new in FMS":"Splice loss updated"); spOpen(); }
       else if(j.state==="error") spHead();
     };
     tick();
@@ -3062,6 +3099,23 @@
     $("spGrid").querySelectorAll("[data-spc]").forEach(e=>e.onclick=()=>spDrill("cell",e.dataset.spc,+e.dataset.r));
     $("spGrid").querySelectorAll("[data-sploc]").forEach(e=>e.onclick=()=>spDrill("loc",e.dataset.sploc,0));
     $("spGrid").querySelectorAll("[data-sprb]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); spDrill("rib",+e.dataset.sprb,0); });
+    // Brunel 1.1.1: By joint, one readable row per joint, worst first by default
+    const byj=locs.map(l=>{ const cs=s.cells.filter(x=>x.loc===l.loc&&x.n); const fails=cs.reduce((a,x)=>a+(x.fail||0),0);
+      const worst=cs.reduce((a,x)=>x.worst!=null&&(a==null||x.worst>a)?x.worst:a,null); const rf=cs.filter(x=>x.fail).map(x=>x.ribbon).sort((a,b)=>a-b);
+      return {l, fails, worst, n:cs.reduce((a,x)=>a+x.n,0), rf}; });
+    SP.jsort=SP.jsort||"pos";
+    const jl=byj.filter(j=>SP.show!=="fail"||j.fails).sort((a,b)=>SP.jsort==="fails"?(b.fails-a.fails)||((b.worst??-9)-(a.worst??-9)):(a.l.pos??0)-(b.l.pos??0));
+    const maxF=Math.max(1,...byj.map(j=>j.fails));
+    const rbTxt=rs=>{ if(!rs.length) return ""; const out=[]; let a=rs[0],p=rs[0]; for(const r of rs.slice(1).concat([null])){ if(r===p+1){p=r;continue;} out.push(a===p?"R"+a:"R"+a+"-"+p); if(r!=null){a=p=r;} } return out.join(", "); };
+    $("spJoints").innerHTML=`<div class="fbar"><h3 style="margin:0">By joint</h3><span class="note">${jl.length} joint${jl.length===1?"":"s"}${SP.show==="fail"?" with fails":""} · click a joint for every ribbon there</span><span class="grow"></span>
+      <span class="seg" role="group" aria-label="Sort"><button type="button" data-jsort="pos" aria-pressed="${SP.jsort==="pos"}">Along the cable</button><button type="button" data-jsort="fails" aria-pressed="${SP.jsort==="fails"}">Most fails first</button></span></div>
+      <table class="spt" style="margin-top:8px"><tr><th>Joint</th><th>Type</th><th class="n">km from ${esc(SP.sum.dataset.site_a||"End A")}</th><th class="n">Splices</th><th class="n">Fails</th><th></th><th class="n">Worst (dB)</th><th>Ribbons failing</th></tr>`
+      +jl.map(j=>`<tr class="clk" data-jloc="${esc(j.l.loc)}"><td><b>${esc(spShort(j.l.loc))}</b>${j.l.spur?` <span class="sptag s">${esc(j.l.spur)}</span>`:""}</td><td>${j.l.sodf?'<span class="sod">S-ODF</span>':esc(j.l.kind||(j.l.scheduled?"":"not in schedule"))}</td>
+        <td class="n">${j.l.pos==null?"":(j.l.pos/1000).toFixed(2)}</td><td class="n">${j.n}</td><td class="n" style="${j.fails?"color:var(--bad);font-weight:700":""}">${j.fails||""}</td>
+        <td>${j.fails?`<span class="spbar" style="width:${Math.max(4,Math.round(80*j.fails/maxF))}px"></span>`:""}</td>
+        <td class="n" style="color:${j.worst==null?"inherit":j.fails?"var(--bad)":"var(--ok)"};font-weight:700">${spNum(j.worst)}</td><td class="note">${rbTxt(j.rf)}</td></tr>`).join("")+"</table>";
+    $("spJoints").querySelectorAll("[data-jloc]").forEach(e=>e.onclick=()=>spDrill("loc",e.dataset.jloc,0));
+    $("spJoints").querySelectorAll("[data-jsort]").forEach(e=>e.onclick=()=>{ SP.jsort=e.dataset.jsort; spPaint(); });
     const sps=s.spurs||[];
     $("spSpurs").hidden=!sps.length;
     $("spSpurs").innerHTML=`<h3 style="margin:0 0 8px">Spurs found</h3><p class="note" style="margin:0 0 8px">Joints that only one smaller group of fibres goes through, each within ${st.spur_gap} m of the next.</p><table class="spt"><tr><th>Spur</th><th>Fibres</th><th class="n">From</th><th class="n">To</th><th>Joints</th><th class="n">Fails</th></tr>`
@@ -3110,6 +3164,73 @@
       if(!keep) el.scrollIntoView({behavior:"smooth",block:"nearest"});
     }catch(e){ if(!quiet(e)) el.innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; }
   }
+
+  // ── Brunel 1.1.1: ODF view. The ODF connector next to each RTU, pass at or under the limit (0.5 dB at 1550) ──
+  const OD={data:null, show:jget("rft.od.show","all"), sel:0};
+  async function odOpen(){
+    $("odGrids").innerHTML="<p class='note'>Reading the ODF connectors…</p>";
+    let st;
+    try{ st=SP.state=await relay("/api/splice/state",{stem:FB.stem}); }
+    catch(e){ $("odGrids").innerHTML=`<div class="warnbox">${quiet(e)?"Your sign in has ended. Sign in again to see the ODF results.":esc(e.message)}</div>`; return; }
+    const d=(st.datasets||[])[0];
+    $("odHead").innerHTML=`<div class="fbar"><div class="grow"><b>${d?esc(d.label):"No results yet"}</b> <span class="note">${d?"latest test of every fibre, the same results as Splice loss 1550":""}</span></div><button class="btn" type="button" id="odUpd">Update</button></div>`;
+    $("odUpd").onclick=async()=>{ $("odUpd").disabled=true; $("odUpd").textContent="Updating…"; await spUpdate(""); };
+    { const j=SP.job||st.job; if(j&&["queued","running"].includes(j.state)){ $("odUpd").disabled=true; $("odUpd").textContent="Updating…"; spWatch(j.id); } }
+    if(st.ready.state==="preparing"){ $("odGrids").innerHTML="<p class='note'>Getting the saved results ready after a relay restart…</p>"; setTimeout(()=>{ if(SP.mode==="odf"&&screen==="fibres") odOpen(); },3000); return; }
+    if(st.ready.state!=="ready"){ $("odGrids").innerHTML="<p class='note'>No results for this cable yet. Press <b>Update</b> (it runs the Splice loss update, which also reads the ODF connectors).</p>"; $("odStats").innerHTML=""; $("odFails").innerHTML=""; return; }
+    await odLoad();
+  }
+  async function odLoad(){
+    const stem=FB.stem; let d;
+    try{ d=await relay("/api/splice/odf",{stem, view:SPVIEW()}); }catch(e){ if(!quiet(e)) $("odGrids").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    if(stem!==FB.stem) return; OD.data=d; odPaint();
+  }
+  function odPaint(){
+    const d=OD.data; if(!d) return; const L=d.limit, own=SPVIEW().odf_limit!=null;
+    if(!d.counts.A.tested&&!d.counts.B.tested){ $("odStats").innerHTML=""; $("odFails").innerHTML=""; $("odKey").innerHTML="";
+      $("odGrids").innerHTML="<p class='note'>These results were stored before the ODF view existed. Press <b>Update</b>: it reads the ODF connectors from the same results (only new tests are fetched from FMS).</p>"; return; }
+    $("odLim").value=L; $("odScope").textContent=own?"Your view differs from the cable's settings":"The cable's settings"; $("odReset").hidden=!own;
+    document.querySelectorAll("[data-odshow]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.odshow===OD.show)));
+    const c=d.counts, stat=(lbl,v,sub,col)=>`<div class="lstat panel"><span class="lbl">${lbl}</span><b${col?` style="color:${col}"`:""}>${v}</b><span class="note">${sub||""}</span></div>`;
+    const sa=esc(d.site_a||"End A"), sb=esc(d.site_b||"End B");
+    $("odStats").innerHTML=stat(`${sa} ODF fail`,c.A.fail,`over ${L} dB of ${c.A.tested} read${c.A.none?` · ${c.A.none} with no connector event`:""}`,"var(--bad)")
+      +stat(`${sa} ODF pass`,c.A.tested-c.A.fail,`median ${spNum(c.A.median)} dB, worst ${spNum(c.A.worst)}`,"var(--ok)")
+      +stat(`${sb} ODF fail`,c.B.fail,`over ${L} dB of ${c.B.tested} read${c.B.none?` · ${c.B.none} with no connector event`:""}`,"var(--bad)")
+      +stat(`${sb} ODF pass`,c.B.tested-c.B.fail,`median ${spNum(c.B.median)} dB, worst ${spNum(c.B.worst)}`,"var(--ok)");
+    $("odKey").innerHTML=`<span><i style="background:var(--sp0)"></i>pass at or under ${L} dB</span><span><i style="background:var(--spf)"></i>fail over ${L} dB</span><span><i style="background:var(--spno)"></i>no reading</span>`;
+    const by={}; d.fibres.forEach(r=>by[r.fno]=r);
+    const grid=(end,title)=>{ let h=`<div class="odg"><h4>${title}</h4><span></span>${[...Array(12)].map((_,i)=>`<span class="hd">${i+1}</span>`).join("")}`;
+      for(let rb=1; rb<=36; rb++){ h+=`<span class="rl">R${rb}</span>`;
+        for(let p=1;p<=12;p++){ const f=(rb-1)*12+p, e=(by[f]||{})[end], v=e&&e.w1550;
+          const cls=v==null?"n":e.fail?"f":"p0", hide=OD.show==="fail"&&cls!=="f";
+          h+=`<button type="button" class="${hide?"dim":cls}${OD.sel===f?" sel":""}" data-odf="${f}" title="${esc(`F${String(f).padStart(3,"0")} ${title}: ${v==null?"no reading":spNum(v)+" dB at 1550"+(e.pos!=null?" at "+e.pos.toFixed(1)+" m":"")}`)}">${hide||v==null?"":v.toFixed(2)}</button>`; } }
+      return h+"</div>"; };
+    $("odGrids").innerHTML=grid("A",`ODF at ${sa} (End A, A-B trace)`)+grid("B",`ODF at ${sb} (End B, B-A trace)`);
+    $("odGrids").querySelectorAll("[data-odf]").forEach(b=>b.onclick=()=>odDetail(+b.dataset.odf));
+    const fails=d.fibres.filter(r=>(r.A&&r.A.fail)||(r.B&&r.B.fail));
+    $("odFails").innerHTML=`<h3 style="margin:0 0 8px">ODF fails</h3>`+(fails.length?`<table class="spt"><tr><th>Fibre</th><th>Ribbon</th><th class="n">${sa} @1550</th><th class="n">${sb} @1550</th><th></th></tr>`
+      +fails.map(r=>`<tr class="clk" data-odf="${r.fno}"><td class="mono">F${String(r.fno).padStart(3,"0")}</td><td>R${r.ribbon}</td><td class="n" style="${r.A&&r.A.fail?"color:var(--bad);font-weight:700":""}">${r.A?spNum(r.A.w1550):""}</td><td class="n" style="${r.B&&r.B.fail?"color:var(--bad);font-weight:700":""}">${r.B?spNum(r.B.w1550):""}</td><td class="note">${[r.A&&r.A.fail?sa:"",r.B&&r.B.fail?sb:""].filter(Boolean).join(" and ")}</td></tr>`).join("")+"</table>"
+      :`<p class="note" style="margin:0">No ODF over ${L} dB.</p>`);
+    $("odFails").querySelectorAll("[data-odf]").forEach(b=>b.onclick=()=>odDetail(+b.dataset.odf));
+    if(OD.sel) odDetail(OD.sel,true);
+  }
+  function odDetail(f,keep){
+    OD.sel=f; const r=(OD.data.fibres||[]).find(x=>x.fno===f)||{fno:f}, d=OD.data, el=$("odDet"); el.hidden=false;
+    const row=(lbl,e)=>`<tr><td><b>${lbl}</b></td>${e?`<td class="n">${e.pos!=null?e.pos.toFixed(1)+" m":""}</td><td>${esc(e.type||"")}</td><td class="n">${e.refl!=null?e.refl.toFixed(1)+" dB":""}</td><td class="n">${spNum(e.w1310)}</td><td class="n" style="color:${e.fail?"var(--bad)":"var(--ok)"};font-weight:700">${spNum(e.w1550)}</td><td class="n">${spNum(e.w1625)}</td><td class="n">${spNum(e.sw)}</td><td>${e.fail?'<span class="sptag f">fail</span>':""}</td>`:`<td colspan="8" class="note">no reading</td>`}</tr>`;
+    el.innerHTML=`<div class="fbar"><h3 style="margin:0">F${String(f).padStart(3,"0")} · R${Math.ceil(f/12)} F${(f-1)%12+1} ODF connectors</h3><span class="grow"></span><button class="btn" type="button" id="odOpenF">Open in Continuity</button><button class="btn" type="button" id="odX">Close</button></div>
+      <table class="spt" style="margin-top:8px"><tr><th>End</th><th class="n">From the RTU</th><th>Event</th><th class="n">Reflectance</th><th class="n">1310</th><th class="n">1550</th><th class="n">1625</th><th class="n">Switch loss</th><th></th></tr>${row(esc(d.site_a||"End A"),r.A)}${row(esc(d.site_b||"End B"),r.B)}</table>`;
+    $("odX").onclick=()=>{ OD.sel=0; el.hidden=true; odPaint(); };
+    $("odOpenF").onclick=()=>{ cvMode("cont"); showFibre(f); };
+    if(!keep){ odPaint(); el.scrollIntoView({behavior:"smooth",block:"nearest"}); }
+  }
+  $("odLim").onchange=()=>{ const v=+$("odLim").value, base=(SP.state&&SP.state.settings)||{}, cur=SPVIEW(); if(String(v)===String(base.odf_limit)) delete cur.odf_limit; else cur.odf_limit=v; jset("rft.sp.view."+FB.stem,cur); odLoad(); };
+  document.querySelectorAll("[data-odshow]").forEach(b=>b.onclick=()=>{ OD.show=b.dataset.odshow; jset("rft.od.show",OD.show); odPaint(); });
+  $("odReset").onclick=()=>{ const cur=SPVIEW(); delete cur.odf_limit; jset("rft.sp.view."+FB.stem,cur); odLoad(); };
+  $("odSave").onclick=async()=>{
+    if(!await ask("Save for this cable",`Everyone who opens the ODF view on this cable will see pass at or under ${$("odLim").value} dB.`,"Save")) return;
+    try{ const r=await relay("/api/splice/settings",{stem:FB.stem, settings:{...(SP.state&&SP.state.settings||{}), odf_limit:+$("odLim").value}}); SP.state.settings=r.settings; const cur=SPVIEW(); delete cur.odf_limit; jset("rft.sp.view."+FB.stem,cur); toast("Saved for this cable"); odLoad(); }
+    catch(e){ if(!quiet(e)) toast("Not saved: "+e.message); }
+  };
 
   // v37 real time: the relay's "right now" part (E2E runs, Uni-dir from phones and desktops, running Tasks) laid over the stored results
   function applyLive(){
