@@ -178,6 +178,39 @@
   .fc.flip,.fc.a1{background:var(--fcfl);color:var(--fcfli)}
   .fc.unres{background:var(--fcun);color:var(--fcuni)}
   .fc.hit{box-shadow:0 0 0 2px var(--brand)}
+  /* Brunel 1.1: Splice loss view */
+  :root{--sp0:#2E9E63;--sp0i:#FFFFFF;--sp1:#B9E8CC;--sp1i:#0B4A2A;--spf:#E0525D;--spfi:#FFFFFF;--spno:var(--soft2)}
+  :root[data-theme=dark]{--sp0:#1F9A5F;--sp0i:#FFFFFF;--sp1:#7FD6A4;--sp1i:#08311B;--spf:#D63C4E;--spfi:#FFFFFF;--spno:rgba(255,255,255,.07)}
+  .spfrow{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+  .spfrow + .spfrow{margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)}
+  .spl{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);font-weight:600}
+  .spl b{color:var(--ink)} .fbar .spl input[type=checkbox],.spl input[type=checkbox]{min-width:0;min-height:0;width:16px;height:16px;padding:0;flex:none} .spl input[type=number]{width:74px;min-height:34px} .spl select,.spl input[type=text]{min-height:34px}
+  .spheat{overflow:auto;max-height:calc(100vh - 260px);margin-top:10px;border:1px solid var(--line);border-radius:10px}
+  .spheat table{border-collapse:separate;border-spacing:2px;font-size:11px}
+  .spheat th{position:sticky;top:0;background:var(--surface);z-index:2;font-weight:600;color:var(--muted);vertical-align:bottom;padding:2px}
+  .spheat tr.spband th{top:0;height:auto;z-index:3} .spheat tr.sphd th{top:0;height:150px} .spheat tr.spband + tr.sphd th{top:22px}
+  .spheat th .vt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;max-height:148px;overflow:hidden;cursor:pointer}
+  .spheat th .vt b{color:var(--ink)}
+  .spheat .rl{position:sticky;left:0;z-index:4;background:var(--surface);text-align:right;padding:0 8px;white-space:nowrap;font-weight:700}
+  .spheat td.c{min-width:38px;height:24px;text-align:center;border-radius:5px;cursor:pointer;font-weight:700;font-variant-numeric:tabular-nums}
+  .spheat td.c:hover{outline:2px solid var(--brand);outline-offset:-1px}
+  .spheat td.c.p0{background:var(--sp0);color:var(--sp0i)} .spheat td.c.p1{background:var(--sp1);color:var(--sp1i)}
+  .spheat td.c.f{background:var(--spf);color:var(--spfi)} .spheat td.c.n{background:var(--spno);cursor:default}
+  .spheat td.c.dim{background:var(--spno);color:var(--faint)}
+  .spheat td.c.st{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 3px,transparent 3px 7px)}
+  .spheat td.c.sel{outline:2px solid var(--ink);outline-offset:-1px}
+  .spheat th.spb{background:var(--live-tint);color:var(--live);font-size:10px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:1px;cursor:pointer;height:18px}
+  .sod{color:var(--live);font-weight:800}
+  .spkey{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);align-items:center}
+  .spkey i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+  .spjob .spg{display:inline-grid;grid-template-columns:repeat(12,9px);gap:2px;margin-right:24px;vertical-align:top}
+  .spjob .spg i{width:9px;height:9px;border-radius:2px;background:var(--spno)}
+  .spjob .spg i.new{background:var(--sp0)} .spjob .spg i.same,.spjob .spg i.kept{background:var(--brand-tint)} .spjob .spg i.pull{background:var(--brand)}
+  .spjob .spg i.none{background:var(--warn)} .spjob .spg i.err{background:var(--bad)}
+  table.spt{border-collapse:collapse;width:100%;font-size:13px} table.spt th,table.spt td{padding:5px 8px;border-bottom:1px solid var(--line2);text-align:left}
+  table.spt td.n,table.spt th.n{text-align:right;font-variant-numeric:tabular-nums}
+  .sptag{display:inline-block;font-size:11px;border-radius:999px;padding:1px 8px;margin-right:4px;background:var(--soft);color:var(--muted)}
+  .sptag.f{background:var(--bad-tint);color:var(--bad)} .sptag.s{background:var(--live-tint);color:var(--live)}
   .fc.now{box-shadow:0 0 0 2px var(--live);animation:fnow 1.6s ease-in-out infinite}
   @keyframes fnow{50%{box-shadow:0 0 0 4px var(--live-tint),0 0 0 2px var(--live)}}
   @media (prefers-reduced-motion:reduce){.fc.now{animation:none}}
@@ -1112,6 +1145,7 @@
         <div class="fbar">
           <h2 style="margin:0">Cable View</h2>
           <select id="fCable" aria-label="Cable"></select>
+          <span class="seg" role="group" aria-label="View" id="cvMode"><button type="button" data-cv="cont" aria-pressed="true">Continuity</button><button type="button" data-cv="splice" aria-pressed="false">Splice loss</button></span>
           <span class="grow"></span>
           <input id="fFind" type="search" hidden aria-hidden="true">
           <span class="frep" hidden><button class="btn" type="button" id="fReport" hidden title="Excel workbook of this cable: a Summary sheet, then one row per fibre with continuity, iOLM loss from each end and the both ways average per wavelength, lengths and OTDR loss">Cable report (Excel)</button><small class="note" id="fRepNote" hidden>Every fibre: continuity, loss each end and both ways, length</small></span>
@@ -1120,6 +1154,7 @@
         <div class="flive" id="fLive" hidden></div>
         <p class="note" id="fNote" style="margin:10px 0 0">Latest result for every fibre, from both ends. Click a fibre for its detail and history.</p>
       </section>
+      <div id="cvCont">
       <section class="fstats" id="fStats" style="margin-top:16px"></section>
       <section class="panel fprog" id="fProg" style="margin-top:12px"></section>
       <div class="fwrap" style="margin-top:16px">
@@ -1138,6 +1173,38 @@
         <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><h2 style="margin:0">To check</h2><span class="note" id="fCheckN"></span></div>
         <div id="fCheckT" style="margin-top:10px"></div>
       </section>
+      </div>
+      <!-- Brunel 1.1: Splice loss view, the latest result of every fibre from both ends (Cable Insight engine on the relay) -->
+      <div id="cvSplice" hidden>
+        <section class="panel" style="margin-top:16px" id="spHead"></section>
+        <section class="panel spjob" id="spJob" style="margin-top:12px" hidden></section>
+        <section class="panel spf" style="margin-top:12px" id="spFilters">
+          <div class="spfrow">
+            <label class="spl"><b>Pass</b> under <input type="number" id="spThr" step="0.01" min="0.01" max="2"> dB</label>
+            <label class="spl"><input type="checkbox" id="spSplit"> Split pass at 0.10</label>
+            <label class="spl">S-ODF limit <input type="number" id="spSodf" step="0.01" min="0.01" max="3"> dB for NR ribbons <input type="text" id="spNr" style="width:76px"></label><span id="spSug" class="note"></span>
+            <label class="spl">One end only <select id="spOne"><option value="nominal">Nominal</option><option value="auto">Ribbon average (auto)</option><option value="exclude">Leave out</option></select></label>
+            <label class="spl">Nominal <input type="number" id="spNom" step="0.01" min="0" max="1"> dB</label>
+          </div>
+          <div class="spfrow">
+            <span class="seg" role="group" aria-label="Show"><button type="button" data-spshow="all">All splices</button><button type="button" data-spshow="fail">Fails only</button></span>
+            <label class="spl">Fibre group <select id="spGroup"></select></label>
+            <label class="spl"><input type="checkbox" id="spSmall"> Small clusters</label>
+            <span class="grow"></span>
+            <span class="note" id="spScope"></span>
+            <button class="btn" type="button" id="spReset">Use the cable's settings</button>
+            <button class="btn" type="button" id="spSave" title="Make these the settings everyone sees for this cable">Save for this cable</button>
+          </div>
+        </section>
+        <section class="fstats" id="spStats" style="margin-top:12px"></section>
+        <section class="panel" style="margin-top:12px">
+          <div class="spkey" id="spKey"></div>
+          <div class="spheat" id="spGrid"><p class="note">Pick Splice loss to see the latest splice losses.</p></div>
+          <p class="note" style="margin:8px 0 0">Each cell is the worst splice in that ribbon at that joint, from the latest test of every fibre. Click a cell for the 12 fibres there, a joint name for every ribbon at that joint, or a ribbon for that ribbon along the whole cable. * is a joint the schedule does not list.</p>
+        </section>
+        <section class="panel" style="margin-top:12px" id="spDet" hidden></section>
+        <section class="panel" style="margin-top:12px" id="spSpurs" hidden></section>
+      </div>
     </main>
     <main id="screen-history" hidden>
       <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px">
@@ -1235,6 +1302,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel 1.1 (16 Oct 2026)</h3>
+      <ul><li>Cable View has two views: <b>Continuity</b> (as before) and <b>Splice loss</b>.</li><li>Splice loss keeps the latest test of every fibre from both ends. When a ribbon is tested again its new figures replace the old ones and every other fibre stays. Update fetches only what is new in FMS; with Update tested ribbons automatically on, ribbons tested since the last update are fetched when you open the view.</li><li>Ribbon by joint grid: each cell is the worst splice in that ribbon at that joint, green pass and red fail, striped where one end was filled. Click a cell for its 12 fibres, a joint for every ribbon there, or a ribbon for that ribbon along the whole cable.</li><li>Loss filters change your view only: pass limit (0.15), split pass at 0.10, S-ODF limit (0.30 for the NR ribbons at S-ODFs, with the ribbons suggested from the data), one end only (nominal, ribbon average or leave out), fails only, fibre group and small clusters. Save for this cable makes them what everyone sees.</li><li>Fibre groups (by length, checked against the joints) and spurs are found from the results. The numbers are the same as Cable Insight on the PC.</li></ul>
       <h3>Brunel 1.0 (15 Oct 2026)</h3>
       <ul><li>Locations are learned from the test results. When many fibres show an event at the same distance, it becomes a location; the first time it shows as Unnamed and appears under Reports, Locations and assets, to name from the design once. Every later report uses the name and refines the distance.</li><li>Asset inventory per cable: every joint, ODF and spur in route order from End A, with its distance, when it was first seen, fibres, splices, ribbons and splice losses, and how far the cable is built. Also an Asset Inventory sheet in the report, and a download on its own.</li><li>Remedial tracking follows the location, so a remedial raised at an unnamed joint keeps its history once the joint is named.</li><li>Not a joint for a bend or fault cluster, and Split in two for two joints too close to tell apart.</li><li>Cables with a Distances workbook can keep using it, or switch to learned and start from its names.</li></ul>
       <h3>Brunel.6.1 (15 Oct 2026)</h3>
@@ -1331,6 +1400,7 @@
       <p>Everything happening now on every RTU: the Reach route with each RTU's light, a card for every E2E run, Uni-dir tone and bulk Task (whoever started it, with live progress, and the fibre a tester is toning on their phone), who is online and what finished today. Click a card or an RTU to open it in the console. Light or Dark is at the top.</p>
 
       <h3>Cable View</h3>
+      <p><b>Splice loss</b> (Brunel 1.1): switch at the top of Cable View. The latest splice losses of the whole cable as ribbons by joints, from the latest test of every fibre at both ends, averaged both ways (a splice seen from one end only is filled with the nominal, the ribbon average, or left out, as you choose). Pass under 0.15 dB, fail at or over; at an S-ODF the NR ribbons pass up to 0.30 dB because they carry two splices there. Update pulls only fibres with something new in FMS; a ribbon tested again replaces just its own figures. Click any cell, joint or ribbon to drill in. Your filters change only your view; Save for this cable sets them for everyone.</p>
       <p>Cable View (the cable health check): every fibre of one cable with its latest result, from both ends. Colour by Continuity (green straight, blue flipped, amber crossed, red Dis.), Loss 1550 or Last tested. A ribbon counts as flipped only when two mirror pairs agree, for example F1 to F12 and F2 to F11; one swapped pair shows as crossed. The bars under the totals show how much is tested, and To check lists the crossed, Dis., not found and high loss fibres; click one to open it. Report (Excel) saves the whole cable: continuity, iOLM loss from each end per wavelength with the both ways average, lengths and OTDR loss. Click a fibre for Live OTDR, Test now (one OTDR from either end, 5 to 60 s, or one Standard iOLM with the setup and wavelengths you pick; no FMS Task), its stored OTDR and iOLM traces from both ends (click one to see the trace, an iOLM shows its 1550 OTDR trace and events; pick another to lay over it), E2E and Uni-dir results, iOLM loss from each end with the both ways average, OTDR, and its history. Type F123, R11 F3 or RGAC 123 in the find box. While someone is testing the cable, the fibres under test pulse and the results fill in as they arrive.</p>
       <h3>Real Time (live OTDR)</h3>
       <p>In Cable View, click a fibre, press Test this fibre, then Live from one end (or Tools ▾, Real Time). The RTU repeats a short OTDR (3 s unless you pick another Shot length, 1 to 10 s) at 1550 nm with FMS automatic settings, with no FMS Task, starting each one as soon as FMS has stored the last, and draws each new trace (blue) over the first one (grey). New loss of 0.15 dB or more is marked in red with its distance from the RTU, so whoever is working on the fibre can see a bend or a bad joint appear. Click a red mark to zoom in; Use latest as reference starts the comparison again. One live OTDR per RTU; the RTU shows as testing while it runs, and it stops by itself after 10 minutes. Light on the fibre (a tone or traffic) stops the OTDR.</p>
@@ -1368,7 +1438,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel 1.0.5";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.1";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -2792,7 +2862,7 @@
 
   async function health(){
     try{ const h=await (await fetch(RELAY+"/health",{cache:"no-store"})).json(); $("relayInfo").textContent=RELAY===LIVE_RELAY?"":"local relay: "+RELAY; $("appv").textContent=h.version===APP_VERSION?`${APP_VERSION} (app and relay)`:`app ${APP_VERSION} · relay ${h.version}`;
-      RELAYV=h.build||parseInt(String(h.version||"").replace(/\D/g,""))||0; $("miRp").hidden=!(RELAYV>=43); const fb=document.querySelector('nav [data-nav="fibres"]'), okv=RELAYV>=31;   /* Brunel: named versions, so the number comes from build */ if(fb) fb.hidden=!okv; $("miCv").hidden=!okv;   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
+      RELAYV=h.build||parseInt(String(h.version||"").replace(/\D/g,""))||0; $("miRp").hidden=!(RELAYV>=43); const fb=document.querySelector('nav [data-nav="fibres"]'), okv=RELAYV>=31;   /* Brunel: named versions, so the number comes from build */ if(fb) fb.hidden=!okv; $("miCv").hidden=!okv; $("cvMode").hidden=!(RELAYV>=48); if(RELAYV&&RELAYV<48&&typeof SP!=="undefined"&&SP.mode==="splice") cvMode("cont");   /* Brunel 1.1: Splice loss needs relay build 48 */   /* v36: Fibres needs relay v31 */ $("fmsDown").hidden=!(h.fms&&h.fms.ok===false); }
     catch(e){ $("relayInfo").textContent="relay unreachable: "+RELAY; $("fmsDown").hidden=false; $("fmsDown").textContent="The service is not answering, so these lights may be out of date."; }
   }
 
@@ -2801,7 +2871,7 @@
   const STEMS=[["F-0057-RGAC-A-R432","Slough to Reading"],["F-RGAC-SNBC-A-R432","Reading to Swindon"],["F-SGIC-SNBC-A-R432","Swindon to Stoke Gifford"],["F-0001-SGIC-A-R432","Stoke Gifford to Cardiff"]];
   $("fCable").innerHTML=STEMS.map(([k,n])=>`<option value="${k}">${esc(n)}</option>`).join("");
   $("fCable").value=FB.stem;
-  $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; loadFibres(true); };
+  $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; SP.sum=null; SP.det=null; SP.group=""; $("spDet").hidden=true; $("spJob").hidden=true; loadFibres(true).then(()=>{ if(SP.mode==="splice") spOpen(); }); };
   document.querySelectorAll("[data-fm]").forEach(b=>b.onclick=()=>{ FB.mode=b.dataset.fm; jset("rft.fib.mode",FB.mode); paintFibres(); });
   const fNum=f=>"F"+String(f).padStart(3,"0"), ribOf=f=>Math.ceil(f/12), posOf=f=>(f-1)%12+1;
   const ago=t=>{ if(!t) return ""; const d=(Date.now()/1000-t)/86400; return d<1?"today":d<2?"yesterday":Math.round(d)+" days ago"; };
@@ -2835,7 +2905,212 @@
     if(FB.mode==="loss"){ const l=loss1550(r); if(l==null||med==null) return ""; const d=l-med; return d>1.5?"l2":d>0.5?"l1":"l0"; }
     const t=lastT(r); if(!t) return ""; const days=(Date.now()/1000-t)/86400; return days<1?"a0":days<7?"a1":"a2";
   }
-  async function openFibres(){ $("fCable").value=FB.stem; if(!FB.data||FB.data.stem!==FB.stem) await loadFibres(); else paintFibres(); }
+  async function openFibres(){ $("fCable").value=FB.stem; if(!FB.data||FB.data.stem!==FB.stem) await loadFibres(); else paintFibres(); cvMode(SP.mode); }
+  // ── Brunel 1.1: Splice loss view. The latest result of every fibre from both ends, ribbon by joint ──
+  const SP={mode:jget("rft.cv.mode","cont"), state:null, sum:null, det:null, job:null, jobT:null, show:jget("rft.sp.show","all"),
+            group:"", small:false, autoTried:{}, staleT:null};
+  const SPVIEW=()=>jget("rft.sp.view."+FB.stem,{})||{};
+  const spNum=v=>v==null?"":Number(v).toFixed(2), spShort=n=>String(n||"").replace(" (unscheduled)"," *").replace(/\s*\([^)]*\)\s*$/,"");
+  const spKm=m=>m==null?"":(m/1000).toFixed(2)+" km";
+  const SPHOW={both:"both ends", nominal:"one end + nominal", ribbon:"one end + ribbon average", one_way:"one end only, left out"};
+  function spCable(){ return CABLES.find(c=>FB.stem.startsWith(c.pre)); }
+  function spCls(v,lim){ if(v==null) return "n"; const s=SP.sum&&SP.sum.settings||{}; if(v>=(lim??s.threshold)) return "f"; return s.split&&v>=0.10?"p1":"p0"; }
+  function cvMode(m){ SP.mode=m; jset("rft.cv.mode",m); document.querySelectorAll("[data-cv]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.cv===m)));
+    $("cvCont").hidden=m!=="cont"; $("cvSplice").hidden=m!=="splice"; if(m==="splice") spOpen(); }
+  document.querySelectorAll("[data-cv]").forEach(b=>b.onclick=()=>cvMode(b.dataset.cv));
+  function spDateT(s){ return s?Date.parse(String(s).replace(" ","T")+(String(s).length<=16?":00Z":"Z"))/1000:0; }
+  // ribbons with an iOLM newer than what the Splice loss view holds, from Cable View's own results
+  function spStale(){
+    const st=SP.state, b=FB.base, c=spCable(); if(!st||!b||!c||b.stem!==FB.stem) return [];
+    const endOf=rtu=>rtu===c.rtus[0][1]?"A":rtu===c.rtus[1][1]?"B":null;
+    const keys=(b.ends||[]).map(e=>endOf(e.rtu)), rbs=new Set();
+    (b.fibres||[]).forEach(r=>["a","b"].forEach((k,i)=>{ const E=keys[i], t=r.iolm&&r.iolm[k]&&r.iolm[k].t; if(!E||!t) return;
+      const have=spDateT(((st.raw||{})[E]||{dates:{}}).dates[r.f]); if(!have||t>have+120) rbs.add(Math.ceil(r.f/12)); }));
+    return [...rbs].sort((a,b)=>a-b);
+  }
+  async function spOpen(){
+    $("spGrid").innerHTML="<p class='note'>Reading the latest splice results…</p>";
+    try{ SP.state=await relay("/api/splice/state",{stem:FB.stem}); }
+    catch(e){ if(quiet(e)) return; $("spHead").innerHTML=`<div class="warnbox">Splice loss is not available: ${esc(e.message)}</div>`; $("spGrid").innerHTML=""; return; }
+    const r=SP.state.ready.state;
+    if(SP.state.job&&["queued","running"].includes(SP.state.job.state)) spWatch(SP.state.job.id);
+    if(r==="preparing"){ spHead(); $("spGrid").innerHTML="<p class='note'>Getting the saved results ready after a relay restart (no FMS calls)…</p>"; setTimeout(()=>{ if(SP.mode==="splice"&&screen==="fibres") spOpen(); },3000); return; }
+    spHead();
+    if(r!=="ready"){ $("spGrid").innerHTML="<p class='note'>No splice results for this cable yet. Press <b>Update</b>: the first time pulls the latest result of every fibre from both ends (several minutes); after that only fibres with something new are fetched.</p>"; $("spStats").innerHTML=""; return; }
+    await spLoad();
+    spAuto();
+  }
+  function spHead(){
+    const st=SP.state, d=(st.datasets||[])[0], stale=st.ready.state==="ready"?spStale():[], j=SP.job||st.job, run=j&&["queued","running"].includes(j.state);
+    const raw=st.raw||{}, both=Object.keys((raw.A||{}).fibres||{}).filter(n=>raw.A.fibres[n]==="have"&&((raw.B||{}).fibres||{})[n]==="have").length;
+    $("spHead").innerHTML=`<div class="fbar"><div class="grow"><b>${d?esc(d.label):"No results yet"}</b> <span class="note">${d?`latest test of every fibre · ${both} of ${d.n_fibres} with both ends · locations from ${esc(d.schedule||"distance")}`:""}</span>
+      ${stale.length?`<div class="note" style="color:var(--warn);margin-top:4px">New tests on R${stale.join(", R")} since the last update${SP.autoOn()?" · updating them":""}</div>`:""}</div>
+      <label class="spl" title="When a ribbon is tested again, fetch its new results when you open this view"><input type="checkbox" id="spAuto"${SP.autoOn()?" checked":""}> Update tested ribbons automatically</label>
+      ${stale.length&&!run?`<button class="btn" type="button" id="spUpdR">Update R${stale.join(", R")}</button>`:""}
+      <button class="btn primary" type="button" id="spUpd"${run?" disabled":""}>${run?"Updating…":"Update"}</button></div>`;
+    $("spAuto").onchange=e=>{ jset("rft.sp.auto",e.target.checked); spHead(); if(e.target.checked) spAuto(); };
+    $("spUpd").onclick=()=>spUpdate("");
+    if($("spUpdR")) $("spUpdR").onclick=()=>spUpdate(stale.join(","));
+  }
+  SP.autoOn=()=>jget("rft.sp.auto",true)!==false;
+  function spAuto(){
+    if(!SP.autoOn()||!SP.state||SP.state.ready.state!=="ready") return;
+    const j=SP.job||SP.state.job; if(j&&["queued","running"].includes(j.state)) return;
+    const st=spStale(); if(!st.length) return; const spec=st.join(",");
+    if(SP.autoTried[FB.stem+spec]&&Date.now()-SP.autoTried[FB.stem+spec]<10*60e3) return;
+    SP.autoTried[FB.stem+spec]=Date.now(); toast(`Updating R${st.join(", R")}: new tests since the last update`); spUpdate(spec);
+  }
+  async function spUpdate(ribbons){
+    const c=spCable(); if(!c){ toast("This cable has no RTUs set"); return; }
+    try{ const j=await relay("/api/splice/update",{stem:FB.stem, rtuA:c.rtus[0][1], rtuB:c.rtus[1][1], ribbons:ribbons||"", testType:"iOLM"}); SP.job=j; spHead(); spWatch(j.id); }
+    catch(e){ if(!quiet(e)) toast("Update not started: "+e.message); }
+  }
+  function spWatch(id){
+    clearTimeout(SP.jobT);
+    const tick=async()=>{
+      let j; try{ j=await relay("/api/splice/job",{id}); }catch(e){ if(quiet(e)) return; $("spJob").hidden=true; return; }
+      SP.job=j; spJob(j);
+      if(["queued","running"].includes(j.state)){ SP.jobT=setTimeout(tick,1500); return; }
+      if(SP.mode==="splice"&&screen==="fibres"&&j.state==="done"){ toast(j.result&&j.result.new===false?"Splice loss: nothing new in FMS":"Splice loss updated"); spOpen(); }
+      else if(j.state==="error") spHead();
+    };
+    tick();
+  }
+  function spJob(j){
+    const el=$("spJob"); el.hidden=false;
+    const grid=(k)=>{ const e=j.ends[k]; if(!e) return ""; let h=`<div style="display:inline-block;margin:6px 24px 0 0"><div class="note"><b>End ${k}</b> ${esc(e.label)}</div><div class="spg">`;
+      for(let f=1; f<=e.n; f++){ const s=e.fibres[f]||""; h+=`<i class="${s}" title="F${String(f).padStart(3,"0")} ${s}${e.dates[f]?" · "+e.dates[f]:""}"></i>`; } return h+"</div></div>"; };
+    const res=j.result&&j.result.summary&&j.result.summary.pulled;
+    el.innerHTML=`<div class="fbar"><b>${j.state==="done"?"Update finished":j.state==="error"?"Update stopped":"Updating"}${j.ribbons?" R"+esc(j.ribbons):" every ribbon"}</b><span class="note">${esc(j.phase||"")}</span>
+      ${res?`<span class="note">${res.new} new, ${res.same} already had, ${res.kept} kept, ${res.none} no result${res.err?", "+res.err+" errors":""}</span>`:""}
+      ${j.error?`<span class="warnbox" style="padding:4px 10px">${esc(j.error)}</span>`:""}<span class="grow"></span>${j.state!=="running"&&j.state!=="queued"?`<button class="btn" type="button" id="spJobX">Hide</button>`:""}</div>`
+      +(j.state==="running"||j.state==="queued"?`<div class="spkey" style="margin-top:6px"><span><i style="background:var(--brand)"></i>pulling</span><span><i style="background:var(--sp0)"></i>new result</span><span><i style="background:var(--brand-tint)"></i>already had it / kept</span><span><i style="background:var(--warn)"></i>no result</span><span><i style="background:var(--bad)"></i>error</span></div>`+grid("A")+grid("B"):"");
+    if($("spJobX")) $("spJobX").onclick=()=>{ el.hidden=true; };
+  }
+  function spView(){ return SPVIEW(); }
+  async function spLoad(){
+    const seq=SP.seq=(SP.seq||0)+1, stem=FB.stem;     /* only the newest answer is drawn */
+    let sum;
+    try{ sum=await relay("/api/splice/cable",{stem, view:spView(), group:SP.group}); }
+    catch(e){ if(quiet(e)||seq!==SP.seq) return; $("spGrid").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    if(seq!==SP.seq||stem!==FB.stem) return;
+    SP.sum=sum;
+    spPaint(); if(SP.det) spDrill(SP.det.kind, SP.det.a, SP.det.b, true);
+  }
+  function spFilters(){
+    const s=SP.sum.settings, v=SPVIEW(), own=Object.keys(v).length>0, sug=SP.sum.nr_suggest;
+    $("spThr").value=s.threshold; $("spSplit").checked=!!s.split; $("spSodf").value=s.sodf_limit; $("spNr").value=s.nr_ribbons; $("spOne").value=s.one_end; $("spNom").value=s.nominal;
+    $("spNom").disabled=s.one_end==="exclude";
+    $("spSug").innerHTML=sug&&sug.spec?`<button type="button" class="hdrlink" id="spSugB" title="From the S-ODF losses: ${sug.high_avg} dB on these ribbons, ${sug.low_avg} on the rest">suggested ${esc(sug.spec)}${sug.spec===s.nr_ribbons?" ✓":""}</button>`:"";
+    if($("spSugB")) $("spSugB").onclick=()=>{ $("spNr").value=sug.spec; spSet(); };
+    $("spScope").textContent=own?"Your view differs from the cable's settings":"The cable's settings";
+    $("spReset").hidden=!own;
+    document.querySelectorAll("[data-spshow]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.spshow===SP.show)));
+    $("spGroup").innerHTML=`<option value="">All fibres</option>`+(SP.sum.groups||[]).map(g=>`<option value="${esc(g.id)}"${g.id===SP.sum.group?" selected":""}>${esc(g.label)}</option>`).join("");
+    $("spSmall").checked=SP.small;
+  }
+  function spSet(){
+    const v={threshold:+$("spThr").value, split:$("spSplit").checked, sodf_limit:+$("spSodf").value, nr_ribbons:$("spNr").value.trim(), one_end:$("spOne").value, nominal:+$("spNom").value};
+    const base=SP.state&&SP.state.settings||{}, diff={};
+    Object.entries(v).forEach(([k,x])=>{ if(String(x)!==String(base[k])) diff[k]=x; });
+    jset("rft.sp.view."+FB.stem,diff); spLoad();
+  }
+  ["spThr","spSodf","spNr","spNom"].forEach(id=>$(id).onchange=spSet); ["spSplit","spOne"].forEach(id=>$(id).onchange=spSet);
+  document.querySelectorAll("[data-spshow]").forEach(b=>b.onclick=()=>{ SP.show=b.dataset.spshow; jset("rft.sp.show",SP.show); spPaint(); if(SP.det) spDrill(SP.det.kind,SP.det.a,SP.det.b,true); });
+  $("spGroup").onchange=e=>{ SP.group=e.target.value; spLoad(); };
+  $("spSmall").onchange=e=>{ SP.small=e.target.checked; spPaint(); };
+  $("spReset").onclick=()=>{ jset("rft.sp.view."+FB.stem,{}); spLoad(); };
+  $("spSave").onclick=async()=>{
+    if(!await ask("Save for this cable","Everyone who opens Splice loss on this cable will see these settings: pass under "+$("spThr").value+" dB, S-ODF "+$("spSodf").value+" dB for R"+$("spNr").value+", one end only "+$("spOne").selectedOptions[0].text+".","Save")) return;
+    try{ const r=await relay("/api/splice/settings",{stem:FB.stem, settings:{...SP.state.settings,...SPVIEW()}}); SP.state.settings=r.settings; jset("rft.sp.view."+FB.stem,{}); toast(r.saved?"Saved for this cable":"Saved on the relay (not kept after a restart: no log repo)"); spLoad(); }
+    catch(e){ if(!quiet(e)) toast("Not saved: "+e.message); }
+  };
+  function spLocs(){
+    const s=SP.sum, minN=Math.max(20,Math.round(s.fibres_tested*0.05));
+    return s.locations.filter(l=>SP.small||(s.group?!l.minor:(l.scheduled||l.n_fibres>=minN)));
+  }
+  function spPaint(){
+    const s=SP.sum; if(!s) return; spFilters();
+    const c=s.counts, st=s.settings, t=st.threshold, ex=st.one_end==="exclude";
+    const stat=(lbl,v,sub,col)=>`<div class="lstat panel"><span class="lbl">${lbl}</span><b${col?` style="color:${col}"`:""}>${v}</b><span class="note">${sub||""}</span></div>`;
+    $("spStats").innerHTML=stat("Splices judged",c.splices,`${c.both} both ends, ${ex?c.one_way_left_out+" left out":c.filled+" filled from one end"}`)
+      +stat("Fail",c.fail,`at or over ${t} dB · ${c.fail_both} both ends, ${c.fail_filled} filled`,"var(--bad)")
+      +(st.split?stat("Pass under 0.10",c.pass_low,"dark green","var(--ok)")+stat("Pass 0.10 to "+t,c.pass-c.pass_low,"light green"):stat("Pass",c.pass,"under "+t+" dB","var(--ok)"))
+      +stat("Pass on the S-ODF limit",c.fail_sodf,`${st.sodf_limit} dB for R${esc(st.nr_ribbons||"all")} at S-ODFs`)
+      +stat("Fails on spurs",c.spur_fail,`${(s.spurs||[]).length} spurs found`)
+      +stat("Fibres",s.fibres_tested,s.group?esc((s.groups.find(g=>g.id===s.group)||{}).label||""):`${s.both_ends} tested from both ends`);
+    $("spKey").innerHTML=(st.split?`<span><i style="background:var(--sp0)"></i>pass under 0.10</span><span><i style="background:var(--sp1)"></i>pass 0.10 to ${t}</span>`:`<span><i style="background:var(--sp0)"></i>pass under ${t}</span>`)
+      +`<span><i style="background:var(--spf)"></i>fail at or over ${t} (S-ODF ${st.sodf_limit} on R${esc(st.nr_ribbons||"all")})</span><span><i style="background:var(--sp0);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 3px,transparent 3px 7px)"></i>worst uses a one end reading</span><span><b class="sod">S-ODF</b> joint</span>`
+      +((s.groups||[]).length?`<span>${esc((s.groups||[]).filter(g=>!(g.route||"").startsWith("confirmed")).length?"Some fibre groups split by joints":"Fibre groups confirmed by splice locations")}</span>`:"");
+    const locs=spLocs(), cm={}; s.cells.forEach(x=>cm[x.ribbon+"|"+x.loc]=x);
+    let h="<table>";
+    if((s.spurs||[]).length){ h+=`<tr class="spband"><th class="rl"></th>`; let i=0;
+      while(i<locs.length){ const sp=locs[i].spur; let j=i; while(j+1<locs.length&&sp&&locs[j+1].spur===sp) j++;
+        h+=sp?`<th class="spb" colspan="${j-i+1}" data-sploc="${esc(locs[i].loc)}" title="${esc(sp)}">${esc(sp.replace(/ spur$/,""))}</th>`:"<th></th>"; i=j+1; }
+      h+="</tr>"; }
+    h+=`<tr class="sphd"><th class="rl">Ribbon</th>`+locs.map(l=>`<th><div class="vt" data-sploc="${esc(l.loc)}" title="${esc(l.loc)} · ${spKm(l.pos)} · ${l.n_fibres} fibres${l.sodf?" · S-ODF":""}${l.spur?" · "+esc(l.spur):""}"><b>${esc(spShort(l.loc))}</b>${l.sodf?' <span class="sod">S-ODF</span>':""} · ${spKm(l.pos)}</div></th>`).join("")+"</tr>";
+    s.ribbons.forEach(rb=>{
+      h+=`<tr><td class="rl"><a href="#" data-sprb="${rb}">R${rb}</a></td>`;
+      locs.forEach(l=>{ const x=cm[rb+"|"+l.loc];
+        if(!x||!x.n){ h+=`<td class="c n"></td>`; return; }
+        if(x.worst==null){ h+=`<td class="c n" title="${x.one_way} one end only, left out">${x.one_way_high?"1W":""}</td>`; return; }
+        const cls=spCls(x.worst,x.limit), hide=SP.show==="fail"&&cls!=="f", sel=SP.det&&SP.det.kind==="cell"&&SP.det.a===l.loc&&SP.det.b===rb;
+        const tip=`${l.loc} R${rb}: worst ${spNum(x.worst)} dB (${SPHOW[x.worst_how]}) · limit ${x.limit} · ${x.n} splices · ${x.fail} fail`+(x.filled?` · ${x.filled} filled`:"");
+        h+=`<td class="c ${hide?"dim":cls}${x.worst_how!=="both"&&!hide?" st":""}${sel?" sel":""}" data-spc="${esc(l.loc)}" data-r="${rb}" title="${esc(tip)}">${hide?"":(x.fail>1?spNum(x.worst)+"<sup>"+x.fail+"</sup>":spNum(x.worst))}</td>`; });
+      h+="</tr>"; });
+    $("spGrid").innerHTML=h+"</table>";
+    $("spGrid").querySelectorAll("[data-spc]").forEach(e=>e.onclick=()=>spDrill("cell",e.dataset.spc,+e.dataset.r));
+    $("spGrid").querySelectorAll("[data-sploc]").forEach(e=>e.onclick=()=>spDrill("loc",e.dataset.sploc,0));
+    $("spGrid").querySelectorAll("[data-sprb]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); spDrill("rib",+e.dataset.sprb,0); });
+    const sps=s.spurs||[];
+    $("spSpurs").hidden=!sps.length;
+    $("spSpurs").innerHTML=`<h3 style="margin:0 0 8px">Spurs found</h3><p class="note" style="margin:0 0 8px">Joints that only one smaller group of fibres goes through, each within ${st.spur_gap} m of the next.</p><table class="spt"><tr><th>Spur</th><th>Fibres</th><th class="n">From</th><th class="n">To</th><th>Joints</th><th class="n">Fails</th></tr>`
+      +sps.map(p=>`<tr><td><a href="#" data-sploc="${esc(p.locations[0])}">${esc(p.name)}</a></td><td>${esc(((s.groups||[]).find(g=>g.id===p.group)||{}).ribbons||p.group)}</td><td class="n">${spKm(p.start)}</td><td class="n">${spKm(p.end)}</td><td class="note">${p.locations.map(esc).join(" · ")}</td><td class="n" style="${p.fail?"color:var(--bad);font-weight:700":""}">${p.fail}</td></tr>`).join("")+"</table>";
+    $("spSpurs").querySelectorAll("[data-sploc]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); spDrill("loc",e.dataset.sploc,0); });
+  }
+  // drill down: a cell (one ribbon at one joint), a joint (every ribbon), or a ribbon along the cable
+  async function spDrill(kind,a,b,keep){
+    SP.det={kind,a,b}; const el=$("spDet"); el.hidden=false; if(!keep) el.innerHTML="<p class='note'>Reading…</p>";
+    if(!keep) spPaint();
+    try{
+      if(kind==="rib"){
+        const R=await relay("/api/splice/ribbon",{stem:FB.stem, ribbon:a, view:spView()});
+        const minN=Math.max(20,Math.round(SP.sum.fibres_tested*0.05));
+        const locs=R.locations.filter(l=>SP.small||l.scheduled||l.n_fibres>=minN);
+        let h=`<div class="fbar"><h3 style="margin:0">Ribbon ${a} along the cable</h3>${a>1?`<button class="btn" type="button" data-spgo="${a-1}">R${a-1}</button>`:""}${a<36?`<button class="btn" type="button" data-spgo="${a+1}">R${a+1}</button>`:""}<span class="grow"></span><button class="btn" type="button" id="spDetX">Close</button></div>
+          <div class="spheat"><table><tr class="sphd"><th class="rl">Fibre</th><th><div class="vt"><b>A-B E2E</b></div></th><th><div class="vt"><b>B-A E2E</b></div></th>`
+          +locs.map(l=>`<th><div class="vt" data-sploc="${esc(l.loc)}" title="${esc(l.loc)}"><b>${esc(spShort(l.loc))}</b>${l.sodf?' <span class="sod">S-ODF</span>':""} · ${spKm(l.pos)}</div></th>`).join("")+"</tr>";
+        R.fibres.forEach(f=>{ h+=`<tr><td class="rl">F${String(f.fno).padStart(3,"0")}</td><td class="c n" style="color:var(--ink)">${spNum(f.a1550)}</td><td class="c n" style="color:var(--ink)">${spNum(f.b1550)}</td>`
+          +locs.map(l=>{ const x=R.cells[f.fno+"|"+l.loc]; if(!x) return `<td class="c n"></td>`;
+            if(x.how==="one_way") return `<td class="c n" title="one end only">${spNum(x.value)}</td>`;
+            const cls=spCls(x.value,x.limit), hide=SP.show==="fail"&&cls!=="f";
+            return `<td class="c ${hide?"dim":cls}${x.how!=="both"&&!hide?" st":""}" data-spc="${esc(l.loc)}" data-r="${a}" title="${esc(`${l.loc} F${f.fno}: A-B ${spNum(x.ab)} B-A ${spNum(x.ba)} · ${SPHOW[x.how]} · limit ${x.limit}`)}">${hide?"":spNum(x.value)}</td>`; }).join("")+"</tr>"; });
+        el.innerHTML=h+"</table></div>";
+        el.querySelectorAll("[data-spgo]").forEach(e=>e.onclick=()=>spDrill("rib",+e.dataset.spgo,0));
+        el.querySelectorAll("[data-spc]").forEach(e=>e.onclick=()=>spDrill("cell",e.dataset.spc,+e.dataset.r));
+        el.querySelectorAll("[data-sploc]").forEach(e=>e.onclick=()=>spDrill("cell",e.dataset.sploc,a));
+      } else {
+        const L=await relay("/api/splice/location",{stem:FB.stem, loc:a, ribbon:b||0, view:spView()});
+        const rows=L.rows.filter(r=>r.splice||!b).sort((x,y)=>((y.how==="one_way"?-9:y.value)??-9)-((x.how==="one_way"?-9:x.value)??-9))
+          .filter(r=>SP.show!=="fail"||r.fail);
+        const lo=L.location||{}, nf=rows.filter(r=>r.fail).length;
+        let h=`<div class="fbar"><h3 style="margin:0">${esc(a)}${b?" · Ribbon "+b:" · every ribbon"}</h3><span class="note">${spKm(lo.pos)}${lo.kind?" · "+esc(lo.kind):""}${lo.spur?" · "+esc(lo.spur):""} · ${nf} fail${nf===1?"":"s"}${SP.show==="fail"?" (fails only)":""}</span>
+          <span class="grow"></span>${b?`<button class="btn" type="button" id="spAllR">Every ribbon here</button><button class="btn" type="button" id="spRib">Ribbon ${b} along the cable</button>`:""}<button class="btn" type="button" id="spDetX">Close</button></div>
+          <table class="spt" style="margin-top:8px"><tr><th>Fibre</th><th>Ribbon</th><th class="n">From End A</th><th>Event</th><th class="n">A-B</th><th class="n">B-A</th><th class="n">Loss</th><th class="n">Limit</th><th></th></tr>`;
+        rows.forEach(r=>{ const cls=r.splice&&r.how!=="one_way"?spCls(r.value,r.limit):"", col=cls==="f"?"var(--bad)":cls?"var(--ok)":"inherit";
+          const tags=[r.fail?`<span class="sptag f">fail</span>`:"", r.how&&r.how!=="both"?`<span class="sptag">${esc(SPHOW[r.how]||"")}</span>`:"", r.gainer?`<span class="sptag">gainer</span>`:"", r.splice&&lo.sodf&&r.limit!==SP.sum.settings.threshold?`<span class="sptag s">S-ODF ${r.limit}</span>`:""].join("");
+          h+=`<tr><td class="mono"><a href="#" data-spf="${r.fno}">F${String(r.fno).padStart(3,"0")}</a></td><td><a href="#" data-sprb2="${r.ribbon}">R${r.ribbon}</a></td><td class="n">${r.pos??""} m</td><td>${esc(r.type)}</td><td class="n">${spNum(r.ab)}</td><td class="n">${spNum(r.ba)}</td><td class="n" style="color:${col};font-weight:700">${spNum(r.value)}</td><td class="n note">${r.splice?r.limit:""}</td><td>${tags}</td></tr>`; });
+        el.innerHTML=h+"</table>"+(rows.length?"":"<p class='note'>Nothing to show here with these filters.</p>");
+        if($("spAllR")) $("spAllR").onclick=()=>spDrill("loc",a,0);
+        if($("spRib")) $("spRib").onclick=()=>spDrill("rib",b,0);
+        el.querySelectorAll("[data-sprb2]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); spDrill("cell",a,+e.dataset.sprb2); });
+        el.querySelectorAll("[data-spf]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); cvMode("cont"); showFibre(+e.dataset.spf); });
+      }
+      $("spDetX").onclick=()=>{ SP.det=null; el.hidden=true; spPaint(); };
+      if(!keep) el.scrollIntoView({behavior:"smooth",block:"nearest"});
+    }catch(e){ if(!quiet(e)) el.innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; }
+  }
+
   // v37 real time: the relay's "right now" part (E2E runs, Uni-dir from phones and desktops, running Tasks) laid over the stored results
   function applyLive(){
     const b=FB.base; if(!b) return; const L=FB.live||{}, now=Date.now()/1000, mark={};
@@ -2876,6 +3151,7 @@
         const before=JSON.stringify(contOf((FB.data.fibres||[])[FB.sel-1]||{f:0})||null);
         applyLive(); paintFibres();
         if(JSON.stringify(contOf(FB.data.fibres[FB.sel-1])||null)!==before) showFibre(FB.sel);
+        if(full&&SP.mode==="splice"&&SP.state&&SP.state.ready.state==="ready"){ const j=SP.job||SP.state.job; if(!(j&&["queued","running"].includes(j.state))) spHead(); spAuto(); }   /* Brunel 1.1 */
       }catch(e){ if(quiet(e)) return; }
     }
     fibT=setTimeout(pollFibres,4000);

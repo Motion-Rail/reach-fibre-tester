@@ -5,6 +5,15 @@ Far-end confirmation: live-fibre detector clamp.
 
 ---
 
+## Brunel 1.1 — 16 Oct 2026 (relay build 48)
+
+### Cable View: Continuity and Splice loss
+- Cable View has a Continuity / Splice loss switch (admin only, like Cable View).
+- Splice loss: ribbon by joint grid of the latest test of every fibre at both ends, drill into a ribbon at a joint, every ribbon at a joint, or one ribbon along the cable.
+- Loss filters per viewer (pass limit, split at 0.10, S-ODF limit and NR ribbons, one end rule, fails only, fibre group); Save for this cable stores them for everyone (relay-logs splice/<section>/settings.json).
+- Update fetches only fibres with something new in FMS; ribbons tested since the last update are fetched automatically when the view opens.
+- Relay: relay_splice.py, splice_job.py and cableinsight/ (the Cable Insight engine, same numbers as the PC tool). Latest results saved to relay-logs splice/<section>/raw.tgz and rebuilt after a restart with no FMS calls.
+
 ## v3 — 9 July 2026
 
 ### Cable picker (no more typing the route)
