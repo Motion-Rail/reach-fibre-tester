@@ -1155,7 +1155,7 @@
         <div class="fbar">
           <h2 style="margin:0">Cable View</h2>
           <select id="fCable" aria-label="Cable"></select>
-          <span class="seg" role="group" aria-label="View" id="cvMode"><button type="button" data-cv="cont" aria-pressed="true">Continuity</button><button type="button" data-cv="splice" aria-pressed="false">Splice loss 1550</button><button type="button" data-cv="odf" aria-pressed="false">ODF</button></span>
+          <span class="seg" role="group" aria-label="View" id="cvMode"><button type="button" data-cv="cont" aria-pressed="true">Continuity</button><button type="button" data-cv="splice" aria-pressed="false">Splice loss 1550</button><button type="button" data-cv="odf" aria-pressed="false">ODF</button><button type="button" data-cv="time" aria-pressed="false">Over time</button></span>
           <span class="grow"></span>
           <input id="fFind" type="search" hidden aria-hidden="true">
           <span class="frep" hidden><button class="btn" type="button" id="fReport" hidden title="Excel workbook of this cable: a Summary sheet, then one row per fibre with continuity, iOLM loss from each end and the both ways average per wavelength, lengths and OTDR loss">Cable report (Excel)</button><small class="note" id="fRepNote" hidden>Every fibre: continuity, loss each end and both ways, length</small></span>
@@ -1215,6 +1215,14 @@
         <section class="panel" style="margin-top:12px" id="spDet" hidden></section>
         <section class="panel" style="margin-top:12px" id="spJoints"></section>
         <section class="panel" style="margin-top:12px" id="spSpurs" hidden></section>
+      </div>
+      <!-- Brunel 1.1.3: Over time. Every Update is kept; compare any two and see fails at every joint test by test -->
+      <div id="cvTime" hidden>
+        <section class="panel" style="margin-top:16px" id="otHead"></section>
+        <section class="panel" style="margin-top:12px" id="otReview" hidden></section>
+        <section class="fstats" id="otStats" style="margin-top:12px"></section>
+        <section class="panel" style="margin-top:12px" id="otRows"></section>
+        <section class="panel" style="margin-top:12px" id="otTrend"></section>
       </div>
       <!-- Brunel 1.1.1: ODF view, the connector at the ODF next to each RTU, from the same latest results -->
       <div id="cvOdf" hidden>
@@ -1335,6 +1343,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel 1.1.3 (17 Oct 2026)</h3>
+      <ul><li>Splice loss 1550 on cables with no Distances sheet (Slough to Reading, Swindon to Stoke Gifford): the joints most of the cable shares are found from the results and named from the learned locations (Reports, Locations and assets) where they match, so these cables get the same backbone distance and spurs as Reading to Swindon. Spurs with no name show as Spur at the distance where they leave.</li><li>Name a joint in the app: click a joint in Splice loss 1550, type its name and pick its type (Joint, Temp joint, Spur joint, ODF, S-ODF, REB, Other), and Save. The name is kept for the cable and matched by place, so every later test, and the pulls already stored, take it; as the cable is built you name the new joints as they appear. A spur takes the name of its REB. S-ODF uses the S-ODF limit. Joints named by a Distances sheet are not changed.</li><li><b>Snapshots</b> (in Over time): check a test before it counts. Check shows the ODF at each end, the ODFs along the route (REBs, S-ODFs, NODFs, with spur ends to name), the joints and spurs, the pass/fail criteria, and how it lines up with the snapshot before (joints matched, moved more than 10 m, missing, new). Tick each and Save as snapshot: the criteria in force are saved with it, as EXFO do, and each snapshot is judged on its own criteria. Snapshots are ticked by default.</li><li><b>Over time</b>: a fourth Cable View view. Every Update is kept (it survives relay restarts). Tick as many tests as you want and every splice that failed in any of them is followed across all of them: its loss in each test and what happened to it (still failing, new, came back, fixed, not in the latest test) and since when; plus fails at every joint, test by test, and an Excel download. The loss filters and fibre group from Splice loss apply.</li><li>Switching cable clears the last cable's tiles, spurs and joints while the new one loads.</li></ul>
       <h3>Brunel 1.1.2 (17 Oct 2026)</h3>
       <ul><li>Splice loss 1550: every fibre is set on the backbone distance, so a joint reads the same distance on every fibre, even on the ribbons that are longer because they go round spurs. Joints the schedule does not list are grouped on that distance too, so the same joint lines up in one column.</li><li>Spurs: the joints out at a REB show only on the ribbons that go through that spur. They sit at the distance where the spur leaves the backbone, with their place on the spur (spur out 20 m, spur end 53 m, spur back 2 m). Spurs found lists where each spur leaves and how long it is.</li></ul>
       <h3>Brunel 1.1.1 (17 Oct 2026)</h3>
@@ -1476,7 +1486,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel 1.1.2";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.1.3";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -2909,7 +2919,7 @@
   const STEMS=[["F-0057-RGAC-A-R432","Slough to Reading"],["F-RGAC-SNBC-A-R432","Reading to Swindon"],["F-SGIC-SNBC-A-R432","Swindon to Stoke Gifford"],["F-0001-SGIC-A-R432","Stoke Gifford to Cardiff"]];
   $("fCable").innerHTML=STEMS.map(([k,n])=>`<option value="${k}">${esc(n)}</option>`).join("");
   $("fCable").value=FB.stem;
-  $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; SP.sum=null; SP.det=null; SP.group=""; OD.data=null; OD.sel=0; $("spDet").hidden=true; $("spJob").hidden=true; $("odDet").hidden=true; loadFibres(true).then(()=>{ if(SP.mode==="splice") spOpen(); if(SP.mode==="odf") odOpen(); }); };
+  $("fCable").onchange=()=>{ FB.stem=$("fCable").value; jset("rft.fib.stem",FB.stem); FB.sel=0; SP.sum=null; SP.det=null; SP.group=""; OD.data=null; OD.sel=0; $("spDet").hidden=true; $("spJob").hidden=true; $("odDet").hidden=true; loadFibres(true).then(()=>{ if(SP.mode==="splice") spOpen(); if(SP.mode==="odf") odOpen(); if(SP.mode==="time") otOpen(); }); };
   document.querySelectorAll("[data-fm]").forEach(b=>b.onclick=()=>{ FB.mode=b.dataset.fm; jset("rft.fib.mode",FB.mode); paintFibres(); });
   const fNum=f=>"F"+String(f).padStart(3,"0"), ribOf=f=>Math.ceil(f/12), posOf=f=>(f-1)%12+1;
   const ago=t=>{ if(!t) return ""; const d=(Date.now()/1000-t)/86400; return d<1?"today":d<2?"yesterday":Math.round(d)+" days ago"; };
@@ -2957,7 +2967,7 @@
   function spCable(){ return CABLES.find(c=>FB.stem.startsWith(c.pre)); }
   function spCls(v,lim){ if(v==null) return "n"; const s=SP.sum&&SP.sum.settings||{}; if(v>=(lim??s.threshold)) return "f"; return s.split&&v>=0.10?"p1":"p0"; }
   function cvMode(m){ SP.mode=m; jset("rft.cv.mode",m); document.querySelectorAll("[data-cv]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.cv===m)));
-    $("cvCont").hidden=m!=="cont"; $("cvSplice").hidden=m!=="splice"; $("cvOdf").hidden=m!=="odf"; if(m==="splice") spOpen(); if(m==="odf") odOpen(); }
+    $("cvCont").hidden=m!=="cont"; $("cvSplice").hidden=m!=="splice"; $("cvOdf").hidden=m!=="odf"; $("cvTime").hidden=m!=="time"; if(m==="splice") spOpen(); if(m==="odf") odOpen(); if(m==="time") otOpen(); }
   document.querySelectorAll("[data-cv]").forEach(b=>b.onclick=()=>cvMode(b.dataset.cv));
   function spDateT(s){ return s?Date.parse(String(s).replace(" ","T")+(String(s).length<=16?":00Z":"Z"))/1000:0; }
   // ribbons with an iOLM newer than what the Splice loss view holds, from Cable View's own results
@@ -2970,6 +2980,9 @@
     return [...rbs].sort((a,b)=>a-b);
   }
   async function spOpen(){
+    if(SP.sumStem!==FB.stem){   /* another cable: clear the last one's tiles, spurs and joints while this one loads */
+      SP.sum=null; SP.det=null; ["spStats","spSpurs","spJoints","spDet"].forEach(id=>{ const el=$(id); if(el){ el.innerHTML=""; if(id==="spSpurs"||id==="spDet") el.hidden=true; } });
+    }
     $("spGrid").innerHTML="<p class='note'>Reading the latest splice results…</p>";
     try{ SP.state=await relay("/api/splice/state",{stem:FB.stem}); }
     catch(e){ $("spGrid").innerHTML=""; $("spHead").innerHTML=`<div class="warnbox">${quiet(e)?"Your sign in has ended. Sign in again to see the splice results.":"Splice loss is not available: "+esc(e.message)}</div>`; return; }
@@ -3013,6 +3026,7 @@
       SP.job=j; spJob(j);
       if(["queued","running"].includes(j.state)){ SP.jobT=setTimeout(tick,1500); return; }
       if(SP.mode==="odf"&&screen==="fibres"&&j.state==="done"){ toast("ODF results updated"); odOpen(); }
+      else if(SP.mode==="time"&&screen==="fibres"&&j.state==="done"){ OT.stem=null; otOpen(); }
       else if(SP.mode==="splice"&&screen==="fibres"&&j.state==="done"){ toast(j.result&&j.result.new===false?"Splice loss: nothing new in FMS":"Splice loss updated"); spOpen(); }
       else if(j.state==="error") spHead();
     };
@@ -3036,7 +3050,7 @@
     try{ sum=await relay("/api/splice/cable",{stem, view:spView(), group:SP.group}); }
     catch(e){ if(quiet(e)||seq!==SP.seq) return; $("spGrid").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
     if(seq!==SP.seq||stem!==FB.stem) return;
-    SP.sum=sum;
+    SP.sum=sum; SP.sumStem=stem;
     spPaint(); if(SP.det) spDrill(SP.det.kind, SP.det.a, SP.det.b, true);
   }
   function spFilters(){
@@ -3128,6 +3142,33 @@
     $("spSpurs").querySelectorAll("[data-sploc]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); spDrill("loc",e.dataset.sploc,0); });
   }
   // drill down: a cell (one ribbon at one joint), a joint (every ribbon), or a ribbon along the cable
+  /* Brunel 1.1.3: name a joint found from the results. Saved for the cable and matched by place, so every
+     later test takes the name; joints named by a Distances schedule are not changed here. */
+  const SPTYPES=["Joint","Temp joint","Spur joint","ODF","S-ODF","REB","Other"];
+  const spCanName=(lo,a)=>lo&&(lo.scheduled!==1||/^Unnamed /.test(lo.loc||a));
+  function spNameBar(lo,a){
+    if(!spCanName(lo,a)) return "";
+    const mine=lo.scheduled===2;
+    return `<div class="fbar spname" style="margin-top:8px"><label class="f">${mine?"Name":"Name this joint"} <input id="spNmIn" type="text" maxlength="60" value="${mine?esc(a):""}" placeholder="for example A-05 or Didcot REB"></label>
+      <label class="f">Type <select id="spNmTy"><option value="">Not set</option>${SPTYPES.map(t=>`<option${t===lo.kind?" selected":""}>${t}</option>`).join("")}</select></label>
+      <button class="btn primary" type="button" id="spNmGo">${mine?"Save":"Save name"}</button>${mine?`<button class="btn" type="button" id="spNmDel">Take the name off</button>`:""}
+      <span class="note">Saved for this cable. Every later test, and the pulls already here, take it by place${lo.spur_leg?" on this spur":""}. S-ODF uses the S-ODF limit.</span></div>`;
+  }
+  function spNameWire(lo,a,b){
+    if(!$("spNmGo")) return;
+    const send=async(nm)=>{
+      const ty=$("spNmTy").value;
+      try{ await relay("/api/splice/name",{stem:FB.stem, loc:a, name:nm, type:ty});
+        toast(nm?`Named ${nm}`:"Name taken off");
+        SP.det=null; await spLoad();
+        const l=nm?SP.sum.locations.find(x=>x.loc===nm):SP.sum.locations.find(x=>Math.abs(x.pos-lo.pos)<1&&(x.spur_d==null)===(lo.spur_d==null));
+        if(l) spDrill("loc",l.loc,b||0,true);
+      }catch(e){ if(!quiet(e)) toast("Not saved: "+e.message); }
+    };
+    $("spNmGo").onclick=()=>{ const nm=$("spNmIn").value.trim(); if(!nm){ toast("Type a name first"); return; } send(nm); };
+    $("spNmIn").onkeydown=e=>{ if(e.key==="Enter") $("spNmGo").click(); };
+    if($("spNmDel")) $("spNmDel").onclick=async()=>{ if(await ask("Take the name off",`${a} goes back to its distance on every pull of this cable.`,"Take it off")) send(""); };
+  }
   async function spDrill(kind,a,b,keep){
     SP.det={kind,a,b}; const el=$("spDet"); el.hidden=false; if(!keep) el.innerHTML="<p class='note'>Reading…</p>";
     if(!keep) spPaint();
@@ -3155,11 +3196,12 @@
         const lo=L.location||{}, nf=rows.filter(r=>r.fail).length;
         let h=`<div class="fbar"><h3 style="margin:0">${esc(a)}${b?" · Ribbon "+b:" · every ribbon"}</h3><span class="note">${spWhere(lo)}${lo.kind?" · "+esc(lo.kind):""}${lo.spur?" · "+esc(lo.spur):""} · ${nf} fail${nf===1?"":"s"}${SP.show==="fail"?" (fails only)":""}</span>
           <span class="grow"></span>${b?`<button class="btn" type="button" id="spAllR">Every ribbon here</button><button class="btn" type="button" id="spRib">Ribbon ${b} along the cable</button>`:""}<button class="btn" type="button" id="spDetX">Close</button></div>
-          <table class="spt" style="margin-top:8px"><tr><th>Fibre</th><th>Ribbon</th><th class="n" title="Where the event is on that fibre's own trace from End A">On its trace</th><th>Event</th><th class="n">A-B</th><th class="n">B-A</th><th class="n">Loss</th><th class="n">Limit</th><th></th></tr>`;
+          ${spNameBar(lo,a)}<table class="spt" style="margin-top:8px"><tr><th>Fibre</th><th>Ribbon</th><th class="n" title="Where the event is on that fibre's own trace from End A">On its trace</th><th>Event</th><th class="n">A-B</th><th class="n">B-A</th><th class="n">Loss</th><th class="n">Limit</th><th></th></tr>`;
         rows.forEach(r=>{ const cls=r.splice&&r.how!=="one_way"?spCls(r.value,r.limit):"", col=cls==="f"?"var(--bad)":cls?"var(--ok)":"inherit";
           const tags=[r.fail?`<span class="sptag f">fail</span>`:"", r.how&&r.how!=="both"?`<span class="sptag">${esc(SPHOW[r.how]||"")}</span>`:"", r.gainer?`<span class="sptag">gainer</span>`:"", r.splice&&lo.sodf&&r.limit!==SP.sum.settings.threshold?`<span class="sptag s">S-ODF ${r.limit}</span>`:""].join("");
           h+=`<tr><td class="mono"><a href="#" data-spf="${r.fno}">F${String(r.fno).padStart(3,"0")}</a></td><td><a href="#" data-sprb2="${r.ribbon}">R${r.ribbon}</a></td><td class="n">${r.pos??""} m</td><td>${esc(r.type)}</td><td class="n">${spNum(r.ab)}</td><td class="n">${spNum(r.ba)}</td><td class="n" style="color:${col};font-weight:700">${spNum(r.value)}</td><td class="n note">${r.splice?r.limit:""}</td><td>${tags}</td></tr>`; });
         el.innerHTML=h+"</table>"+(rows.length?"":"<p class='note'>Nothing to show here with these filters.</p>");
+        spNameWire(lo,a,b);
         if($("spAllR")) $("spAllR").onclick=()=>spDrill("loc",a,0);
         if($("spRib")) $("spRib").onclick=()=>spDrill("rib",b,0);
         el.querySelectorAll("[data-sprb2]").forEach(e=>e.onclick=ev=>{ ev.preventDefault(); spDrill("cell",a,+e.dataset.sprb2); });
@@ -3172,6 +3214,128 @@
 
   // ── Brunel 1.1.1: ODF view. The ODF connector next to each RTU, pass at or under the limit (0.5 dB at 1550) ──
   const OD={data:null, show:jget("rft.od.show","all"), sel:0};
+  // ── Brunel 1.1.3: Over time. Every Update is kept (relay-logs splice/<section>/history); compare any two tests
+  //    (solved, remaining, new, not seen) and see the fails at every joint test by test. Same loss filters as Splice loss. ──
+  const OT={stem:null, ids:null, status:"", all:false, seq:0, data:null};
+  const otDay=s=>{ if(!s) return ""; const d=new Date(String(s).replace(" ","T")+(String(s).length<=16?":00Z":"Z")); return isNaN(d)?String(s).slice(0,10):d.toLocaleDateString("en-GB",{day:"numeric",month:"short"}); };
+  const OTST={new:"New",back:"Came back",still:"Still failing",fixed:"Fixed",not_seen:"Not in the latest test"};
+  const OTSUB={new:"passed before, fails now",back:"failed, passed, fails again",still:"failing in every test",fixed:"failed before, passes now",not_seen:"failed before, no reading in the latest"};
+  async function otOpen(){
+    $("otHead").innerHTML="<p class='note'>Reading the kept tests…</p>"; ["otStats","otRows","otTrend"].forEach(id=>$(id).innerHTML="");
+    let st;
+    try{ st=SP.state=await relay("/api/splice/state",{stem:FB.stem}); }
+    catch(e){ $("otHead").innerHTML=`<div class="warnbox">${quiet(e)?"Your sign in has ended. Sign in again to see the results over time.":esc(e.message)}</div>`; return; }
+    if(st.ready.state==="preparing"){ $("otHead").innerHTML="<p class='note'>Getting the kept tests ready after a relay restart…</p>"; setTimeout(()=>{ if(SP.mode==="time"&&screen==="fibres") otOpen(); },3000); return; }
+    if(st.ready.state!=="ready"){ $("otHead").innerHTML="<p class='note'>No results for this cable yet. Run <b>Update</b> in Splice loss 1550; every Update after that is kept here.</p>"; return; }
+    OT.tests=(st.datasets||[]).slice().sort((a,b)=>String(a.t_to||"").localeCompare(String(b.t_to||""))||a.id-b.id);
+    if(OT.stem!==FB.stem){ OT.stem=FB.stem; OT.status=""; $("otReview").hidden=true; const saved=jget("rft.ot.sel."+FB.stem,null); OT.ids=Array.isArray(saved)?saved.filter(i=>OT.tests.some(d=>d.id===i)):null; if(OT.ids&&!OT.ids.length) OT.ids=null;
+      if(!OT.ids){ const sn=OT.tests.filter(d=>d.snapshot).map(d=>d.id); if(sn.length) OT.ids=sn.length===OT.tests.length?null:sn; } }
+    otHead(); await otLoad();
+  }
+  const otSel=()=>OT.ids?OT.tests.filter(d=>OT.ids.includes(d.id)):OT.tests;
+  function otHead(){
+    const ds=OT.tests, on=new Set(otSel().map(d=>d.id));
+    $("otHead").innerHTML=`<div class="fbar"><b>Tests to follow</b><span class="note">${on.size} of ${ds.length} ticked${OT.ids?"":" (every test, new ones too)"}</span><span class="grow"></span>
+      <button class="btn" type="button" id="otAllT">Every test</button><button class="btn" type="button" id="otLast2">Latest two</button><button class="btn" type="button" id="otXl">Download Excel</button></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${ds.map(d=>`<button type="button" class="fchip" data-otid="${d.id}" aria-pressed="${on.has(d.id)}" title="${esc(d.label)}${d.snapshot?` · snapshot saved ${esc(d.snapshot.at)} by ${esc(d.snapshot.by||"")}, pass under ${d.snapshot.settings.threshold} dB`:" · not checked yet"}">${d.snapshot?"✓ ":""}${esc(d.label)}${d.snapshot?"":" · not checked"}</button>`).join("")}</div>
+      <div class="fbar" style="margin-top:10px"><b>Check a test and save it as a snapshot</b><select id="otChk" aria-label="Test to check">${ds.slice().reverse().map(d=>`<option value="${d.id}">${d.snapshot?"✓ ":""}${esc(d.label)}</option>`).join("")}</select><button class="btn primary" type="button" id="otChkGo">Check</button></div>
+      <p class="note" style="margin:8px 0 0">Every Update in Splice loss 1550 is kept here. Check each test (its end ODFs, the ODFs along the route, the joints and spurs, how it lines up with the snapshot before) and save it as a snapshot: the pass/fail criteria in force are saved with it, and each snapshot is judged on its own criteria. Tick as many tests as you want: each splice that failed in any of them is followed across all of them, oldest on the left. Tests not checked yet use today's loss filters. A splice is one fibre at one joint (its worst splice there).</p>`;
+    { const nc=ds.slice().reverse().find(d=>!d.snapshot); if(nc) $("otChk").value=nc.id; }
+    $("otChkGo").onclick=()=>otReview(+$("otChk").value);
+    $("otHead").querySelectorAll("[data-otid]").forEach(b=>b.onclick=()=>{ const id=+b.dataset.otid, cur=new Set(otSel().map(d=>d.id));
+      if(cur.has(id)){ if(cur.size===1){ toast("Keep at least one test"); return; } cur.delete(id); } else cur.add(id);
+      OT.ids=cur.size===OT.tests.length?null:[...cur]; jset("rft.ot.sel."+FB.stem,OT.ids); otHead(); otLoad(); });
+    $("otAllT").onclick=()=>{ OT.ids=null; jset("rft.ot.sel."+FB.stem,null); otHead(); otLoad(); };
+    $("otLast2").onclick=()=>{ OT.ids=OT.tests.slice(-2).map(d=>d.id); jset("rft.ot.sel."+FB.stem,OT.ids); otHead(); otLoad(); };
+    $("otXl").onclick=async()=>{ const b=$("otXl"); b.disabled=true; try{ const n=await relayFile("/api/splice/track.xlsx",{stem:FB.stem, ids:OT.ids||[], view:spView(), group:SP.group||""},"over time.xlsx"); toast("Saved "+decodeURIComponent(n)); }catch(e){ if(!quiet(e)) toast("Download failed: "+e.message); } b.disabled=false; };
+  }
+  // Brunel 1.1.3: check a test before it becomes a snapshot (end ODFs, ODFs on the route, joints and spurs,
+  // criteria, line-up with the snapshot before); the criteria in force are saved with it
+  async function otReview(ds){
+    const el=$("otReview"); el.hidden=false; el.innerHTML="<p class='note'>Reading the test…</p>"; el.scrollIntoView({behavior:"smooth",block:"nearest"});
+    let r; try{ r=await relay("/api/splice/review",{stem:FB.stem, ds, view:spView()}); }
+    catch(e){ if(!quiet(e)) el.innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    OT.rv=r; otReviewPaint();
+  }
+  function otReviewPaint(){
+    const r=OT.rv, el=$("otReview"), s=r.settings, sn=r.snapshot, L=r.lineup, km=m=>m==null?"":(m/1000).toFixed(2)+" km";
+    const endCard=(k,e)=>`<div class="panel" style="flex:1 1 280px;padding:12px"><b>End ${k}: ${esc(e.site)}</b><div class="note" style="margin-top:4px">${e.read?`ODF connector at about ${e.pos_m} m on ${e.read} fibres${e.none?`, ${e.none} with no connector reading`:""}. ${e.fail} over ${s.odf_limit} dB at 1550, median ${spNum(e.median)} dB, worst ${spNum(e.worst)} dB.`:"No ODF readings in this test. Update in Splice loss 1550 reads them."}</div>
+      <label class="note" style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" data-otck="end${k}" style="min-width:0;min-height:0;width:16px;height:16px"> This is the right ODF at End ${k}</label></div>`;
+    const crit=`pass under ${s.threshold} dB${s.split?" (split at 0.10)":""} · S-ODF limit ${s.sodf_limit} dB for R${esc(s.nr_ribbons)} · one end only: ${s.one_end==="nominal"?"nominal "+s.nominal+" dB":s.one_end==="auto"?"ribbon average":"left out"} · ODF pass at or under ${s.odf_limit} dB`;
+    const nameForm=(l)=>l.named?"":`<span style="display:inline-flex;gap:4px;align-items:center"><input type="text" maxlength="60" placeholder="name" data-otnm="${esc(l.loc)}" style="min-width:140px;min-height:28px;padding:2px 8px"><select data-otty="${esc(l.loc)}" style="min-height:28px;padding:2px 6px">${["ODF","S-ODF","REB","Spur joint","Joint"].map(t=>`<option>${t}</option>`).join("")}</select><button class="btn" type="button" data-otsv="${esc(l.loc)}">Save</button></span>`;
+    el.innerHTML=`<div class="fbar"><h3 style="margin:0">Check ${esc(r.dataset.label)}</h3><span class="note">${r.dataset.both_ends} of ${r.dataset.n_fibres} fibres from both ends · locations from ${esc(r.dataset.schedule||"")}</span><span class="grow"></span><button class="btn" type="button" id="otRvX">Close</button></div>
+      ${sn?`<p class="note" style="margin:6px 0 0">Saved as a snapshot ${esc(sn.at)} by ${esc(sn.by||"")} with ${esc(`pass under ${sn.settings.threshold} dB, S-ODF ${sn.settings.sodf_limit} dB`)}. Saving again replaces it with today's criteria.</p>`:""}
+      <h4 style="margin:12px 0 6px">1 · The ODF at each end</h4><div style="display:flex;gap:10px;flex-wrap:wrap">${endCard("A",r.ends.A)}${endCard("B",r.ends.B)}</div>
+      <h4 style="margin:14px 0 6px">2 · ODFs along the route</h4>
+      <table class="spt"><tr><th>ODF</th><th>Type</th><th class="n">km</th><th>Spur</th><th class="n">Fibres</th></tr>${r.route_odfs.map(l=>`<tr><td><b>${esc(spShort(l.loc))}</b></td><td>${esc(l.kind||"")}</td><td class="n">${km(l.pos)}${l.spur_leg?`<div class="note">${esc(spSpur(l))}</div>`:""}</td><td class="note">${esc(l.spur||"")}</td><td class="n">${l.n_fibres}</td></tr>`).join("")}</table>
+      ${r.spur_ends.length?`<p class="note" style="margin:10px 0 4px">Spur ends with no name yet, probably the REB ODF. Name them and they are matched in every test:</p><table class="spt">${r.spur_ends.map(l=>`<tr><td>${esc(spShort(l.loc))}</td><td class="n">${km(l.pos)}</td><td class="note">${esc(l.spur)} · end ${l.spur_m} m</td><td>${nameForm(l)}</td></tr>`).join("")}</table>`:""}
+      <label class="note" style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" data-otck="route" style="min-width:0;min-height:0;width:16px;height:16px"> The ODFs along the route are right (mark an S-ODF or ODF by clicking the joint in Splice loss 1550)</label>
+      <h4 style="margin:14px 0 6px">3 · Joints and spurs</h4>
+      <p class="note" style="margin:0">${r.joints.all} joints (${r.joints.named} named) and ${r.spurs.length} spur${r.spurs.length===1?"":"s"}: ${r.spurs.map(x=>`${esc(x.name)} (${km(x.start)}, ${x.length} m, ${esc(x.ribbons||"")})`).join(" · ")||"none"}.${r.joints.unnamed.length?` Unnamed: ${r.joints.unnamed.slice(0,12).map(x=>esc(spShort(x.loc))).join(", ")}${r.joints.unnamed.length>12?"…":""}.`:""}</p>
+      <label class="note" style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" data-otck="joints" style="min-width:0;min-height:0;width:16px;height:16px"> The joints and spurs are right</label>
+      <h4 style="margin:14px 0 6px">4 · Pass/fail criteria saved with the snapshot</h4>
+      <p class="note" style="margin:0">${crit}. To change them, set the loss filters in Splice loss 1550 first.</p>
+      <h4 style="margin:14px 0 6px">5 · Lines up with the snapshot before</h4>
+      ${L?`<p class="note" style="margin:0">Against <b>${esc(L.base_label)}</b>: ${L.matched} joints match${L.ok?", nothing moved, missing or new.":"."}</p>
+        ${L.moved.length?`<p class="note" style="margin:6px 0 0"><b>Moved more than 10 m:</b> ${L.moved.map(m=>`${esc(spShort(m.now))} ${m.shift_m>0?"+":""}${m.shift_m} m`).join(" · ")}</p>`:""}
+        ${L.only_before.length?`<p class="note" style="margin:6px 0 0"><b>In the snapshot before, not in this test:</b> ${L.only_before.map(x=>`${esc(spShort(x.loc))} (${km(x.pos)})`).join(" · ")}</p>`:""}
+        ${L.only_now.length?`<p class="note" style="margin:6px 0 0"><b>New in this test:</b> ${L.only_now.map(x=>`${esc(spShort(x.loc))} (${km(x.pos)})`).join(" · ")}. Name new joints in Splice loss 1550 so later tests match them.</p>`:""}
+        <label class="note" style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" data-otck="lineup" style="min-width:0;min-height:0;width:16px;height:16px"> It lines up with ${esc(L.base_label)}${L.ok?"":" (the differences above are understood)"}</label>`
+       :`<p class="note" style="margin:0">No snapshot before this test, so this becomes the first one to line the next tests up against.</p>`}
+      <div class="fbar" style="margin-top:14px"><label class="f" style="flex:1 1 320px">Note (optional)<input type="text" id="otNote" maxlength="300" placeholder="for example after AMCO remedials at A-12" value="${esc(sn&&sn.note||"")}"></label>
+        <button class="btn primary" type="button" id="otSave" disabled>${sn?"Save again":"Save as snapshot"}</button>${sn?`<button class="btn" type="button" id="otDel">Take the snapshot off</button>`:""}</div>`;
+    const boxes=[...el.querySelectorAll("[data-otck]")];
+    const upd=()=>{ $("otSave").disabled=!boxes.every(b=>b.checked); };
+    boxes.forEach(b=>b.onchange=upd); upd();
+    $("otRvX").onclick=()=>{ el.hidden=true; };
+    el.querySelectorAll("[data-otsv]").forEach(b=>b.onclick=async()=>{ const loc=b.dataset.otsv, nm=el.querySelector(`[data-otnm="${CSS.escape(loc)}"]`).value.trim(), ty=el.querySelector(`[data-otty="${CSS.escape(loc)}"]`).value;
+      if(!nm){ toast("Type a name first"); return; }
+      try{ await relay("/api/splice/name",{stem:FB.stem, ds:r.dataset.id, loc, name:nm, type:ty}); toast("Named "+nm); otReview(r.dataset.id); }catch(e){ if(!quiet(e)) toast("Not saved: "+e.message); } });
+    $("otSave").onclick=async()=>{ const checks={}; boxes.forEach(b=>checks[b.dataset.otck]=b.checked);
+      try{ await relay("/api/splice/snapshot",{stem:FB.stem, ds:r.dataset.id, view:spView(), note:$("otNote").value, checks}); toast("Saved as a snapshot");
+        el.hidden=true; OT.stem=null; jset("rft.ot.sel."+FB.stem,null); otOpen(); }catch(e){ if(!quiet(e)) toast("Not saved: "+e.message); } };
+    if($("otDel")) $("otDel").onclick=async()=>{ if(!await ask("Take the snapshot off",`${r.dataset.label} stays kept, but is no longer a checked snapshot with saved criteria.`,"Take it off")) return;
+      try{ await relay("/api/splice/snapshot",{stem:FB.stem, ds:r.dataset.id, remove:true}); toast("Snapshot taken off"); el.hidden=true; OT.stem=null; otOpen(); }catch(e){ if(!quiet(e)) toast(e.message); } };
+  }
+  async function otLoad(){
+    const seq=++OT.seq;
+    $("otRows").innerHTML="<p class='note'>Following the splices…</p>";
+    let t;
+    try{ t=await relay("/api/splice/track",{stem:FB.stem, ids:OT.ids||[], view:spView(), group:SP.group||""}); }
+    catch(e){ if(!quiet(e)&&seq===OT.seq) $("otRows").innerHTML=`<div class="warnbox">${esc(e.message)}</div>`; return; }
+    if(seq!==OT.seq) return;
+    OT.data=t; otPaint();
+  }
+  function otPaint(){
+    const t=OT.data, P=t.pulls, C=t.counts, first=P[0], last=P[P.length-1];
+    const stat=(lbl,v,sub,col)=>`<div class="lstat panel"><span class="lbl">${lbl}</span><b${col?` style="color:${col}"`:""}>${v}</b><span class="note">${sub||""}</span></div>`;
+    const crits=new Set(P.map(p=>p.settings?`${p.settings.threshold}/${p.settings.sodf_limit}/${p.settings.nr_ribbons}/${p.settings.one_end}`:"today"));
+    $("otStats").innerHTML=stat("Tests followed",P.length,(P.length>1?`${esc(otDay(first.t_to))} to ${esc(otDay(last.t_to))}`:esc(first.label))+` · ${P.filter(p=>p.snapshot).length} snapshot${P.filter(p=>p.snapshot).length===1?"":"s"}${crits.size>1?" · criteria differ between tests":""}`)
+      +stat("Fails in the first",first.fails,esc(first.label))+(P.length>1?stat("Fails in the latest",last.fails,esc(last.label),last.fails>first.fails?"var(--bad)":last.fails<first.fails?"var(--ok)":""):"")
+      +["still","new","back","fixed","not_seen"].map(k=>stat(OTST[k],C[k],OTSUB[k],k==="new"||k==="back"?(C[k]?"var(--bad)":""):k==="fixed"?"var(--ok)":"")).join("");
+    const rows=t.rows.filter(r=>!OT.status||r.status===OT.status);
+    const seg=`<span class="seg" role="group" aria-label="Show">${[["","All"],["still","Still failing"],["new","New"],["back","Came back"],["fixed","Fixed"],["not_seen","Not in latest"]].map(([k,l])=>`<button type="button" data-otst="${k}" aria-pressed="${OT.status===k}">${l}${k?` (${C[k]})`:""}</button>`).join("")}</span>`;
+    const v=(r,p)=>{ const x=r.values[p.id], f=r.fail[p.id]; if(x==null) return `<td class="n" style="color:var(--faint)" title="no reading in this test">–</td>`;
+      return `<td class="n" style="font-weight:700;color:${f?"var(--bad)":"var(--ok)"}" title="${esc(p.label)}: ${spNum(x)} dB · ${SPHOW[r.how[p.id]]||""}">${spNum(x)}</td>`; };
+    $("otRows").innerHTML=`<div class="fbar"><h3 style="margin:0">Splices over time</h3><span class="note">every splice that failed in any of these tests</span><span class="grow"></span>${seg}</div>
+      <div style="overflow:auto;max-height:560px;margin-top:8px"><table class="spt"><tr><th>What happened</th><th>Since</th><th>Fibre</th><th>Ribbon</th><th>Joint</th><th class="n">km</th>${P.map(p=>`<th class="n" title="${esc(p.label)}${p.settings?` · snapshot: pass under ${p.settings.threshold} dB`:" · not checked: today's filters"}">${p.snapshot?"✓ ":""}${esc(otDay(p.t_to))}</th>`).join("")}<th class="n">Change</th><th class="n">Limit</th></tr>`
+      +rows.slice(0,1000).map(r=>`<tr><td><span class="sptag ${r.status==="new"||r.status==="back"?"f":r.status==="fixed"?"s":""}">${OTST[r.status]}</span></td><td class="note">${esc(otDay((P.find(p=>p.id===r.since)||{}).t_to))}</td>
+        <td class="mono">F${String(r.fno).padStart(3,"0")}</td><td>R${r.ribbon}</td><td>${esc(spShort(r.loc))}${r.spur_leg?` <span class="note">${esc(spSpur(r))}</span>`:""}${r.sodf?' <span class="sod">S-ODF</span>':""}</td><td class="n">${r.pos==null?"":(r.pos/1000).toFixed(2)}</td>
+        ${P.map(p=>v(r,p)).join("")}<td class="n">${r.change==null?"":(r.change>0?"+":"")+r.change.toFixed(2)}</td><td class="n">${r.limit??""}</td></tr>`).join("")
+      +`</table></div>${rows.length>1000?`<p class="note">First 1,000 of ${rows.length}; Download Excel has them all.</p>`:""}${rows.length?"":"<p class='note'>Nothing here.</p>"}`;
+    $("otRows").querySelectorAll("[data-otst]").forEach(b=>b.onclick=()=>{ OT.status=b.dataset.otst; otPaint(); });
+    const J=t.joints.filter(j=>OT.all||Object.values(j.fails).some(x=>x>0)), mx=Math.max(1,...t.joints.flatMap(j=>Object.values(j.fails)));
+    const cell=(j,p)=>{ const x=j.fails[p.id]; if(x===undefined) return `<td class="c n" title="not in this test">–</td>`;
+      if(!x) return `<td class="c n" style="color:var(--ok)">0</td>`;
+      const a=0.15+0.6*x/mx; return `<td class="c n" style="background:rgba(214,69,65,${a.toFixed(2)});color:${a>0.45?"#fff":"var(--ink)"}" title="${esc(j.loc)}: ${x} fail${x===1?"":"s"} of ${j.judged[p.id]} splices">${x}</td>`; };
+    $("otTrend").innerHTML=`<div class="fbar"><h3 style="margin:0">Fails at every joint, test by test</h3><span class="note">oldest on the left</span><span class="grow"></span>
+      <label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="otAll"${OT.all?" checked":""} style="min-width:0;min-height:0;width:16px;height:16px"> every joint, not only those with a fail</label></div>
+      <div style="overflow:auto;margin-top:8px"><table class="spt"><tr><th>Joint</th><th class="n">km</th>${P.map(p=>`<th class="n" title="${esc(p.label)}">${esc(otDay(p.t_to))}${p.baseline?" (baseline)":""}</th>`).join("")}</tr>
+      <tr><td><b>Every joint</b></td><td></td>${P.map(p=>`<td class="n"><b>${p.fails}</b></td>`).join("")}</tr>`
+      +J.map(j=>`<tr><td>${esc(spShort(j.loc))}${j.spur_leg?` <span class="note">${esc(spSpur(j))}</span>`:""}${j.sodf?' <span class="sod">S-ODF</span>':""}</td><td class="n">${(j.pos/1000).toFixed(2)}</td>${P.map(p=>cell(j,p)).join("")}</tr>`).join("")
+      +`</table></div>${J.length?"":"<p class='note'>No fails at any joint in these tests.</p>"}`;
+    $("otAll").onchange=e=>{ OT.all=e.target.checked; otPaint(); };
+  }
   async function odOpen(){
     $("odGrids").innerHTML="<p class='note'>Reading the ODF connectors…</p>";
     let st;
