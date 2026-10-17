@@ -5,6 +5,13 @@ Far-end confirmation: live-fibre detector clamp.
 
 ---
 
+## Brunel 1.1.4 — 17 Oct 2026 (relay build 52)
+
+- Far end ODF no longer judged as a splice: ci_store._is_mid takes the end margin (100 m) from each fibre's own length (len_a or len_b), not the median length, so fibres on a shorter route (Reading to Swindon R3-25, 68.2 km against 68.9; Slough to Reading R3-18, 30.6 against 31.0 km) keep their End B ODF out of Splice loss. The ODF itself is judged in the ODF view on End B's own trace at the ODF limit (0.5 dB). ALIGN_V 3: stored pulls realigned once; events outside the field (launch, ODFs, fibre ends) carry no location.
+- ODF remedials kept apart from splice remedials: Store.remedials(section, ds, st, group) gives splice remedials (worst splice per fibre per joint, with S-ODF limit) and ODF remedials (each end over the ODF limit on its own trace); POST /api/splice/remedials and /api/splice/remedials.xlsx (ci_export.remedial_book: Summary with percentages, Splice remedials, ODF remedials). Store.track adds odf_rows, odf_counts and each pull's odf_fails (each snapshot on its own ODF limit); track_book adds an ODF remedials over time sheet. Desktop: Remedial list button in Splice loss 1550, ODF remedials table and tile in Over time. Reading to Swindon 15 Oct: 153 splice remedials and 163 ODF remedials (25 at RGAC2, 138 at SNBC).
+- Percentages: Store.summary adds pct (pass, fail, pass_low, both, filled, fail_sodf, spur_fail as shares of the splices judged; gainers as a share of the both end splices) and bands (gainer, 0 to 0.05, 0.05 to 0.10, 0.10 to the threshold, threshold to 0.30, 0.30 to 0.50, 0.50 and over; count, share, fails). Shown on the Splice loss tiles and in a Splices by loss table.
+- Reading to Swindon 14 to 16 Oct: 244 fails become 196; all 48 removed sit within 84 m of their own fibre end (most about 12 m, the Swindon IECC ODF), none added. 15 Oct: 201 to 153. 8 Oct: 189 to 99.
+
 ## Brunel 1.1.3 — 17 Oct 2026 (relay build 51)
 
 - Splice loss on cables with no Distances schedule: ci_align.find_backbone finds the joints at least 20% of the fibres share (10 m density clusters, a joint split between two fibre groups merged), names them from Brunel 1.0 learned locations where one matches in its length scaled frame (else Unnamed N m), and names each ribbon's readings joint by joint along the cable. A ribbon's offset only jumps (a spur loop) when it cannot read the joint at its current offset, the new reading is not a later joint's, and the next joints do not still read at the old offset. Loops with no named spur joints are placed from the ribbon's own unnamed joints (far end half way round, return a whole loop on).

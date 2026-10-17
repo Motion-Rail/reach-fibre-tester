@@ -1202,11 +1202,13 @@
             <label class="spl"><input type="checkbox" id="spSmall"> Small clusters</label>
             <span class="grow"></span>
             <span class="note" id="spScope"></span>
+            <button class="btn" type="button" id="spRem" title="Splice remedials and ODF remedials, kept apart, with the percentages">Remedial list</button>
             <button class="btn" type="button" id="spReset">Use the cable's settings</button>
             <button class="btn" type="button" id="spSave" title="Make these the settings everyone sees for this cable">Save for this cable</button>
           </div>
         </section>
         <section class="fstats" id="spStats" style="margin-top:12px"></section>
+        <section class="panel" style="margin-top:12px" id="spBands" hidden></section>
         <section class="panel" style="margin-top:12px">
           <div class="spkey" id="spKey"></div>
           <div class="spheat" id="spGrid"><p class="note">Pick Splice loss to see the latest splice losses.</p></div>
@@ -1222,6 +1224,7 @@
         <section class="panel" style="margin-top:12px" id="otReview" hidden></section>
         <section class="fstats" id="otStats" style="margin-top:12px"></section>
         <section class="panel" style="margin-top:12px" id="otRows"></section>
+        <section class="panel" style="margin-top:12px" id="otOdf"></section>
         <section class="panel" style="margin-top:12px" id="otTrend"></section>
       </div>
       <!-- Brunel 1.1.1: ODF view, the connector at the ODF next to each RTU, from the same latest results -->
@@ -1343,6 +1346,8 @@
       <button class="btn" id="helpClose" type="button">Close</button></div>
     <div class="helpbody" id="helpNotes" hidden>
       <p class="note">From Brunel, each release is named after a great railway engineer (Brunel, Stephenson, Telford, Gresley, Locke…). A small update adds .1, .2.</p>
+      <h3>Brunel 1.1.4 (17 Oct 2026)</h3>
+      <ul><li>Splice loss: the ODF at the far end of each fibre is no longer judged as a splice. The first event about 10 m from the launch is the ODF, judged in the ODF view at 0.5 dB on that end's own trace; on the other end's trace it sits at the very end of the fibre. Each fibre's own length now sets where that is, so ribbons on a shorter route keep their far end ODF out of the splice count. Reading to Swindon: 244 fails become 196 (48 were the Swindon IECC ODF on the shorter ribbons). Slough to Reading: most of its fails were the Reading ODF on R3-18.</li><li><b>ODF remedials</b>, kept apart from splice remedials: the ODF at each end over 0.5 dB on its own trace still counts as a remedial. <b>Remedial list</b> in Splice loss 1550 downloads both lists in one workbook (Summary, Splice remedials, ODF remedials). Over time follows the ODF remedials test by test in their own table, with their own tile.</li><li><b>Percentages</b> in Splice loss 1550: each tile shows its share of the splices judged, and <b>Splices by loss</b> shows how many splices sit in each loss band (gainer, 0 to 0.05, 0.05 to 0.10, 0.10 to the pass limit, to 0.30, to 0.50, 0.50 and over) with the share and the fails in each. The fibre group and loss filters apply. The same percentages are in the Remedial list summary.</li></ul>
       <h3>Brunel 1.1.3 (17 Oct 2026)</h3>
       <ul><li>Splice loss 1550 on cables with no Distances sheet (Slough to Reading, Swindon to Stoke Gifford): the joints most of the cable shares are found from the results and named from the learned locations (Reports, Locations and assets) where they match, so these cables get the same backbone distance and spurs as Reading to Swindon. Spurs with no name show as Spur at the distance where they leave.</li><li>Name a joint in the app: click a joint in Splice loss 1550, type its name and pick its type (Joint, Temp joint, Spur joint, ODF, S-ODF, REB, Other), and Save. The name is kept for the cable and matched by place, so every later test, and the pulls already stored, take it; as the cable is built you name the new joints as they appear. A spur takes the name of its REB. S-ODF uses the S-ODF limit. Joints named by a Distances sheet are not changed.</li><li><b>Snapshots</b> (in Over time): check a test before it counts. Check shows the ODF at each end, the ODFs along the route (REBs, S-ODFs, NODFs, with spur ends to name), the joints and spurs, the pass/fail criteria, and how it lines up with the snapshot before (joints matched, moved more than 10 m, missing, new). Tick each and Save as snapshot: the criteria in force are saved with it, as EXFO do, and each snapshot is judged on its own criteria. Snapshots are ticked by default.</li><li><b>Over time</b>: a fourth Cable View view. Every Update is kept (it survives relay restarts). Tick as many tests as you want and every splice that failed in any of them is followed across all of them: its loss in each test and what happened to it (still failing, new, came back, fixed, not in the latest test) and since when; plus fails at every joint, test by test, and an Excel download. The loss filters and fibre group from Splice loss apply.</li><li>Switching cable clears the last cable's tiles, spurs and joints while the new one loads.</li></ul>
       <h3>Brunel 1.1.2 (17 Oct 2026)</h3>
@@ -1486,7 +1491,7 @@
 <script>
 (()=>{
   "use strict";
-  const APP_VERSION="Brunel 1.1.3";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
+  const APP_VERSION="Brunel 1.1.4";   /* Brunel: releases named after railway engineers; minor updates .1 .2 */
   const LIVE_RELAY="https://relay-eu-0t5v.onrender.com", KEY="SwhW5ty8sbhflHU6k7ILRodJiyCpGQP4";
   const q=new URLSearchParams(location.search);
   try{ if(q.get("relay")) sessionStorage.setItem("rft.relay",q.get("relay")); }catch(e){}
@@ -2981,7 +2986,7 @@
   }
   async function spOpen(){
     if(SP.sumStem!==FB.stem){   /* another cable: clear the last one's tiles, spurs and joints while this one loads */
-      SP.sum=null; SP.det=null; ["spStats","spSpurs","spJoints","spDet"].forEach(id=>{ const el=$(id); if(el){ el.innerHTML=""; if(id==="spSpurs"||id==="spDet") el.hidden=true; } });
+      SP.sum=null; SP.det=null; ["spStats","spBands","spSpurs","spJoints","spDet"].forEach(id=>{ const el=$(id); if(el){ el.innerHTML=""; if(id==="spSpurs"||id==="spDet"||id==="spBands") el.hidden=true; } });
     }
     $("spGrid").innerHTML="<p class='note'>Reading the latest splice results…</p>";
     try{ SP.state=await relay("/api/splice/state",{stem:FB.stem}); }
@@ -2990,7 +2995,7 @@
     if(SP.state.job&&["queued","running"].includes(SP.state.job.state)) spWatch(SP.state.job.id);
     if(r==="preparing"){ spHead(); $("spGrid").innerHTML="<p class='note'>Getting the saved results ready after a relay restart (no FMS calls)…</p>"; setTimeout(()=>{ if(SP.mode==="splice"&&screen==="fibres") spOpen(); },3000); return; }
     spHead();
-    if(r!=="ready"){ $("spGrid").innerHTML="<p class='note'>No splice results for this cable yet. Press <b>Update</b>: the first time pulls the latest result of every fibre from both ends (several minutes); after that only fibres with something new are fetched.</p>"; $("spStats").innerHTML=""; return; }
+    if(r!=="ready"){ $("spGrid").innerHTML="<p class='note'>No splice results for this cable yet. Press <b>Update</b>: the first time pulls the latest result of every fibre from both ends (several minutes); after that only fibres with something new are fetched.</p>"; $("spStats").innerHTML=""; $("spBands").hidden=true; return; }
     await spLoad();
     spAuto();
   }
@@ -3076,6 +3081,7 @@
   $("spGroup").onchange=e=>{ SP.group=e.target.value; spLoad(); };
   $("spSmall").onchange=e=>{ SP.small=e.target.checked; spPaint(); };
   $("spReset").onclick=()=>{ jset("rft.sp.view."+FB.stem,{}); spLoad(); };
+  $("spRem").onclick=async()=>{ const b=$("spRem"); b.disabled=true; try{ const n=await relayFile("/api/splice/remedials.xlsx",{stem:FB.stem, view:spView(), group:SP.group||""},"remedials.xlsx"); toast("Saved "+decodeURIComponent(n)); }catch(e){ if(!quiet(e)) toast("Download failed: "+e.message); } b.disabled=false; };
   $("spSave").onclick=async()=>{
     if(!await ask("Save for this cable","Everyone who opens Splice loss on this cable will see these settings: pass under "+$("spThr").value+" dB, S-ODF "+$("spSodf").value+" dB for R"+$("spNr").value+", one end only "+$("spOne").selectedOptions[0].text+".","Save")) return;
     try{ const r=await relay("/api/splice/settings",{stem:FB.stem, settings:{...SP.state.settings,...SPVIEW()}}); SP.state.settings=r.settings; jset("rft.sp.view."+FB.stem,{}); toast(r.saved?"Saved for this cable":"Saved on the relay (not kept after a restart: no log repo)"); spLoad(); }
@@ -3089,12 +3095,21 @@
     const s=SP.sum; if(!s) return; spFilters();
     const c=s.counts, st=s.settings, t=st.threshold, ex=st.one_end==="exclude";
     const stat=(lbl,v,sub,col)=>`<div class="lstat panel"><span class="lbl">${lbl}</span><b${col?` style="color:${col}"`:""}>${v}</b><span class="note">${sub||""}</span></div>`;
-    $("spStats").innerHTML=stat("Splices judged",c.splices,`${c.both} both ends, ${ex?c.one_way_left_out+" left out":c.filled+" filled from one end"}`)
-      +stat("Fail",c.fail,`at or over ${t} dB · ${c.fail_both} both ends, ${c.fail_filled} filled`,"var(--bad)")
-      +(st.split?stat("Pass under 0.10",c.pass_low,"dark green","var(--ok)")+stat("Pass 0.10 to "+t,c.pass-c.pass_low,"light green"):stat("Pass",c.pass,"under "+t+" dB","var(--ok)"))
-      +stat("Pass on the S-ODF limit",c.fail_sodf,`${st.sodf_limit} dB for R${esc(st.nr_ribbons||"all")} at S-ODFs`)
-      +stat("Fails on spurs",c.spur_fail,`${(s.spurs||[]).length} spurs found`)
+    const P=s.pct||{}, J=P.judged||0, pc=n=>J?` (${(100*n/J).toFixed(1)}%)`:"", pb=n=>J?`<small style="font-size:60%;font-weight:600"> ${(100*n/J).toFixed(1)}%</small>`:"";
+    $("spStats").innerHTML=stat("Splices judged",c.splices,`${c.both} both ends${pc(c.both)}, ${ex?c.one_way_left_out+" left out":c.filled+" filled from one end"+pc(c.filled)}`)
+      +stat("Fail",c.fail+pb(c.fail),`at or over ${t} dB · ${c.fail_both} both ends, ${c.fail_filled} filled`,"var(--bad)")
+      +(st.split?stat("Pass under 0.10",c.pass_low+pb(c.pass_low),"dark green","var(--ok)")+stat("Pass 0.10 to "+t,(c.pass-c.pass_low)+pb(c.pass-c.pass_low),"light green"):stat("Pass",c.pass+pb(c.pass),"under "+t+" dB","var(--ok)"))
+      +stat("Pass on the S-ODF limit",c.fail_sodf,`${st.sodf_limit} dB for R${esc(st.nr_ribbons||"all")} at S-ODFs${pc(c.fail_sodf)}`)
+      +stat("Fails on spurs",c.spur_fail,`${(s.spurs||[]).length} spurs found${c.fail?` · ${(100*c.spur_fail/c.fail).toFixed(0)}% of fails`:""}`)
       +stat("Fibres",s.fibres_tested,s.group?esc((s.groups.find(g=>g.id===s.group)||{}).label||""):`${s.both_ends} tested from both ends`);
+    { const B=s.bands||[], mxB=Math.max(1,...B.map(b=>b.n));
+      $("spBands").hidden=!B.length;
+      $("spBands").innerHTML=B.length?`<div class="fbar"><h3 style="margin:0">Splices by loss</h3><span class="note">share of the ${J} splices judged${s.group?" in this fibre group":""}; worst way of each splice${ex?"":", one end readings filled"}</span></div>
+        <table class="spt" style="margin-top:8px"><tr><th>Loss (dB)</th><th class="n">Splices</th><th class="n">Share</th><th style="width:45%"></th><th class="n">Fail</th></tr>`
+        +B.map(b=>{ const col=b.n&&b.fail*2>=b.n?"var(--spf)":b.fail?"var(--sp1)":b.hi!=null&&b.hi<=0?"var(--faint)":"var(--sp0)";
+          return `<tr><td>${esc(b.label)}</td><td class="n">${b.n}</td><td class="n"><b>${b.pct.toFixed(1)}%</b></td><td><div style="height:12px;border-radius:3px;background:${col};width:${(100*b.n/mxB).toFixed(1)}%;min-width:${b.n?2:0}px"></div></td><td class="n">${b.fail||""}</td></tr>`; }).join("")
+        +`</table><p class="note" style="margin:6px 0 0">Pass ${P.pass}% · fail ${P.fail}% · from both ends ${P.both}% · filled from one end ${P.filled}% · ${P.gainers}% of the both end splices read as a gainer one way. The ODF at each end is not a splice: it is in ODF and in the Remedial list as ODF remedials.</p>`:"";
+    }
     $("spKey").innerHTML=(st.split?`<span><i style="background:var(--sp0)"></i>pass under 0.10</span><span><i style="background:var(--sp1)"></i>pass 0.10 to ${t}</span>`:`<span><i style="background:var(--sp0)"></i>pass under ${t}</span>`)
       +`<span><i style="background:var(--spf)"></i>fail at or over ${t} (S-ODF ${st.sodf_limit} on R${esc(st.nr_ribbons||"all")})</span><span><i style="background:var(--sp0);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 3px,transparent 3px 7px)"></i>worst uses a one end reading</span><span><b class="sod">S-ODF</b> joint</span>`
       +((s.groups||[]).length?`<span>${esc((s.groups||[]).filter(g=>!(g.route||"").startsWith("confirmed")).length?"Some fibre groups split by joints":"Fibre groups confirmed by splice locations")}</span>`:"");
@@ -3221,7 +3236,7 @@
   const OTST={new:"New",back:"Came back",still:"Still failing",fixed:"Fixed",not_seen:"Not in the latest test"};
   const OTSUB={new:"passed before, fails now",back:"failed, passed, fails again",still:"failing in every test",fixed:"failed before, passes now",not_seen:"failed before, no reading in the latest"};
   async function otOpen(){
-    $("otHead").innerHTML="<p class='note'>Reading the kept tests…</p>"; ["otStats","otRows","otTrend"].forEach(id=>$(id).innerHTML="");
+    $("otHead").innerHTML="<p class='note'>Reading the kept tests…</p>"; ["otStats","otRows","otOdf","otTrend"].forEach(id=>$(id).innerHTML="");
     let st;
     try{ st=SP.state=await relay("/api/splice/state",{stem:FB.stem}); }
     catch(e){ $("otHead").innerHTML=`<div class="warnbox">${quiet(e)?"Your sign in has ended. Sign in again to see the results over time.":esc(e.message)}</div>`; return; }
@@ -3312,7 +3327,8 @@
     const crits=new Set(P.map(p=>p.settings?`${p.settings.threshold}/${p.settings.sodf_limit}/${p.settings.nr_ribbons}/${p.settings.one_end}`:"today"));
     $("otStats").innerHTML=stat("Tests followed",P.length,(P.length>1?`${esc(otDay(first.t_to))} to ${esc(otDay(last.t_to))}`:esc(first.label))+` · ${P.filter(p=>p.snapshot).length} snapshot${P.filter(p=>p.snapshot).length===1?"":"s"}${crits.size>1?" · criteria differ between tests":""}`)
       +stat("Fails in the first",first.fails,esc(first.label))+(P.length>1?stat("Fails in the latest",last.fails,esc(last.label),last.fails>first.fails?"var(--bad)":last.fails<first.fails?"var(--ok)":""):"")
-      +["still","new","back","fixed","not_seen"].map(k=>stat(OTST[k],C[k],OTSUB[k],k==="new"||k==="back"?(C[k]?"var(--bad)":""):k==="fixed"?"var(--ok)":"")).join("");
+      +["still","new","back","fixed","not_seen"].map(k=>stat(OTST[k],C[k],OTSUB[k],k==="new"||k==="back"?(C[k]?"var(--bad)":""):k==="fixed"?"var(--ok)":"")).join("")
+      +stat("ODF remedials",last.odf_fails??0,`in the latest, kept apart from splices${P.length>1?` · ${first.odf_fails??0} in the first`:""}`,(last.odf_fails?"var(--bad)":""));
     const rows=t.rows.filter(r=>!OT.status||r.status===OT.status);
     const seg=`<span class="seg" role="group" aria-label="Show">${[["","All"],["still","Still failing"],["new","New"],["back","Came back"],["fixed","Fixed"],["not_seen","Not in latest"]].map(([k,l])=>`<button type="button" data-otst="${k}" aria-pressed="${OT.status===k}">${l}${k?` (${C[k]})`:""}</button>`).join("")}</span>`;
     const v=(r,p)=>{ const x=r.values[p.id], f=r.fail[p.id]; if(x==null) return `<td class="n" style="color:var(--faint)" title="no reading in this test">–</td>`;
@@ -3324,6 +3340,12 @@
         ${P.map(p=>v(r,p)).join("")}<td class="n">${r.change==null?"":(r.change>0?"+":"")+r.change.toFixed(2)}</td><td class="n">${r.limit??""}</td></tr>`).join("")
       +`</table></div>${rows.length>1000?`<p class="note">First 1,000 of ${rows.length}; Download Excel has them all.</p>`:""}${rows.length?"":"<p class='note'>Nothing here.</p>"}`;
     $("otRows").querySelectorAll("[data-otst]").forEach(b=>b.onclick=()=>{ OT.status=b.dataset.otst; otPaint(); });
+    { const O=t.odf_rows||[], OC=t.odf_counts||{}, ov=(r,p)=>{ const x=r.values[p.id], f=r.fail[p.id]; if(x==null) return `<td class="n" style="color:var(--faint)" title="no ODF reading in this test">–</td>`;
+        return `<td class="n" style="font-weight:700;color:${f?"var(--bad)":"var(--ok)"}" title="${esc(p.label)}: ${spNum(x)} dB at 1550">${spNum(x)}</td>`; };
+      $("otOdf").innerHTML=`<div class="fbar"><h3 style="margin:0">ODF remedials over time</h3><span class="note">the ODF at each end, on that end's own trace, kept apart from the splices · ${O.length} ODF${O.length===1?"":"s"} failed in any test${O.length?`: ${OC.still||0} still failing, ${OC.new||0} new, ${OC.back||0} came back, ${OC.fixed||0} fixed`:""}</span></div>
+        ${O.length?`<div style="overflow:auto;max-height:420px;margin-top:8px"><table class="spt"><tr><th>What happened</th><th>Fibre</th><th>Ribbon</th><th>End</th><th class="n">m</th>${P.map(p=>`<th class="n" title="${esc(p.label)}">${p.snapshot?"✓ ":""}${esc(otDay(p.t_to))}<div class="note">${p.odf_fails??""} fail</div></th>`).join("")}<th class="n">Change</th></tr>`
+        +O.slice(0,1000).map(r=>`<tr><td><span class="sptag ${r.status==="new"||r.status==="back"?"f":r.status==="fixed"?"s":""}">${OTST[r.status]}</span></td><td class="mono">F${String(r.fno).padStart(3,"0")}</td><td>R${r.ribbon}</td><td>${esc(r.end)} · ${esc(r.site||"")}</td><td class="n">${r.pos==null?"":r.pos.toFixed(1)}</td>${P.map(p=>ov(r,p)).join("")}<td class="n">${r.change==null?"":(r.change>0?"+":"")+r.change.toFixed(2)}</td></tr>`).join("")+`</table></div>`
+        :"<p class='note'>No ODF over its limit in these tests.</p>"}`; }
     const J=t.joints.filter(j=>OT.all||Object.values(j.fails).some(x=>x>0)), mx=Math.max(1,...t.joints.flatMap(j=>Object.values(j.fails)));
     const cell=(j,p)=>{ const x=j.fails[p.id]; if(x===undefined) return `<td class="c n" title="not in this test">–</td>`;
       if(!x) return `<td class="c n" style="color:var(--ok)">0</td>`;
